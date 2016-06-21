@@ -6374,7 +6374,6 @@ class Ticket extends CommonITILObject {
 
          if (isset($item_i['content'])) {
             $content = $item_i['content'];
-            $content = linkUrlsInTrustedHtml($content);
             //$content = nl2br($content);
 
             $long_text = "";
@@ -6390,7 +6389,13 @@ class Ticket extends CommonITILObject {
                            title='".Planning::getState($item_i['state'])."'>";
                echo "</span>";
             }
-            echo $content;
+            if ($item['type'] == "TicketFollowup" && $CFG_GLPI["use_rich_text"]) {
+              $content =  html_entity_decode($content);
+              echo $content;
+            } else {
+              $content = linkUrlsInTrustedHtml($content);
+              echo $content;
+            }
             echo "</p>";
             if (!empty($long_text)) {
                echo "<p class='read_more'>";
