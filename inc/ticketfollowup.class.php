@@ -622,116 +622,6 @@ class TicketFollowup  extends CommonDBTM {
    }
 
 
- /**
-    * Convert tag to image
-    *
-    * @since version 0.85
-    *
-    * @param $content_text         text content of input
-    * @param $force_update         force update of content in item (false by default
-    * @param $doc_data       array of filenames and tags
-    *
-    * @return nothing
-   **/
-   function convertTagToImage($content_text, $force_update=false, $doc_data=array()) {
-      global $CFG_GLPI;
-
-      $matches = array();
-      // If no doc data available we match all tags in content
-      if (!count($doc_data)) {
-         $doc = new Document();
-         preg_match_all('/'.Document::getImageTag('(([a-z0-9]+|[\.\-]?)+)').'/', $content_text,
-                        $matches, PREG_PATTERN_ORDER);
-         if (isset($matches[1]) && count($matches[1])) {
-            $doc_data = $doc->find("`tag` IN('".implode("','", array_unique($matches[1]))."')");
-         }
-      }
-
-
-      if (count($doc_data)) {
-         foreach ($doc_data as $id => $image) {
-            // Add only image files : try to detect mime type
-            $ok       = false;
-            $mime     = '';
-            if (isset($image['filepath'])) {
-               $fullpath = GLPI_DOC_DIR."/".$image['filepath'];
-               $mime = Toolbox::getMime($fullpath);
-               $ok   = Toolbox::getMime($fullpath, 'image');
-            }
-            if (isset($image['tag'])) {
-                if ($ok || empty($mime)) {
-               // Replace tags by image in textarea
-               $img = "<img alt='".$image['tag']."' src='".$CFG_GLPI['root_doc'].
-                       "/front/document.send.php?docid=".$id."&tickets_id=".$this->fields['id']."'/>";
-
-               // Replace tag by the image
-               $content_text = preg_replace('/'.Document::getImageTag($image['tag']).'/',
-                                            Html::entities_deep($img), $content_text);
-
-               // Replace <br> TinyMce bug
-               $content_text = str_replace(array('&gt;rn&lt;','&gt;\r\n&lt;','&gt;\r&lt;','&gt;\n&lt;'),
-                                           '&gt;&lt;', $content_text);
-
-               // If the tag is from another ticket : link document to ticket
-               /// TODO : comment maybe not used
-//                if($image['tickets_id'] != $this->fields['id']){
-//                   $docitem = new Document_Item();
-//                   $docitem->add(array('documents_id'  => $image['id'],
-//                                       '_do_notif'     => false,
-//                                       '_disablenotif' => true,
-//                                       'itemtype'      => $this->getType(),
-//                                       'items_id'      => $this->fields['id']));
-//                }
-               } else {
-                  // Remove tag
-                  $content_text = preg_replace('/'.Document::getImageTag($image['tag']).'/',
-                                               '', $content_text);
-               }
-            }
-         }
-      }
-
-      if ($force_update) {
-         $this->fields['content'] = $content_text;
-         $this->updateInDB(array('content'));
-      }
-
-      return $content_text;
-   }
-
-      /**
-    * Convert simple text content to rich text content, init html editor
-    *
-    * @since version 0.85
-    *
-    * @param $name       name of textarea
-    * @param $content    content to convert in html
-    * @param $rand
-    *
-    * @return $content
-   **/
-   function setRichTextContent($name, $content, $rand) {
-
-      // Init html editor
-      Html::initEditorSystem($name, $rand);
-
-      // If no html
-      if ($content == strip_tags($content)) {
-         $content = $this->convertTagToImage($content);
-      }
-
-      // Neutralize non valid HTML tags
-      $content = html::clean($content, false, 1);
-
-      // If content does not contain <br> or <p> html tag, use nl2br
-      if (!preg_match("/<br\s?\/?>/", $content) && !preg_match("/<p>/", $content)) {
-         $content = nl2br($content);
-      }
-      return $content;
-   }
-
-
-
    /** form for Followup
     *
     *@param $ID      integer : Id of the followup
@@ -780,24 +670,29 @@ class TicketFollowup  extends CommonDBTM {
          $this->showFormHeader($options);
 
          $rand = mt_rand();
+         $content_id = "content$rand";
 
          echo "<tr class='tab_bg_1'>";
          echo "<td rowspan='3'>".__('Description')."</td>";
          echo "<td rowspan='3' style='width:60%'>";
 
-         $content_id = "content$rand";
-
          if ($CFG_GLPI["use_rich_text"]) {
-            $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand);
+            //instanciate Ticket object to get method to immplement richText
+            $ticket = new Ticket();
+            $values["content"] = $ticket->setRichTextContent($content_id, $this->fields["content"], $rand);
          } else {
             $values["content"] = $this->fields["content"];
          }
 
-
          echo "<textarea id='content$rand' name='content' style='width: 95%; height: 120px'>";
          echo  $values["content"];
          echo "</textarea>";
-         echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
+
+         if (!$CFG_GLPI["use_rich_text"]) {
+            echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
+
+         }
+
          if ($this->fields["date"]) {
             echo "</td><td>".__('Date')."</td>";
             echo "<td>".Html::convDateTime($this->fields["date"]);
