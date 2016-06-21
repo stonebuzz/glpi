@@ -780,7 +780,6 @@ class TicketFollowup  extends CommonDBTM {
          $this->showFormHeader($options);
 
          $rand = mt_rand();
-         $rand_text = mt_rand();
 
          echo "<tr class='tab_bg_1'>";
          echo "<td rowspan='3'>".__('Description')."</td>";
@@ -846,12 +845,12 @@ class TicketFollowup  extends CommonDBTM {
          if ($CFG_GLPI["use_rich_text"]) {
             $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand);
          } else {
-            $values["content"] = $this->setSimpleTextContent($this->fields["content"]);
+            $values["content"] = $this->fields["content"];
          }
 
 
 
-         echo "<textarea name='content' cols='80' rows='6'>".$this->fields["content"]."</textarea>";
+         echo "<textarea name='content' cols='80' rows='6'>". $values["content"]."</textarea>";
          echo "<input type='hidden' name='tickets_id' value='".$this->fields["tickets_id"]."'>";
          echo "<input type='hidden' name='requesttypes_id' value='".
                 RequestType::getDefault('helpdesk')."'>";
