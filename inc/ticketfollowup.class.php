@@ -730,7 +730,8 @@ class TicketFollowup  extends CommonDBTM {
       return $content;
    }
 
-   
+
+
    /** form for Followup
     *
     *@param $ID      integer : Id of the followup
@@ -790,13 +791,12 @@ class TicketFollowup  extends CommonDBTM {
          if ($CFG_GLPI["use_rich_text"]) {
             $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand);
          } else {
-            $values["content"] = $this->setSimpleTextContent($this->fields["content"]);
+            $values["content"] = $this->fields["content"];
          }
 
 
-
          echo "<textarea id='content$rand' name='content' style='width: 95%; height: 120px'>";
-         echo $this->fields["content"];
+         echo  $values["content"];
          echo "</textarea>";
          echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
          if ($this->fields["date"]) {
