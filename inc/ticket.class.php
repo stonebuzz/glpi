@@ -5802,7 +5802,6 @@ class Ticket extends CommonITILObject {
    **/
    function convertTagToImage($content_text, $force_update=false, $doc_data=array()) {
       global $CFG_GLPI;
-
       $matches = array();
       // If no doc data available we match all tags in content
       if (!count($doc_data)) {
@@ -5813,7 +5812,6 @@ class Ticket extends CommonITILObject {
             $doc_data = $doc->find("`tag` IN('".implode("','", array_unique($matches[1]))."')");
          }
       }
-
 
       if (count($doc_data)) {
          foreach ($doc_data as $id => $image) {
@@ -5827,9 +5825,10 @@ class Ticket extends CommonITILObject {
             }
             if (isset($image['tag'])) {
                 if ($ok || empty($mime)) {
+
                // Replace tags by image in textarea
-               $img = "<img alt='".$image['tag']."' src='".$CFG_GLPI['root_doc'].
-                       "/front/document.send.php?docid=".$id."&tickets_id=".$this->fields['id']."'/>";
+               $img = '<img alt="'.$image['tag'].'" src="'.$CFG_GLPI['root_doc'].
+                       "/front/document.send.php?docid=".$id."&tickets_id=".$this->fields['id'].'"/>';
 
                // Replace tag by the image
                $content_text = preg_replace('/'.Document::getImageTag($image['tag']).'/',
@@ -5862,7 +5861,6 @@ class Ticket extends CommonITILObject {
          $this->fields['content'] = $content_text;
          $this->updateInDB(array('content'));
       }
-
       return $content_text;
    }
 
@@ -6389,13 +6387,16 @@ class Ticket extends CommonITILObject {
                            title='".Planning::getState($item_i['state'])."'>";
                echo "</span>";
             }
-            if ($item['type'] == "TicketFollowup" && $CFG_GLPI["use_rich_text"]) {
-              $content =  html_entity_decode($content);
-              echo $content;
+
+            if ($item['type'] == "TicketFollowup" && $CFG_GLPI["use_rich_text"]) { 
+               $content = $this->convertTagToImage($content);
+               $content =  html_entity_decode($content); 
+               echo $content;
             } else {
               $content = linkUrlsInTrustedHtml($content);
               echo $content;
             }
+
             echo "</p>";
             if (!empty($long_text)) {
                echo "<p class='read_more'>";
