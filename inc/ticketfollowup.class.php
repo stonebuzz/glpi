@@ -732,20 +732,15 @@ class TicketFollowup  extends CommonDBTM {
          if ($ID <= 0) {
             Document_Item::showSimpleAddForItem($ticket);
 
-                      if ($CFG_GLPI['use_rich_text']) {
-            echo "<td></td><td width='$width '>";
-            if (!isset($rand)) {
-               $rand = mt_rand();
+            if ($CFG_GLPI['use_rich_text']) {
+               echo "<td></td><td width='$width '>";
+               if (!isset($rand)) {
+                  $rand = mt_rand();
+               }
+               echo Html::initImagePasteSystem($content_id, $rand);
+               echo "</td>";
             }
-            echo Html::initImagePasteSystem($content_id, $rand);
-            echo "</td>";
-         }
-
-
-         }
-
-
-
+         
          $this->showFormButtons($options);
 
       } else {
@@ -791,11 +786,7 @@ class TicketFollowup  extends CommonDBTM {
                echo Html::initImagePasteSystem($content_id, $rand);
                echo "</td>";
             }
-
-
          }
-
-
 
          $this->showFormButtons($options);
       }
