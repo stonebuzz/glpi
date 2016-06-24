@@ -323,6 +323,7 @@ class TicketFollowup  extends CommonDBTM {
          return false;
       }
 
+
       if (isset($input["content"])) {
          $input["content"] = preg_replace('/\\\\r\\\\n/',"\n",$input['content']);
          $input["content"] = preg_replace('/\\\\n/',"\n",$input['content']);
@@ -629,6 +630,105 @@ class TicketFollowup  extends CommonDBTM {
    }
 
 
+
+   /**
+    * Convert img or tag of ticket for notification mails
+    *
+    * @since version 0.85
+    *
+    * @param $content : html content of input
+    * @param $item : item to store filenames and tags found for each image in $content
+    *
+    * @return htlm content
+   **/
+   function convertContentForNotification($content, $item) {
+      global $CFG_GLPI, $DB;
+
+      $html = str_replace(array('&','&amp;nbsp;'), array('&amp;',' '),
+                           html_entity_decode($content, ENT_QUOTES, "UTF-8"));
+
+      // If is html content
+      if ($CFG_GLPI["use_rich_text"]) {
+         preg_match_all('/img\s*alt=[\'|"](([a-z0-9]+|[\.\-]?)+)[\'|"]/', $html,
+                        $matches, PREG_PATTERN_ORDER);
+
+         if (isset($matches[1]) && count($matches[1])) {
+            if (count($matches[1])) {
+               foreach ($matches[1] as $image) {
+                   //Replace tags by image in textarea
+                  $img = "img src='cid:".Document::getImageTag($image)."'";
+
+                  //Replace tag by the image
+                  $html = preg_replace("/img alt=['|\"]".$image."['|\"].*src=['|\"](.+)['|\"]/", $img,
+                                          $html);
+               }
+            }
+         }
+
+         $content = $html;
+
+      // If is text content
+      } else {
+         $doc = new Document();
+         $doc_data = array();
+
+         preg_match_all('/'.Document::getImageTag('(([a-z0-9]+|[\.\-]?)+)').'/', $content,
+                        $matches, PREG_PATTERN_ORDER);
+         if (isset($matches[1]) && count($matches[1])) {
+            $doc_data = $doc->find("tag IN('".implode("','", array_unique($matches[1]))."')");
+         }
+
+         if (count($doc_data)) {
+            foreach ($doc_data as $image) {
+               // Replace tags by image in textarea
+               $img = "<img src='cid:".Document::getImageTag($image['tag'])."'/>";
+
+               // Replace tag by the image
+               $content = preg_replace('/'.Document::getImageTag($image['tag']).'/', $img,
+                                       $content);
+            }
+         }
+      }
+
+      // Get all attached documents of ticket
+      $query = "SELECT `glpi_documents_items`.`id` AS assocID,
+                       `glpi_entities`.`id` AS entity,
+                       `glpi_documents`.`name` AS assocName,
+                       `glpi_documents`.*
+                FROM `glpi_documents_items`
+                LEFT JOIN `glpi_documents`
+                  ON (`glpi_documents_items`.`documents_id`=`glpi_documents`.`id`)
+                LEFT JOIN `glpi_entities`
+                  ON (`glpi_documents`.`entities_id`=`glpi_entities`.`id`)
+                WHERE `glpi_documents_items`.`items_id` = '".$item->fields['id']."'
+                      AND `glpi_documents_items`.`itemtype` = '".$item->getType()."' ";
+
+      if (Session::getLoginUserID()) {
+         $query .= getEntitiesRestrictRequest(" AND","glpi_documents",'','',true);
+      } else {
+        // Anonymous access from Crontask
+         $query .= " AND `glpi_documents`.`entities_id`= '0' ";
+      }
+      $result = $DB->query($query);
+
+      if ($DB->numrows($result)) {
+         while ($data = $DB->fetch_assoc($result)) {
+            if (!empty($data['id'])) {
+               // Image document
+               if (!empty($data['tag'])) {
+                  $item->documents[] = $data['id'];
+               // Other document
+               } else if ($CFG_GLPI['attach_ticket_documents_to_mail']) {
+                  $item->documents[] = $data['id'];
+               }
+            }
+         }
+      }
+
+      return $content;
+   }
+
+
    /** form for Followup
     *
     *@param $ID      integer : Id of the followup
@@ -683,7 +783,11 @@ class TicketFollowup  extends CommonDBTM {
          $this->showFormHeader($options);
 
          $rand = mt_rand();
+         $rand_text = mt_rand();
          $content_id = "content$rand";
+
+         $cols       = 90;
+         $rows       = 6;
 
          echo "<tr class='tab_bg_1'>";
          echo "<td rowspan='3'>".__('Description')."</td>";
@@ -691,13 +795,23 @@ class TicketFollowup  extends CommonDBTM {
 
          if ($CFG_GLPI["use_rich_text"]) {
             $values["content"] = $ticket->setRichTextContent($content_id, $this->fields["content"], $rand);
+            $cols              = 100;
+            $rows              = 10;
          } else {
             $values["content"] = $this->fields["content"];
          }
 
-         echo "<textarea id='$content_id' name='content' style='width: 95%; height: 120px'>";
+          echo "<div id='content$rand_text'>";
+         echo "<textarea id='$content_id' name='content' cols='$cols' rows='$rows'>";
          echo  $values["content"];
          echo "</textarea>";
+         echo "</div>";
+
+
+
+
+
+
 
          if (!$CFG_GLPI["use_rich_text"]) {
             echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
@@ -740,7 +854,12 @@ class TicketFollowup  extends CommonDBTM {
                echo Html::initImagePasteSystem($content_id, $rand);
                echo "</td>";
             }
-         
+
+
+         }
+
+
+
          $this->showFormButtons($options);
 
       } else {
@@ -748,23 +867,27 @@ class TicketFollowup  extends CommonDBTM {
 
          $this->showFormHeader($options);
 
+         $rand = mt_rand();
+         $rand_text = mt_rand();
+         $content_id = "content$rand";
+
          echo "<tr class='tab_bg_1'>";
          echo "<td class='middle right'>".__('Description')."</td>";
          echo "<td class='center middle'>";
 
-
-         $rand      = mt_rand();
-         $content_id = "content$rand";
-
          if ($CFG_GLPI["use_rich_text"]) {
-            $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand);
+            $values["content"] = $ticket->setRichTextContent($content_id, $this->fields["content"], $rand);
          } else {
             $values["content"] = $this->fields["content"];
          }
 
+         echo "<div id='content$rand_text'>";
+         echo "<textarea name='content' cols='80' rows='6'>";
+         echo  $values["content"];
+         echo "</textarea>";
+         echo "</div>";
 
 
-         echo "<textarea name='content' cols='80' rows='6'>". $values["content"]."</textarea>";
          echo "<input type='hidden' name='tickets_id' value='".$this->fields["tickets_id"]."'>";
          echo "<input type='hidden' name='requesttypes_id' value='".
                 RequestType::getDefault('helpdesk')."'>";
@@ -786,7 +909,10 @@ class TicketFollowup  extends CommonDBTM {
                echo Html::initImagePasteSystem($content_id, $rand);
                echo "</td>";
             }
+
          }
+
+
 
          $this->showFormButtons($options);
       }
