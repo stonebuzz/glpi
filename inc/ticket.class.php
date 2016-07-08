@@ -6345,6 +6345,8 @@ class Ticket extends CommonITILObject {
          echo "<div class='h_content ".$item['type'].
                ((isset($item_i['status'])) ? " ".$item_i['status'] : "")."'".
                "id='viewitem".$item['type'].$item_i['id'].$rand."'>";
+
+
          if ($item_i['can_edit']) {
             echo "<div class='edit_item_content'></div>";
             echo "<span class='cancel_edit_item_content'></span>";
@@ -6383,8 +6385,20 @@ class Ticket extends CommonITILObject {
                            title='".Planning::getState($item_i['state'])."'>";
                echo "</span>";
             }
-            echo $content;
+
+
+            if ( ($item['type'] == "TicketFollowup" || $item['type'] == "TicketTask") && $CFG_GLPI["use_rich_text"]) { 
+               $content = $this->convertTagToImage($content);
+               $content =  html_entity_decode($content); 
+               echo $content;
+            } else if($item['type'] == "TicketTask") {  
+                echo $content;
+            }else{
+                $content = linkUrlsInTrustedHtml($content);
+              echo $content;
+            }
             echo "</p>";
+
             if (!empty($long_text)) {
                echo "<p class='read_more'>";
                echo "<a class='read_more_button'>.....</a>";

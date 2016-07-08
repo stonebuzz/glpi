@@ -1225,10 +1225,48 @@ abstract class CommonITILTask  extends CommonDBTM {
       }
       echo "<tr class='tab_bg_1'>";
       echo "<td rowspan='$rowspan' style='width:100px'>".__('Description')."</td>";
-      echo "<td rowspan='$rowspan' style='width:50%' id='content$rand_text'>".
-           "<textarea name='content' style='width: 95%; height: 160px' id='task$rand_text'>".$this->fields["content"].
+      echo "<td rowspan='$rowspan' style='width:50%' id='content$rand_text'>";
+
+
+         $rand_text = mt_rand();
+         $content_id = "content$rand";
+
+         $cols       = 90;
+         $rows       = 6;
+
+
+
+
+         if ($CFG_GLPI["use_rich_text"]) {
+          $ticket = new TIcket();
+            $values["content"] = $ticket->setRichTextContent($content_id, $this->fields["content"], $rand);
+            $cols              = 100;
+            $rows              = 10;
+         } else {
+            $values["content"] = $this->fields["content"];
+         }
+
+
+         echo "<div id='content$rand_text'>";
+         echo "<textarea name='content' style='width: 95%; height: 160px' id='$content_id'>";
+         echo  $values["content"];
+         echo "</textarea>";
+         echo "</div>";
+         if (!$CFG_GLPI["use_rich_text"]) {
+            echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
+         }
+
+
+
+
+     /* echo "<textarea name='content' style='width: 95%; height: 160px' id='task$rand_text'>".$this->fields["content"].
            "</textarea>";
-      echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
+
+
+
+
+
+      echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");*/
       echo "</td>";
       echo "<input type='hidden' name='$fkfield' value='".$this->fields[$fkfield]."'>";
       echo "</td></tr>\n";
