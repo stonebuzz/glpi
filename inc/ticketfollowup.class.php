@@ -676,6 +676,12 @@ class TicketFollowup  extends CommonDBTM {
          }
       }
 
+      $width = '100%';
+      if ($CFG_GLPI['use_rich_text']) {
+         $width = '50%';
+      }
+
+
       if ($tech) {
          $this->showFormHeader($options);
 
@@ -704,23 +710,15 @@ class TicketFollowup  extends CommonDBTM {
          echo  $values["content"];
          echo "</textarea>";
          echo "</div>";
+         
          if (!$CFG_GLPI["use_rich_text"]) {
             echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
          }
 
-
-/*
-
-
-         echo "<textarea id='content$rand' name='content' style='width: 95%; height: 120px'>";
+         /*echo "<textarea id='content$rand' name='content' style='width: 95%; height: 120px'>";
          echo $this->fields["content"];
          echo "</textarea>";
-         echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
-
-
-
-*/
-
+         echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");*/
 
          if ($this->fields["date"]) {
             echo "</td><td>".__('Date')."</td>";
@@ -749,6 +747,16 @@ class TicketFollowup  extends CommonDBTM {
 
          if ($ID <= 0) {
             Document_Item::showSimpleAddForItem($this);
+
+            if ($CFG_GLPI['use_rich_text']) {
+               echo "<td></td><td width='$width '>";
+               if (!isset($rand)) {
+                  $rand = mt_rand();
+               }
+               echo Html::initImagePasteSystem($content_id, $rand);
+               echo "</td>";
+            }
+
          }
 
          $this->showFormButtons($options);
@@ -758,35 +766,30 @@ class TicketFollowup  extends CommonDBTM {
 
          $this->showFormHeader($options);
 
-                  $rand = mt_rand();
+         $rand = mt_rand();
          $rand_text = mt_rand();
          $content_id = "content$rand";
          echo "<tr class='tab_bg_1'>";
          echo "<td class='middle right'>".__('Description')."</td>";
          echo "<td class='center middle'>";
+
          if ($CFG_GLPI["use_rich_text"]) {
             $values["content"] = $ticket->setRichTextContent($content_id, $this->fields["content"], $rand);
          } else {
             $values["content"] = $this->fields["content"];
          }
+
          echo "<div id='content$rand_text'>";
          echo "<textarea name='content' cols='80' rows='6'>";
          echo  $values["content"];
          echo "</textarea>";
          echo "</div>";
 
-
-
          /*echo "<tr class='tab_bg_1'>";
          echo "<td class='middle right'>".__('Description')."</td>";
          echo "<td class='center middle'>";
          echo "<textarea name='content' cols='80' rows='6'>".$this->fields["content"]."</textarea>";
 */
-
-
-
-
-
          echo "<input type='hidden' name='tickets_id' value='".$this->fields["tickets_id"]."'>";
          echo "<input type='hidden' name='requesttypes_id' value='".
                 RequestType::getDefault('helpdesk')."'>";
@@ -799,6 +802,15 @@ class TicketFollowup  extends CommonDBTM {
 
          if ($ID <= 0) {
             Document_Item::showSimpleAddForItem($ticket);
+
+            if ($CFG_GLPI['use_rich_text']) {
+               echo "<td></td><td width='$width '>";
+               if (!isset($rand)) {
+                  $rand = mt_rand();
+               }
+               echo Html::initImagePasteSystem($content_id, $rand);
+               echo "</td>";
+            }
          }
 
          $this->showFormButtons($options);
