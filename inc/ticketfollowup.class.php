@@ -240,6 +240,8 @@ class TicketFollowup  extends CommonDBTM {
 
    function prepareInputForUpdate($input) {
 
+      global $CFG_GLPI;
+
       // update writer if content change
       if (($uid = Session::getLoginUserID())
           && isset($input['content']) && ($input['content'] != $this->fields['content'])) {
@@ -710,7 +712,7 @@ class TicketFollowup  extends CommonDBTM {
          echo  $values["content"];
          echo "</textarea>";
          echo "</div>";
-         
+
          if (!$CFG_GLPI["use_rich_text"]) {
             echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
          }
