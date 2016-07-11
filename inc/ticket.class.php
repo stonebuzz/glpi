@@ -6394,10 +6394,7 @@ class Ticket extends CommonITILObject {
               $content = $this->convertTagToImage($content);
               echo html_entity_decode($content); 
 
-            } else if($item['type'] == "TicketTask") {  
-                echo $content;
-            }else{
-                $content = linkUrlsInTrustedHtml($content);
+            } else {
               echo $content;
             }
             //echo "</p>";
