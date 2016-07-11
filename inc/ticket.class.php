@@ -5813,8 +5813,8 @@ class Ticket extends CommonITILObject {
             if (isset($image['tag'])) {
                 if ($ok || empty($mime)) {
                // Replace tags by image in textarea
-               $img = "<img alt='".$image['tag']."' src='".$CFG_GLPI['root_doc'].
-                       "/front/document.send.php?docid=".$id."&tickets_id=".$this->fields['id']."'/>";
+               $img = '<img alt="'.$image['tag'].'" src="'.$CFG_GLPI['root_doc'].
+                       '/front/document.send.php?docid='.$id.'&tickets_id='.$this->fields['id'].'"/>';
 
                // Replace tag by the image
                $content_text = preg_replace('/'.Document::getImageTag($image['tag']).'/',
@@ -6378,7 +6378,7 @@ class Ticket extends CommonITILObject {
             }
 
             echo "<div class='item_content $long_text'>";
-            echo "<p>";
+            //echo "<p>";
             if (isset($item_i['state'])) {
                $onClick = "onclick='change_task_state(".$item_i['id'].", this)'";
                if( !$item_i['can_edit'] ) {
@@ -6392,16 +6392,17 @@ class Ticket extends CommonITILObject {
 
 
             if ( ($item['type'] == "TicketFollowup" || $item['type'] == "TicketTask") && $CFG_GLPI["use_rich_text"]) { 
-               $content = $this->convertTagToImage($content);
-               $content =  html_entity_decode($content); 
-               echo $content;
+
+              $content = $this->convertTagToImage($content);
+              echo html_entity_decode($content); 
+
             } else if($item['type'] == "TicketTask") {  
                 echo $content;
             }else{
                 $content = linkUrlsInTrustedHtml($content);
               echo $content;
             }
-            echo "</p>";
+            //echo "</p>";
 
             if (!empty($long_text)) {
                echo "<p class='read_more'>";
