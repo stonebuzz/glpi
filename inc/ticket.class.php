@@ -6389,11 +6389,9 @@ class Ticket extends CommonITILObject {
             }
 
 
-            if ( ($item['type'] == "TicketFollowup" || $item['type'] == "TicketTask") && $CFG_GLPI["use_rich_text"]) { 
-
+            if ($CFG_GLPI["use_rich_text"]) { 
               $content = $this->convertTagToImage($content);
               echo html_entity_decode($content); 
-
             } else {
               echo $content;
             }
@@ -6562,7 +6560,12 @@ class Ticket extends CommonITILObject {
 
          echo "<div class='ticket_description'>";
 
-         echo $this->setSimpleTextContent($this->fields['content']);
+        if ($CFG_GLPI["use_rich_text"]) { 
+          $content = $this->convertTagToImage($this->fields['content']);
+          echo html_entity_decode($content); 
+        } else {
+          echo $this->setSimpleTextContent($this->fields['content']);
+        }
 
          echo "</div>";
 
