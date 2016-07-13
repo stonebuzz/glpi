@@ -50,6 +50,11 @@ body.iframed {
    background: inherit;
 }
 
+
+body.layout_vsplit.form.mce-fullscreen div#page {
+   position: relative
+}
+
 ul, li, dt, dl, dd, form, img, input {
    margin: 0;
    padding: 0;
