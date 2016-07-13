@@ -688,6 +688,23 @@ class TicketFollowup  extends CommonDBTM {
          echo "<td>".__('Private')."</td><td>";
          Dropdown::showYesNo('is_private', $this->fields["is_private"]);
          echo "</td></tr>";
+         
+         echo "<tr>";
+         echo "<td>".__('Notifications')."</td><td>";
+
+         // Get current user's personnal notifying configuration
+
+         $users_notify_control = FollowupNotify::getUsersNotifyControl();
+
+         //     If followup update, show followup's config form ...
+         // ... else if user's config is set, show user's config form ...
+         // ... else, show general's config form
+
+         if       ( isset($_POST['id']) && $_POST['id'] !== '-1' ) { FollowupNotify::showForm('followup_update'); }
+         else if  ( isset($users_notify_control)                 ) { FollowupNotify::showForm('user_config');     }
+         else                                                      { FollowupNotify::showForm('general_config');  }
+
+         echo "</td></tr>";
 
          if ($ID <= 0) {
             Document_Item::showSimpleAddForItem($this);
