@@ -799,7 +799,10 @@ function update0903to91() {
    $migration->addKey("glpi_requesttypes", "is_followup_default");
    $migration->addField("glpi_requesttypes", "is_mailfollowup_default", "bool", array('value' => 0));
    $migration->addKey("glpi_requesttypes", "is_mailfollowup_default");
-
+   
+   $migration->addField("glpi_ticketfollowups", "notify_control", "text");
+   $migration->addField("glpi_users", "notify_control", "text");
+   $migration->insertInTable("glpi_configs", array('context'=>'core', 'name'=>'notify_control', 'value'=>'{"_users_id_requester":0,"_groups_id_requester":0,"_users_id_observer":0,"_groups_id_observer":0,"_users_id_assign":0,"_groups_id_assign":0,"_suppliers_id_assign":0}'));
 
    // ************ Keep it at the end **************
    $migration->executeMigration();
