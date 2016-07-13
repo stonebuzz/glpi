@@ -1063,7 +1063,7 @@ INSERT INTO `glpi_configs` VALUES ('163','core','lock_lockprofile_id','8');
 INSERT INTO `glpi_configs` VALUES ('164','core','set_default_requester','1');
 INSERT INTO `glpi_configs` VALUES ('165','core','highcontrast_css','0');
 INSERT INTO `glpi_configs` VALUES ('166','core','smtp_check_certificate','1');
-INSERT INTO `glpi_configs` VALUES ('159','core','notify_control', '{"_users_id_requester":0,"_groups_id_requester":0,"_users_id_observer":0,"_groups_id_observer":0,"_users_id_assign":0,"_groups_id_assign":0,"_suppliers_id_assign":0}');
+INSERT INTO `glpi_configs` VALUES ('167','core','notify_control', '{"_users_id_requester":0,"_groups_id_requester":0,"_users_id_observer":0,"_groups_id_observer":0,"_users_id_assign":0,"_groups_id_assign":0,"_suppliers_id_assign":0}');
 
 ### Dump table glpi_consumableitems
 
