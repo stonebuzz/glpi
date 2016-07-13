@@ -1146,7 +1146,10 @@ class Config extends CommonDBTM {
                              $data['ticket_timeline_keep_replaced_tabs']);
          echo "</td></tr>";
 
-
+         echo "<tr>";
+         echo "<td>".__('Notifications')."</td><td>";
+         FollowupNotify::showForm('user_config');
+         echo "</td></tr>";
 
       }
 
