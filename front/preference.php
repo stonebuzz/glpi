@@ -57,6 +57,7 @@ Session::checkLoginUser();
 
 if (isset($_POST["update"])
     && ($_POST["id"] === Session::getLoginUserID())) {
+   $_POST['notify_control'] = FollowupNotify::setNotifyControl();
    $user->update($_POST);
    Event::log($_POST["id"], "users", 5, "setup",
               //TRANS: %s is the user login
