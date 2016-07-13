@@ -1063,6 +1063,7 @@ INSERT INTO `glpi_configs` VALUES ('163','core','lock_lockprofile_id','8');
 INSERT INTO `glpi_configs` VALUES ('164','core','set_default_requester','1');
 INSERT INTO `glpi_configs` VALUES ('165','core','highcontrast_css','0');
 INSERT INTO `glpi_configs` VALUES ('166','core','smtp_check_certificate','1');
+INSERT INTO `glpi_configs` VALUES ('159','core','notify_control', '{"_users_id_requester":0,"_groups_id_requester":0,"_users_id_observer":0,"_groups_id_observer":0,"_users_id_assign":0,"_groups_id_assign":0,"_suppliers_id_assign":0}');
 
 ### Dump table glpi_consumableitems
 
@@ -7087,6 +7088,7 @@ CREATE TABLE `glpi_ticketfollowups` (
   `is_private` tinyint(1) NOT NULL DEFAULT '0',
   `requesttypes_id` int(11) NOT NULL DEFAULT '0',
   `date_mod` datetime DEFAULT NULL,
+  `notify_control` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `date` (`date`),
   KEY `date_mod` (`date_mod`),
@@ -7506,6 +7508,7 @@ CREATE TABLE `glpi_users` (
   `date_creation` datetime DEFAULT NULL,
   `highcontrast_css` tinyint(1) DEFAULT 0,
   `plannings` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `notify_control` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unicity` (`name`),
   KEY `firstname` (`firstname`),
