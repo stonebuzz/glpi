@@ -753,6 +753,11 @@ class Config extends CommonDBTM {
       echo "</td><td>" . __('Allow anonymous followups (receiver)') . "</td><td>";
       Dropdown::showYesNo("use_anonymous_followups", $CFG_GLPI["use_anonymous_followups"]);
       echo "</td></tr>";
+      
+      echo "<tr>";
+      echo "<td>".__('Notifications')."</td><td>";
+      FollowupNotify::showForm('general_config');
+      echo "</td></tr>";
 
       echo "</table>";
 
