@@ -46,6 +46,7 @@ if (!empty($_POST["update_auth"])) {
    Html::back();
 }
 if (!empty($_POST["update"])) {
+   $_POST['notify_control'] = FollowupNotify::setNotifyControl();
    $config->update($_POST);
    Html::redirect(Toolbox::getItemTypeFormURL('Config'));
 }
