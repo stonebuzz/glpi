@@ -46,22 +46,10 @@ if (!empty($_POST["update_auth"])) {
    Html::back();
 }
 if (!empty($_POST["update"])) {
+// ************************************************************************************************
    $_POST['notify_control'] = FollowupNotify::setNotifyControl();
+// ************************************************************************************************
    $config->update($_POST);
-   Html::redirect(Toolbox::getItemTypeFormURL('Config'));
-}
-if (!empty($_GET['reset_opcache'])) {
-   $config->checkGlobal(UPDATE);
-   if (opcache_reset()) {
-      Session::addMessageAfterRedirect(__('Cache reset successful'));
-   }
-   Html::redirect(Toolbox::getItemTypeFormURL('Config'));
-}
-if (!empty($_GET['reset_apcu'])) {
-   $config->checkGlobal(UPDATE);
-   if (apc_clear_cache('user')) {
-      Session::addMessageAfterRedirect(__('Cache reset successful'));
-   }
    Html::redirect(Toolbox::getItemTypeFormURL('Config'));
 }
 

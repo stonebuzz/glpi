@@ -43,13 +43,15 @@ $fup = new TicketFollowup();
 
 if (isset($_POST["add"])) {
    $fup->check(-1, CREATE, $_POST);
-   $fup->add($_POST);
 
    Event::log($fup->getField('tickets_id'), "ticket", 4, "tracking",
               //TRANS: %s is the user login
               sprintf(__('%s adds a followup'), $_SESSION["glpiname"]));
+// ************************************************************************************************
    $_POST['notify_control'] = FollowupNotify::setNotifyControl();
    $fup->add($_POST);
+// ************************************************************************************************
+
    Html::back();
 
 } else if (isset($_POST['add_close'])
@@ -65,7 +67,11 @@ if (isset($_POST["add"])) {
    }
 
 } else if (isset($_POST["update"])) {
+
+// ************************************************************************************************
    $_POST['notify_control'] = FollowupNotify::setNotifyControl();
+// ************************************************************************************************
+
    $fup->check($_POST['id'], UPDATE);
    $fup->update($_POST);
 
