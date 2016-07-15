@@ -3905,15 +3905,16 @@ class Html {
          relative_urls: false,
          remove_script_host: false,
          entity_encoding: 'raw',
+         paste_data_images: true,
          menubar: false,
          statusbar: false,
          skin: 'light',
          plugins: [
-            'table directionality searchreplace paste',
-            'tabfocus autoresize link image',
-            'code fullscreen'
+            'table directionality searchreplace',
+            'tabfocus autoresize link image paste',
+            'code fullscreen paste_upload_doc'
          ],
-         toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image searchreplace code fullscreen',
+         toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image searchreplace code fullscreen paste_upload_doc',
       });
    ";
 
