@@ -1,205 +1,258 @@
 <?php
 
-	class FollowupNotify extends CommonDBTM {
+      class FollowupNotify extends CommonDBTM {
 
-		static function setNotifyControl() {
+         static function setNotifyControl() {
 
-			// Booleans
+            // Booleans
+            $users_requester     = 0;
+            $groups_requester    = 0;
+            $users_watcher       = 0;
+            $groups_watcher      = 0;
+            $users_assigned      = 0;
+            $groups_assigned     = 0;
+            $suppliers_assigned  = 0;
 
-			$users_requester	= 0;
-			$groups_requester	= 0;
+            // Check follower allowed notifications
+            switch ($_POST['_requester_control']) {
+               case '_users' :
+                  $users_requester     = 1;
+                  break;
+               case '_groups' :
+                  $groups_requester    = 1;
+                  break;
+               case '_users_groups' :
+                  $users_requester     = 1;
+                  $groups_requester    = 1;
+                  break;
+            }
 
-			$users_watcher		= 0;
-			$groups_watcher		= 0;
+            switch ($_POST['_watcher_control']) {
+               case '_users' :
+                  $users_watcher       = 1;
+                  break;
+               case '_groups' :
+                  $groups_watcher      = 1;
+                  break;
+               case '_users_groups' :
+                  $users_watcher       = 1;
+                  $groups_watcher      = 1;
+                  break;
+            }
 
-			$users_assigned		= 0;
-			$groups_assigned	= 0;
-			$suppliers_assigned	= 0;
+            switch ($_POST['_assigned_control']) {
+               case '_users' :
+                  $users_assigned      = 1;
+                  break;
+               case '_groups' :
+                  $groups_assigned     = 1;
+                  break;
+               case '_suppliers' :
+                  $suppliers_assigned  = 1;
+                  break;
+               case '_users_groups' :
+                  $users_assigned      = 1;
+                  $groups_assigned     = 1;
+                  break;
+               case '_users_suppliers' :
+                  $users_assigned      = 1;
+                  $suppliers_assigned  = 1;
+                  break;
+               case '_groups_suppliers' :
+                  $groups_assigned     = 1;
+                  $suppliers_assigned  = 1;
+                  break;
+               case '_users_groups_suppliers' :
+                  $users_assigned      = 1;
+                  $groups_assigned     = 1;
+                  $suppliers_assigned  = 1;
+                  break;
+            }
 
-			// Check follower allowed notifications
+            // Define "notify_control" array
+            $aNotify = array(
+               '_users_id_requester'   =>	$users_requester,
+               '_groups_id_requester'  =>	$groups_requester,
+               '_users_id_observer'    =>	$users_watcher,
+               '_groups_id_observer'   =>	$groups_watcher,
+               '_users_id_assign'      =>	$users_assigned,
+               '_groups_id_assign'     =>	$groups_assigned,
+               '_suppliers_id_assign'  =>	$suppliers_assigned
+            );
 
-			switch ($_POST['_requester_control']) {
-				case '_users'					: $users_requester		= 1;															break;
-				case '_groups'					: $groups_requester		= 1;															break;
-				case '_users_groups'			: $users_requester		= 1;	$groups_requester   = 1;								break;
-			}
+            return json_encode($aNotify);
 
-			switch ($_POST['_watcher_control']) {
-				case '_users'					: $users_watcher		= 1;															break;
-				case '_groups'					: $groups_watcher		= 1;															break;
-				case '_users_groups'			: $users_watcher		= 1;	$groups_watcher     = 1;								break;
-			}
+         }
 
-			switch ($_POST['_assigned_control']) {
-				case '_users'					: $users_assigned		= 1;															break;
-				case '_groups'					: $groups_assigned		= 1;															break;
-				case '_suppliers'				: $suppliers_assigned	= 1;															break;
-				case '_users_groups'			: $users_assigned		= 1;	$groups_assigned	= 1;								break;
-				case '_users_suppliers'			: $users_assigned		= 1;	$suppliers_assigned	= 1;								break;
-				case '_groups_suppliers'		: $groups_assigned		= 1;	$suppliers_assigned	= 1;								break;
-				case '_users_groups_suppliers'	: $users_assigned		= 1;	$groups_assigned	= 1;	$suppliers_assigned = 1;	break;
-			}
+         static function getNotifyControl($config=null) {
+            // If config is set, decode config ...
+            // ... else decode $_POST['notify_control']
+            if (isset($config)) {
+               return json_decode($config);
+            }
+            else {
+               return json_decode(FollowupNotify::setNotifyControl());
+            }
+         }
 
-			// Define "notify_control"
+         static function getUsersNotifyControl() {
+            $user = new User();
+            // Get current user from DB
+            $user->getFromDB(Session::getLoginUserID());
+            // Get + Decode + Return current user's personnal notifying configuration
+            return FollowupNotify::getNotifyControl($user->getField('notify_control'));
+         }
 
-			$aNotify = array(
-				'_users_id_requester'	=>	$users_requester,
-				'_groups_id_requester'	=>	$groups_requester,
-				'_users_id_observer'	=>	$users_watcher,
-				'_groups_id_observer'	=>	$groups_watcher,
-				'_users_id_assign'		=>	$users_assigned,
-				'_groups_id_assign'		=>	$groups_assigned,
-				'_suppliers_id_assign'	=>	$suppliers_assigned
-			);
+         static function showForm($form_type=null) {
 
-			return json_encode($aNotify);
+            // Define lists options
+            $options_requester = array(
+               '_no'                      => __('No'),
+               '_users'                   => __('User').'s',
+               '_groups'                  => __('Group').'s',
+               '_users_groups'            => __('User').'s '.__('and').' '.__('Group').'s'
+            );
 
-		}
+            $options_watcher = array(
+               '_no'                      => __('No'),
+               '_users'                   => __('User').'s',
+               '_groups'                  => __('Group').'s',
+               '_users_groups'            => __('User').'s '.__('and').' '.__('Group').'s'
+            );
 
-		static function getNotifyControl($config=null) {
+            $options_assigned = array(
+               '_no'                      => __('No'),
+               '_users'                   => __('User').'s',
+               '_groups'                  => __('Group').'s',
+               '_suppliers'               => __('Supplier').'s',
+               '_users_groups'            => __('User').'s '.__('and').' '.__('Group').'s',
+               '_users_suppliers'         => __('User').'s '.__('and').' '.__('Supplier').'s',
+               '_groups_suppliers'        => __('Group').'s '.__('and').' '.__('Supplier').'s',
+               '_users_groups_suppliers' 
+                  => __('User').'s, '.__('Group').'s '.__('and').' '.__('Supplier').'s'
+            );
 
-			// If config is set, decode config ...
-			// ... else decode $_POST['notify_control']
+            // Get notify_control by form type
+            switch ($form_type) {
+               // Get followup notify configuration
+               case 'followup_update' :
+                  $fup =   new TicketFollowUp();
+                  // Get current Followup
+                  $fup->getFromDB($_POST['id']);
+                  // Attempting to get followup's notification configs
+                  $notify_control = self::getNotifyControl($fup->getField('notify_control'));
+                  break;
+               // Get GLPi's general notifying configuration
+               case 'general_config' :
+                  // Get default config from DB
+                  $default = Config::getConfigurationValues('core', array('notify_control'));
+                  $notify_control = self::getNotifyControl($default['notify_control']);
+                  break;
+               // Get current user's personnal notifying configuration
+               case 'user_config' :
+                  $user = new User();
+                  // Get user from DB
+                  $user->getFromDB(Session::getLoginUserID());
+                  // Get user's config
+                  $notify_control = self::getNotifyControl($user->getField('notify_control'));
+                  break;
+               // Get GLPi's general notifying configuration by default
+               default :
+                  // Get default config from DB
+                  $default = Config::getConfigurationValues('core', array('notify_control'));
+                  $notify_control = self::getNotifyControl($default['notify_control']);
+                  break;
+            }
 
-			if	(isset($config))	{ return json_decode($config);								}
-			else					{ return json_decode(FollowupNotify::setNotifyControl());	}
+            // Set default options selected to prevent exceptions
+            $requester_value  = '_no';
+            $observer_value   = '_no';
+            $assigned_value   = '_no';
 
-		}
+            // Define actors notification booleans
+            $notify_user_assign     = $notify_control->_users_id_assign;
+            $notify_supplier_assign = $notify_control->_suppliers_id_assign;
+            $notify_group_assign    = $notify_control->_groups_id_assign;
+            $notify_user_requester  = $notify_control->_users_id_requester;
+            $notify_group_requester = $notify_control->_groups_id_requester;
+            $notify_user_observer   = $notify_control->_users_id_observer;
+            $notify_group_observer  = $notify_control->_groups_id_observer;
 
-		static function getUsersNotifyControl() {
-			$user	= 	new User();
-			// Get user from DB
-			$user	->	getFromDB(Session::getLoginUserID());
-			// Get + Decode + Return user's personnal notifying configuration
-			return		FollowupNotify::getNotifyControl($user->getField('notify_control'));
-		}
+            // REQUESTERS config
+            if ($notify_user_requester == 1 &&
+                  $notify_group_requester == 1) {
+               $requester_value = '_users_groups';
+            }
+            else if ($notify_user_requester == 1) {
+               $requester_value = '_users';
+            }
+            else if ($notify_group_requester == 1) {
+               $requester_value = '_groups';
+            }
 
-		static function showForm($form_type=null) {
+            // OBSERVERS config
+            if ($notify_user_observer == 1 &&
+                  $notify_group_observer == 1) {
+               $observer_value = '_users_groups';
+            }
+            else if ($notify_user_observer == 1) {
+               $observer_value = '_users';
+            }
+            else if ($notify_group_observer == 1) {
+               $observer_value = '_groups';
+            }
 
-			// Define lists options
+            // ASSIGNED config
+            if ($notify_user_assign == 1 &&
+                  $notify_group_assign == 1 &&
+                  $notify_supplier_assign	== 1) {
+               $assigned_value = '_users_groups_suppliers';
+            }
+            else if ($notify_group_assign == 1 &&
+                     $notify_supplier_assign == 1) {
+               $assigned_value = '_groups_suppliers';
+            }
+            else if ($notify_user_assign == 1 &&
+                     $notify_supplier_assign == 1) {
+               $assigned_value = '_groups_suppliers';
+            }
+            else if ($notify_user_assign == 1 &&
+                     $notify_group_assign == 1) {
+               $assigned_value = '_users_groups';
+            }
+            else if ($notify_user_assign == 1) {
+               $assigned_value = '_users';
+            }
+            else if ($notify_group_assign == 1) {
+               $assigned_value = '_groups';
+            }
+            else if ($notify_supplier_assign == 1) {
+               $assigned_value = '_suppliers';
+            }
 
-			$options_requester = array(
-				'_no'						=> __('No'),
-				'_users'					=> __('User').'s',
-				'_groups'					=> __('Group').'s',
-				'_users_groups'				=> __('User').'s '.__('and').' '.__('Group').'s'
-			);
+            // Display form
+            echo '<table><tr><td>'.__('Requester').'(s)</td><td>';
 
-			$options_watcher = array(
-				'_no'						=> __('No'),
-				'_users'					=> __('User').'s',
-				'_groups'					=> __('Group').'s',
-				'_users_groups'				=> __('User').'s '.__('and').' '.__('Group').'s'
-			);
+            Dropdown::showFromArray('_requester_control',
+                                    $options_requester,
+                                    array('value'=>$requester_value));
 
-			$options_assigned = array(
-				'_no'						=> __('No'),
-				'_users'					=> __('User').'s',
-				'_groups'					=> __('Group').'s',
-				'_suppliers'				=> __('Supplier').'s',
-				'_users_groups'				=> __('User').'s '.__('and').' '.__('Group').'s',
-				'_users_suppliers'			=> __('User').'s '.__('and').' '.__('Supplier').'s',
-				'_groups_suppliers'			=> __('Group').'s '.__('and').' '.__('Supplier').'s',
-				'_users_groups_suppliers'	=> __('User').'s, '.__('Group').'s '.__('and').' '.__('Supplier').'s'
-			);
+            echo '</td></tr><tr><td>'.__('Watcher').'(s)</td><td>';
 
-			// Get notify_control by form type
+            Dropdown::showFromArray('_watcher_control',
+                                    $options_watcher,
+                                    array('value'=>$observer_value));
 
-			switch ($form_type) {
+            echo '</td></tr><tr><td>'.__('Assigned').'(s)</td><td>';
 
-				// Get followup notify configuration
+            Dropdown::showFromArray('_assigned_control',
+                                    $options_assigned,
+                                    array('value'=>$assigned_value));
 
-				case 'followup_update' :
-					$fup				=	new TicketFollowUp();
-					// Get current Followup
-					$fup				->	getFromDB($_POST['id']);
-					// Attempting to get followup's notification configs
-					$notify_control		=	self::getNotifyControl($fup->getField('notify_control'));
-				break;
+            echo '</td></tr></table>';
 
-				// Get GLPi's general notifying configuration
+         }
 
-				case 'general_config' :
-					// Get default config from DB
-					$default			=	Config::getConfigurationValues('core', array('notify_control'));
-					$notify_control		=	self::getNotifyControl($default['notify_control']);
-				break;
-
-				// Get current user's personnal notifying configuration
-
-				case 'user_config' :
-					$user				=	new User();
-					// Get user from DB
-					$user				->	getFromDB(Session::getLoginUserID());
-					// Get user's config
-					$notify_control		=	self::getNotifyControl($user->getField('notify_control'));
-				break;
-
-			}
-
-			// Set default options selected to prevent "undefined" exception on $notify_control AND "unknown case" on $form_type
-
-			$requester_value	= '_no';
-			$observer_value		= '_no';
-			$assigned_value		= '_no';
-
-			//		If $notify_control was correctly setted in switch treatment ...
-			// ...	define options to pre-select
-
-			if (isset($notify_control)) {
-
-              // Define actors notification booleans (lightens the code horizontaly)
-
-				$notify_user_assign     = $notify_control->_users_id_assign;
-				$notify_supplier_assign = $notify_control->_suppliers_id_assign;	// ASSIGN
-				$notify_group_assign    = $notify_control->_groups_id_assign;
-
-				$notify_user_requester  = $notify_control->_users_id_requester;		// REQUESTER
-				$notify_group_requester = $notify_control->_groups_id_requester;
-
-				$notify_user_observer   = $notify_control->_users_id_observer;		// OBSERVER
-				$notify_group_observer  = $notify_control->_groups_id_observer;
-
-				// REQUESTERS config
-
-				if		( $notify_user_requester	== 1	&& $notify_group_requester	== 1	) { $requester_value = '_users_groups';				}
-				else if	( $notify_user_requester	== 1										) { $requester_value = '_users';					}
-				else if	( $notify_group_requester	== 1										) { $requester_value = '_groups';					}
-
-				// OBSERVERS config
-
-				if		( $notify_user_observer		== 1	&& $notify_group_observer	== 1	) { $observer_value = '_users_groups';				}
-				else if	( $notify_user_observer		== 1										) { $observer_value = '_users';						}
-				else if	( $notify_group_observer	== 1										) { $observer_value = '_groups';					}
-
-				// ASSIGNED config
-
-				if		(
-						  $notify_user_assign		== 1	&&
-						  $notify_group_assign		== 1	&&
-						  $notify_supplier_assign	== 1
-																								) { $assigned_value = '_users_groups_suppliers';	}
-				else if ( $notify_group_assign		== 1	&& $notify_supplier_assign	== 1	) { $assigned_value = '_groups_suppliers';			}
-				else if ( $notify_user_assign		== 1	&& $notify_supplier_assign	== 1	) { $assigned_value = '_groups_suppliers';			}
-				else if ( $notify_user_assign		== 1	&& $notify_group_assign		== 1	) { $assigned_value = '_users_groups';				}
-				else if ( $notify_user_assign		== 1										) { $assigned_value = '_users';						}
-				else if ( $notify_group_assign		== 1										) { $assigned_value = '_groups';					}
-				else if ( $notify_supplier_assign	== 1										) { $assigned_value = '_suppliers';					}
-
-			}
-
-			// Display form
-
-			echo '<table><tr><td>'.__('Requester').'(s)</td><td>';
-			Dropdown::showFromArray('_requester_control', $options_requester, array('value'=>$requester_value));
-			echo '</td></tr><tr><td>'.__('Watcher').'(s)</td><td>';
-			Dropdown::showFromArray('_watcher_control', $options_watcher, array('value'=>$observer_value));
-			echo '</td></tr><tr><td>'.__('Assigned').'(s)</td><td>';
-			Dropdown::showFromArray('_assigned_control', $options_assigned, array('value'=>$assigned_value));
-			echo '</td></tr></table>';
-
-		}
-
-	}
+      }
 
 ?>
