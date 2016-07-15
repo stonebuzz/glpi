@@ -72,8 +72,6 @@ $errors =  array(
         'min_height'          => __('Image requires a minimum height')
     );
 
-    
-sleep(5);
 
 echo("<br>NB FILES = ".count($_FILES)."<br>");
 var_dump($_FILES);
