@@ -85,14 +85,8 @@
          }
 
          static function getNotifyControl($config=null) {
-            // If config is set, decode config ...
-            // ... else decode $_POST['notify_control']
-            if (isset($config)) {
-               return json_decode($config);
-            }
-            else {
-               return json_decode(FollowupNotify::setNotifyControl());
-            }
+            // Decoding "notify_control" from JSON format
+            return json_decode($config);
          }
 
          static function getUsersNotifyControl() {
