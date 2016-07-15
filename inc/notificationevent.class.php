@@ -151,7 +151,7 @@ class NotificationEvent extends CommonDBTM {
 
 // ************************************************************************************************
             // Get notifying control config submitted by new follower
-            $notify_control = FollowupNotify::getNotifyControl();
+            $notify_control = FollowupNotify::getNotifyControl($_POST['notify_control']);
 
             // Define actors types variables && actors notification booleans
             $actor_assign           = CommonITILActor::ASSIGN;
