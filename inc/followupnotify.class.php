@@ -94,10 +94,10 @@
             // Get current user from DB
             $user->getFromDB(Session::getLoginUserID());
             // Get + Decode + Return current user's personnal notifying configuration
-            return FollowupNotify::getNotifyControl($user->getField('notify_control'));
+            return self::getNotifyControl($user->getField('notify_control'));
          }
 
-         static function showForm($form_type=null) {
+         static function showForm($form_config=null, $form_type=null) {
 
             // Define lists options
             $options_requester = array(
@@ -127,7 +127,7 @@
             );
 
             // Get notify_control by form type
-            switch ($form_type) {
+            switch ($form_config) {
                // Get followup notify configuration
                case 'followup_update' :
                   $fup = new TicketFollowUp();
@@ -229,26 +229,54 @@
                $assigned_value = '_suppliers';
             }
 
-            // Display form
-            echo '<table><tr><td>'.__('Requester').'(s)</td><td>';
-
-            Dropdown::showFromArray('_requester_control',
-                                    $options_requester,
-                                    array('value'=>$requester_value));
-
-            echo '</td></tr><tr><td>'.__('Watcher').'(s)</td><td>';
-
-            Dropdown::showFromArray('_watcher_control',
-                                    $options_watcher,
-                                    array('value'=>$observer_value));
-
-            echo '</td></tr><tr><td>'.__('Assigned').'(s)</td><td>';
-
-            Dropdown::showFromArray('_assigned_control',
-                                    $options_assigned,
-                                    array('value'=>$assigned_value));
-
-            echo '</td></tr></table>';
+            if ($form_type == 'followup') {
+               // Display form in followup
+               echo "<tr><th colspan='2'>".__('Notifications')."</th></tr>";
+               echo "<tr><td colspan='2'>";
+               echo "<table width='100%'>";
+               echo "<tr><td>".__('Assigned')."(s)</td><td>";
+               Dropdown::showFromArray('_assigned_control',
+                                       $options_assigned,
+                                       array('value'=>$assigned_value));
+               echo "</td></tr>";
+               echo "<tr><td>".__('Requester')."(s)</td><td>";
+               Dropdown::showFromArray('_requester_control',
+                                       $options_requester,
+                                       array('value'=>$requester_value));
+               echo "</td></tr>";
+               echo "<tr><td>".__('Watcher')."(s)</td><td>";
+               Dropdown::showFromArray('_watcher_control',
+                                       $options_watcher,
+                                       array('value'=>$observer_value));
+               echo "</td></tr></table>";
+            }
+            else {
+               // Display form in configuration editor
+               echo "<tr class='headerRow'><th colspan='4'>".__('Notifications')."</th></tr>";
+               echo "<tr><td colspan='4'>";
+               echo "<table class='tab_cadre_fixe'>";
+               echo "<tr class='center'>";
+               echo "<td>".__('Assigned')."(s)</td>";
+               echo "<td>".__('Requester')."(s)</td>";
+               echo "<td>".__('Watcher')."(s)</td>";
+               echo "<tr class='center'>";
+               echo "<td>";
+               Dropdown::showFromArray('_assigned_control',
+                                       $options_assigned,
+                                       array('value'=>$assigned_value));
+               echo "</td>";
+               echo "<td>";
+               Dropdown::showFromArray('_requester_control',
+                                       $options_requester,
+                                       array('value'=>$requester_value));
+               echo "</td>";
+               echo "<td>";
+               Dropdown::showFromArray('_watcher_control',
+                                       $options_watcher,
+                                       array('value'=>$observer_value));
+               echo "</td>";
+               echo "</tr></table>";
+            }
 
          }
 

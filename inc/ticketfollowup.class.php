@@ -654,8 +654,8 @@ class TicketFollowup  extends CommonDBTM {
          $rand = mt_rand();
 
          echo "<tr class='tab_bg_1'>";
-         echo "<td rowspan='4' class='middle right'>".__('Description')."</td>";  // REPLACED rowspan='3' WITH rowspan='4'
-         echo "<td class='center middle' rowspan='4'>";                           // REPLACED rowspan='3' WITH rowspan='4'
+         echo "<td rowspan='5' class='middle right'>".__('Description')."</td>";
+         echo "<td class='center middle' rowspan='5'>";
          echo "<textarea id='content$rand' name='content' cols='70' rows='6'>".$this->fields["content"]."</textarea>";
          echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
          if ($this->fields["date"]) {
@@ -686,9 +686,6 @@ class TicketFollowup  extends CommonDBTM {
 // ************************************************************************************************
          if ($CFG_GLPI['use_mailing']) {
 
-            echo "<tr>";
-            echo "<td>".__('Notifications')."</td><td>";
-
             // Get current user's personnal notifying configuration
             $users_notify_control = FollowupNotify::getUsersNotifyControl();
 
@@ -696,13 +693,13 @@ class TicketFollowup  extends CommonDBTM {
             // ... else if user's config is set, show user's config form ...
             // ... else, show general's config form
             if (isset($_POST['id']) && $_POST['id'] !== '-1') {
-              FollowupNotify::showForm('followup_update');
+              FollowupNotify::showForm('followup_update', 'followup');
             }
             else if (isset($users_notify_control)) {
-              FollowupNotify::showForm('user_config');
+              FollowupNotify::showForm('user_config', 'followup');
             }
             else {
-              FollowupNotify::showForm('general_config');
+              FollowupNotify::showForm('general_config', 'followup');
             }
 
             echo "</td></tr>";
