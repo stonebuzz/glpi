@@ -71,13 +71,13 @@
 
             // Define "notify_control" array
             $aNotify = array(
-               '_users_id_requester'   =>	$users_requester,
-               '_groups_id_requester'  =>	$groups_requester,
-               '_users_id_observer'    =>	$users_watcher,
-               '_groups_id_observer'   =>	$groups_watcher,
-               '_users_id_assign'      =>	$users_assigned,
-               '_groups_id_assign'     =>	$groups_assigned,
-               '_suppliers_id_assign'  =>	$suppliers_assigned
+               '_users_id_requester'   => $users_requester,
+               '_groups_id_requester'  => $groups_requester,
+               '_users_id_observer'    => $users_watcher,
+               '_groups_id_observer'   => $groups_watcher,
+               '_users_id_assign'      => $users_assigned,
+               '_groups_id_assign'     => $groups_assigned,
+               '_suppliers_id_assign'  => $suppliers_assigned
             );
 
             return json_encode($aNotify);
@@ -136,7 +136,7 @@
             switch ($form_type) {
                // Get followup notify configuration
                case 'followup_update' :
-                  $fup =   new TicketFollowUp();
+                  $fup = new TicketFollowUp();
                   // Get current Followup
                   $fup->getFromDB($_POST['id']);
                   // Attempting to get followup's notification configs
@@ -205,7 +205,7 @@
             // ASSIGNED config
             if ($notify_user_assign == 1 &&
                   $notify_group_assign == 1 &&
-                  $notify_supplier_assign	== 1) {
+                  $notify_supplier_assign == 1) {
                $assigned_value = '_users_groups_suppliers';
             }
             else if ($notify_group_assign == 1 &&
