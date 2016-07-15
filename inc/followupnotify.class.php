@@ -149,6 +149,11 @@
                   $user->getFromDB(Session::getLoginUserID());
                   // Get user's config
                   $notify_control = self::getNotifyControl($user->getField('notify_control'));
+                  // If user's config isn't set, get general config
+                  if (!isset($notify_control)) {
+                     $default = Config::getConfigurationValues('core', array('notify_control'));
+                     $notify_control = self::getNotifyControl($default['notify_control']);
+                  }
                   break;
                // Get GLPi's general notifying configuration by default
                default :
