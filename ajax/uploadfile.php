@@ -73,7 +73,8 @@ $errors =  array(
     );
 
     
+sleep(5);
 
-var_dump("NB FLE = ".$_POST['nbr_files']);
+echo("<br>NB FILES = ".count($_FILES)."<br>");
 var_dump($_FILES);
 echo 1;
