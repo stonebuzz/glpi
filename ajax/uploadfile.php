@@ -72,7 +72,30 @@ $errors =  array(
         'min_height'          => __('Image requires a minimum height')
     );
 
+$upload_dir = GLPI_TMP_DIR.'/';
 
-echo("<br>NB FILES = ".count($_FILES)."<br>");
-var_dump($_FILES);
-echo 1;
+    if ($_FILES["file_0"]["error"] == UPLOAD_ERR_OK) {
+
+        $tmp_name = $_FILES["file_0"]["tmp_name"];
+        $name     = $_FILES["file_0"]["name"];
+        $type     = $_FILES["file_0"]["type"];
+
+        //If file come from paste we need to retrieve ext from mimetype
+        if(strpos('.', '$name') === false){
+            $ext = split('/', $type);
+            $name = $name.'.'.$ext[1];
+        }
+
+        move_uploaded_file($tmp_name, "$upload_dir$name");
+
+
+        //$data = file_get_contents("$upload_dir$name");
+        //$base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+        echo '<img src='.$upload_dir.$name.'>';
+
+    }
+
+
+
+
