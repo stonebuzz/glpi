@@ -42,6 +42,8 @@ if (!defined('GLPI_ROOT')) {
    define('GLPI_ROOT', dirname(__DIR__));
 }
 
+global $CFG_GLPI;
+
 include_once (GLPI_ROOT . "/inc/autoload.function.php");
 include_once (GLPI_ROOT . "/inc/db.function.php");
 include_once (GLPI_ROOT . "/config/config.php");
@@ -72,7 +74,7 @@ $errors =  array(
         'min_height'          => __('Image requires a minimum height')
     );
 
-$upload_dir = GLPI_TMP_DIR.'/';
+    /*$upload_dir = GLPI_TMP_DIR.'/';
 
     if ($_FILES["file_0"]["error"] == UPLOAD_ERR_OK) {
 
@@ -81,20 +83,68 @@ $upload_dir = GLPI_TMP_DIR.'/';
         $type     = $_FILES["file_0"]["type"];
 
         //If file come from paste we need to retrieve ext from mimetype
-        if(strpos('.', '$name') === false){
+        if(strpos($name,'.') === false){
             $ext = split('/', $type);
             $name = $name.'.'.$ext[1];
         }
 
         move_uploaded_file($tmp_name, "$upload_dir$name");
 
+        if(@is_array(getimagesize("$upload_dir$name"))){
+            $image = true;
+        } else {
+            $image = false;
+        }
 
-        //$data = file_get_contents("$upload_dir$name");
-        //$base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        if($image) echo '<img src="'.$CFG_GLPI['root_doc'].'/files/_tmp/'.$name.'">';
+        else echo __('Upload successful').' - '.$name;
+    }*/
 
-        echo '<img src='.$upload_dir.$name.'>';
 
-    }
+    $upload_dir = GLPI_TMP_DIR.'/';
+
+$_GET['showfilesize'] = true;
+$_GET['name'] = 'file_0';
+
+$upload_handler = new UploadHandler(array('upload_dir'        => $upload_dir,
+                                          'param_name'        => $_GET['name'] ,
+                                          'orient_image'      => false,
+                                          'image_versions'    => array()),
+                                    false, $errors);
+$response = $upload_handler->post(false);
+
+
+
+
+// clean compute display filesize
+if (isset($response[$_GET['name']]) && is_array($response[$_GET['name']])) {
+
+
+   foreach ($response[$_GET['name']] as $key => &$val) {
+      if (Document::isValidDoc(addslashes($val->name))) {
+         if (isset($val->name)) {
+            $val->display = $val->name;
+         }
+         if (isset($val->size)) {
+            $val->filesize = Toolbox::getSize($val->size);
+            if (isset($_GET['showfilesize']) && $_GET['showfilesize']) {
+               $val->display = sprintf('%1$s %2$s', $val->display, $val->filesize);
+            }
+         }
+      } else { // Unlink file
+         $val->error = $errors['accept_file_types'];
+     if (file_exists($upload_dir.$val->name)) {
+            @unlink($upload_dir.$val->name);
+         }
+      }
+      $val->id = 'docstock_image'.mt_rand();
+   }
+}
+
+// Ajout du Doc + generation tag + autre traitement
+
+
+$upload_handler->generate_response($response);
 
 
 
