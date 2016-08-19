@@ -234,7 +234,7 @@ $CFG_GLPI["dictionnary_types"]            = array('ComputerModel', 'ComputerType
                                                   'OperatingSystemVersion', 'PeripheralModel',
                                                   'PeripheralType', 'PhoneModel', 'PhoneType',
                                                   'Printer', 'PrinterModel', 'PrinterType',
-                                                  'Software');
+                                                  'Software', 'OperatingSystemArchitecture');
 
 $CFG_GLPI["helpdesk_visible_types"]       = array('Software');
 
@@ -244,7 +244,8 @@ $CFG_GLPI["networkport_types"]            = array('Computer', 'NetworkEquipment'
 // Warning : the order is used for displaying different NetworkPort types ! Keep it !
 $CFG_GLPI['networkport_instantiations']   = array('NetworkPortEthernet', 'NetworkPortWifi' ,
                                                   'NetworkPortAggregate', 'NetworkPortAlias',
-                                                  'NetworkPortDialup',   'NetworkPortLocal');
+                                                  'NetworkPortDialup',   'NetworkPortLocal',
+                                                  'NetworkPortFiberchannel');
 
 $CFG_GLPI['device_types'] = array('DeviceMotherboard', 'DeviceProcessor', 'DeviceMemory',
                                   'DeviceHardDrive', 'DeviceNetworkCard', 'DeviceDrive',
@@ -340,5 +341,6 @@ $CFG_GLPI['lock_lockable_objects'] = array('Budget',  'Change', 'Contact', 'Cont
                                            'Group', 'KnowbaseItem', 'Link', 'Monitor',
                                            'NetworkEquipment', 'NetworkName', 'Peripheral', 'Phone',
                                            'Printer', 'Problem', 'Profile', 'Project', 'Reminder',
-                                           'RSSFeed', 'Software', 'Supplier', 'Ticket', 'User') ;
+                                           'RSSFeed', 'Software', 'Supplier', 'Ticket', 'User',
+                                           'SoftwareLicense') ;
 ?>

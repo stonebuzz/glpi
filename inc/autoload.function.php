@@ -50,6 +50,21 @@ function isCommandLine() {
    return (!isset($_SERVER["SERVER_NAME"]));
 }
 
+/**
+ * Is the script launched From API ?
+ *
+ * @return boolean
+**/
+function isAPI() {
+   if (strpos($_SERVER["SCRIPT_FILENAME"], 'apirest.php') !== false) {
+      return true;
+   }
+   if (strpos($_SERVER["SCRIPT_FILENAME"], 'apixmlrpc.php') !== false) {
+      return true;
+   }
+   return false;
+}
+
 
 /**
  * Determine if an object name is a plugin one
@@ -268,6 +283,7 @@ function glpi_autoload($classname) {
    }
 
    $dir = GLPI_ROOT . "/inc/";
+
    if ($plug = isPluginItemType($classname)) {
       $plugname = strtolower($plug['plugin']);
       $dir      = GLPI_ROOT . "/plugins/$plugname/inc/";
@@ -282,12 +298,11 @@ function glpi_autoload($classname) {
          }
       } else {
          // Standard use of GLPI
-         if (!in_array($plugname,$_SESSION['glpi_plugins'])) {
+         if (!isset($_SESSION['glpi_plugins']) || !in_array($plugname, $_SESSION['glpi_plugins'])) {
             // Plugin not activated
             return false;
          }
       }
-
    } else {
       //TODO: clean, seems uneeded, as composer autoloader is used first
 

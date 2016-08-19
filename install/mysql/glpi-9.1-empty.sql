@@ -101,6 +101,29 @@ CREATE TABLE `glpi_authmails` (
   KEY `is_active` (`is_active`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+### Dump table glpi_apiclients
+
+DROP TABLE IF EXISTS `glpi_apiclients`;
+CREATE TABLE `glpi_apiclients` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `entities_id` INT NOT NULL DEFAULT '0',
+  `is_recursive` TINYINT(1) NOT NULL DEFAULT '0',
+  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `date_mod` DATETIME DEFAULT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT '0',
+  `ipv4_range_start` BIGINT NULL ,
+  `ipv4_range_end` BIGINT NULL ,
+  `ipv6` VARCHAR( 255 ) NULL,
+  `app_token` VARCHAR( 255 ) NULL,
+  `app_token_date` DATETIME DEFAULT NULL,
+  `dolog_method` TINYINT NOT NULL DEFAULT '0',
+  `comment` TEXT NULL ,
+  PRIMARY KEY (`id`),
+  KEY `date_mod` (`date_mod`),
+  KEY `is_active` (`is_active`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+INSERT INTO `glpi_apiclients` VALUES (1, 0, 1, 'full access', NULL, 1, NULL, NULL, NULL, '', NULL, 0, NULL);
+
 
 ### Dump table glpi_autoupdatesystems
 
@@ -727,6 +750,7 @@ CREATE TABLE `glpi_computers` (
   `operatingsystems_id` int(11) NOT NULL DEFAULT '0',
   `operatingsystemversions_id` int(11) NOT NULL DEFAULT '0',
   `operatingsystemservicepacks_id` int(11) NOT NULL DEFAULT '0',
+  `operatingsystemarchitectures_id` int(11) NOT NULL DEFAULT '0',
   `os_license_number` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `os_licenseid` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `os_kernel_version` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -764,6 +788,7 @@ CREATE TABLE `glpi_computers` (
   KEY `operatingsystems_id` (`operatingsystems_id`),
   KEY `operatingsystemservicepacks_id` (`operatingsystemservicepacks_id`),
   KEY `operatingsystemversions_id` (`operatingsystemversions_id`),
+  KEY `operatingsystemarchitectures_id` (`operatingsystemarchitectures_id`),
   KEY `states_id` (`states_id`),
   KEY `users_id_tech` (`users_id_tech`),
   KEY `computertypes_id` (`computertypes_id`),
@@ -1061,6 +1086,11 @@ INSERT INTO `glpi_configs` VALUES ('163','core','lock_lockprofile_id','8');
 INSERT INTO `glpi_configs` VALUES ('164','core','set_default_requester','1');
 INSERT INTO `glpi_configs` VALUES ('165','core','highcontrast_css','0');
 INSERT INTO `glpi_configs` VALUES ('166','core','smtp_check_certificate','1');
+INSERT INTO `glpi_configs` VALUES ('167','core','enable_api','0');
+INSERT INTO `glpi_configs` VALUES ('168','core','enable_api_login_credentials','0');
+INSERT INTO `glpi_configs` VALUES ('169','core','enable_api_login_external_token','1');
+INSERT INTO `glpi_configs` VALUES ('170','core','url_base_api','http://localhost/glpi/api');
+
 
 ### Dump table glpi_consumableitems
 
@@ -2244,7 +2274,7 @@ CREATE TABLE `glpi_entities` (
   KEY `date_creation` (`date_creation`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `glpi_entities` VALUES ('0','Root entity','-1','Root entity',NULL,'1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0',NULL,NULL,NULL,'0','0','0','0','0','0','0','0','0','-1','0','0','-10','1',NULL,'1','0','0',NULL,'0','0','0','0','0','1','-10','0','0','10','10','0','1','0',NULL,NULL,0);
+INSERT INTO `glpi_entities` VALUES ('0','Root entity','-1','Root entity',NULL,'1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0',NULL,NULL,NULL,'0','0','0','0','0','0','0','0','0','0','0','0','-10','1',NULL,'1','0','0',NULL,'0','0','0','0','0','1','-10','0','0','10','10','0','1','0',NULL,NULL,0);
 
 ### Dump table glpi_entities_knowbaseitems
 
@@ -3732,6 +3762,23 @@ CREATE TABLE `glpi_networkportethernets` (
   KEY `date_creation` (`date_creation`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+### Dump table glpi_networkportfiberchannels
+
+DROP TABLE IF EXISTS `glpi_networkportfiberchannels`;
+CREATE TABLE `glpi_networkportfiberchannels` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `networkports_id` int(11) NOT NULL DEFAULT '0',
+  `items_devicenetworkcards_id` int(11) NOT NULL DEFAULT '0',
+  `netpoints_id` int(11) NOT NULL DEFAULT '0',
+  `wwn` varchar(16) COLLATE utf8_unicode_ci DEFAULT '',
+  `speed` int(11) NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `networkports_id` (`networkports_id`),
+  KEY `card` (`items_devicenetworkcards_id`),
+  KEY `netpoint` (`netpoints_id`),
+  KEY `wwn` (`wwn`),
+  KEY `speed` (`speed`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ### Dump table glpi_networkportlocals
 
@@ -4759,6 +4806,22 @@ CREATE TABLE `glpi_objectlocks` (
   `date_mod` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp of the lock',
   PRIMARY KEY (`id`),
   UNIQUE KEY `item` (`itemtype`,`items_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+### Dump table glpi_operatingsystemarchitectures
+
+DROP TABLE IF EXISTS `glpi_operatingsystemarchitectures`;
+CREATE TABLE `glpi_operatingsystemarchitectures` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+ `comment` text COLLATE utf8_unicode_ci,
+ `date_mod` datetime DEFAULT NULL,
+ `date_creation` datetime DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `name` (`name`),
+ KEY `date_mod` (`date_mod`),
+ KEY `date_creation` (`date_creation`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -6680,6 +6743,8 @@ CREATE TABLE `glpi_softwarelicenses` (
   `groups_id` int(11) NOT NULL DEFAULT '0',
   `is_helpdesk_visible` tinyint(1) NOT NULL DEFAULT '0',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `manufacturers_id` int(11) NOT NULL DEFAULT '0',
+  `states_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `is_template` (`is_template`),
@@ -6699,7 +6764,9 @@ CREATE TABLE `glpi_softwarelicenses` (
   KEY `groups_id` (`groups_id`),
   KEY `is_helpdesk_visible` (`is_helpdesk_visible`),
   KEY `is_deleted` (`is_helpdesk_visible`),
-  KEY `date_creation` (`date_creation`)
+  KEY `date_creation` (`date_creation`),
+  KEY `manufacturers_id` (`manufacturers_id`),
+  KEY `states_id` (`states_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 

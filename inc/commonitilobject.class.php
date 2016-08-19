@@ -452,7 +452,8 @@ abstract class CommonITILObject extends CommonDBTM {
       $linktable = $linkclass->getTable();
 
       return countElementsInTable(array($itemtable,$linktable),
-                                  "`$linktable`.`$itemfk` = `$itemtable`.`id`
+                                  getEntitiesRestrictRequest("", $itemtable)."
+                                    AND `$linktable`.`$itemfk` = `$itemtable`.`id`
                                     AND `$linktable`.`users_id` = '$users_id'
                                     AND `$linktable`.`type` = '".CommonITILActor::REQUESTER."'
                                     AND `$itemtable`.`is_deleted` = 0
@@ -482,7 +483,8 @@ abstract class CommonITILObject extends CommonDBTM {
       $linktable = $linkclass->getTable();
 
       return countElementsInTable(array($itemtable,$linktable),
-                                  "`$linktable`.`$itemfk` = `$itemtable`.`id`
+                                  getEntitiesRestrictRequest("", $itemtable)."
+                                    AND `$linktable`.`$itemfk` = `$itemtable`.`id`
                                     AND `$linktable`.`users_id` = '$users_id'
                                     AND `$linktable`.`type` = '".CommonITILActor::ASSIGN."'
                                     AND `$itemtable`.`is_deleted` = 0
@@ -512,7 +514,8 @@ abstract class CommonITILObject extends CommonDBTM {
       $linktable = $linkclass->getTable();
 
       return countElementsInTable(array($itemtable,$linktable),
-                                  "`$linktable`.`$itemfk` = `$itemtable`.`id`
+                                  getEntitiesRestrictRequest("", $itemtable)."
+                                    AND `$linktable`.`$itemfk` = `$itemtable`.`id`
                                     AND `$linktable`.`groups_id` = '$groups_id'
                                     AND `$linktable`.`type` = '".CommonITILActor::ASSIGN."'
                                     AND `$itemtable`.`is_deleted` = 0
@@ -542,15 +545,16 @@ abstract class CommonITILObject extends CommonDBTM {
       $linktable = $linkclass->getTable();
 
       return countElementsInTable(array($itemtable,$linktable),
-            "`$linktable`.`$itemfk` = `$itemtable`.`id`
-            AND `$linktable`.`suppliers_id` = '$suppliers_id'
-            AND `$linktable`.`type` = '".CommonITILActor::ASSIGN."'
-            AND `$itemtable`.`is_deleted` = 0
-            AND `$itemtable`.`status`
-            NOT IN ('".implode("', '",
-            array_merge($this->getSolvedStatusArray(),
-                  $this->getClosedStatusArray())
-      )."')");
+                                  getEntitiesRestrictRequest("", $itemtable)."
+                                    AND `$linktable`.`$itemfk` = `$itemtable`.`id`
+                                    AND `$linktable`.`suppliers_id` = '$suppliers_id'
+                                    AND `$linktable`.`type` = '".CommonITILActor::ASSIGN."'
+                                    AND `$itemtable`.`is_deleted` = 0
+                                    AND `$itemtable`.`status`
+                                    NOT IN ('".implode("', '",
+                                                       array_merge($this->getSolvedStatusArray(),
+                                                                   $this->getClosedStatusArray())
+                                                      )."')");
    }
 
 
@@ -1423,7 +1427,15 @@ abstract class CommonITILObject extends CommonDBTM {
                      $input3[$key] = $val[$key_assign];
                   }
                }
-               $input3['_from_object'] = true;
+
+               //empty supplier
+               if ($input3['suppliers_id'] == 0
+                   && (!isset($input3['alternative_email'])
+                       || empty($input3['alternative_email']))) {
+                  continue;
+               }
+
+                $input3['_from_object'] = true;
                $supplieractors->add($input3);
             }
          }
@@ -2755,7 +2767,7 @@ abstract class CommonITILObject extends CommonDBTM {
 
       $tab[82]['table']               = $this->getTable();
       $tab[82]['field']               = 'is_late';
-      $tab[82]['name']                = __('Late resolution');
+      $tab[82]['name']                = __('Time to resolve exceedeed');
       $tab[82]['datatype']            = 'bool';
       $tab[82]['massiveaction']       = false;
       $tab[82]['computation']         = "IF(TABLE.`due_date` IS NOT NULL
@@ -2767,7 +2779,7 @@ abstract class CommonITILObject extends CommonDBTM {
 
       $tab[159]['table']              = $this->getTable();
       $tab[159]['field']              = 'is_late';
-      $tab[159]['name']               = __('Late own');
+      $tab[159]['name']               = __('Time to own exceedeed');
       $tab[159]['datatype']           = 'bool';
       $tab[159]['massiveaction']      = false;
       $tab[159]['computation']        = "IF(TABLE.`time_to_own` IS NOT NULL

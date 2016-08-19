@@ -35,13 +35,14 @@
 */
 
 /**
- * Update from 0.90.3 to 9.1
+ * Update from 0.90.5 to 9.1
  *
  * @return bool for success (will die for most error)
 **/
-function update0903to91() {
+function update0905to91() {
    global $DB, $migration, $CFG_GLPI;
 
+   $current_config   = Config::getConfigurationValues('core');
    $updateresult     = true;
    $ADDTODISPLAYPREF = array();
 
@@ -273,9 +274,47 @@ function update0903to91() {
    Config::setConfigurationValues('core', array('set_default_requester' => 1));
    $migration->addField("glpi_users", "set_default_requester", "tinyint(1) NULL DEFAULT NULL");
 
+   // ************ Networkport ethernets **************
+   if (!TableExists("glpi_networkportfiberchannels")) {
+      $query = "CREATE TABLE `glpi_networkportfiberchannels` (
+                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                  `networkports_id` int(11) NOT NULL DEFAULT '0',
+                  `items_devicenetworkcards_id` int(11) NOT NULL DEFAULT '0',
+                  `netpoints_id` int(11) NOT NULL DEFAULT '0',
+                  `wwn` varchar(16) COLLATE utf8_unicode_ci DEFAULT '',
+                  `speed` int(11) NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `networkports_id` (`networkports_id`),
+                  KEY `card` (`items_devicenetworkcards_id`),
+                  KEY `netpoint` (`netpoints_id`),
+                  KEY `wwn` (`wwn`),
+                  KEY `speed` (`speed`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+      $DB->query($query);
+   }
 
    /************** Kernel version for os *************/
    $migration->addField("glpi_computers", "os_kernel_version", "string");
+
+
+   /************** os architecture *************/
+   $migration->addField("glpi_computers", "operatingsystemarchitectures_id", "integer");
+   $migration->addKey("glpi_computers", "operatingsystemarchitectures_id");
+
+   if (!TableExists('glpi_operatingsystemarchitectures')) {
+      $query = "CREATE TABLE `glpi_operatingsystemarchitectures` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+        `comment` text COLLATE utf8_unicode_ci,
+        `date_mod` datetime DEFAULT NULL,
+        `date_creation` datetime DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `name` (`name`),
+        KEY `date_mod` (`date_mod`),
+        KEY `date_creation` (`date_creation`)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+      $DB->queryOrDie($query, "9.1 add table glpi_operatingsystemarchitectures");
+   }
 
 
    /************** Task's templates *************/
@@ -298,9 +337,11 @@ function update0903to91() {
       $DB->queryOrDie($query, "9.1 add table glpi_tasktemplates");
    }
 
+
    /************** Installation date for softwares *************/
    $migration->addField("glpi_computers_softwareversions", "date_install", "DATE");
    $migration->addKey("glpi_computers_softwareversions", "date_install");
+
 
    /************** Location for budgets *************/
    $migration->addField("glpi_budgets", "locations_id", "integer");
@@ -330,8 +371,41 @@ function update0903to91() {
       $DB->queryOrDie($query, "change budget display preference");
    }
 
+
    /************** New Planning with fullcalendar.io *************/
    $migration->addField("glpi_users", "plannings", "text");
+
+
+   /************** API Rest *************/
+   Config::setConfigurationValues('core', array('enable_api'                      => 0));
+   Config::setConfigurationValues('core', array('enable_api_login_credentials'    => 0));
+   Config::setConfigurationValues('core', array('enable_api_login_external_token' => 1));
+   Config::setConfigurationValues('core', array('url_base_api' => trim($current_config['url_base'], "/")."/api"));
+   if (!TableExists('glpi_apiclients')) {
+      $query = "CREATE TABLE `glpi_apiclients` (
+                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                  `entities_id` INT NOT NULL DEFAULT '0',
+                  `is_recursive` TINYINT(1) NOT NULL DEFAULT '0',
+                  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                  `date_mod` DATETIME DEFAULT NULL,
+                  `is_active` TINYINT(1) NOT NULL DEFAULT '0',
+                  `ipv4_range_start` BIGINT NULL ,
+                  `ipv4_range_end` BIGINT NULL ,
+                  `ipv6` VARCHAR( 255 ) NULL,
+                  `app_token` VARCHAR( 255 ) NULL,
+                  `app_token_date` DATETIME DEFAULT NULL,
+                  `dolog_method` TINYINT NOT NULL DEFAULT '0',
+                  `comment` TEXT NULL ,
+                  PRIMARY KEY (`id`),
+                  KEY `date_mod` (`date_mod`),
+                  KEY `is_active` (`is_active`)
+                  ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+      $DB->queryOrDie($query, "9.1 add table glpi_apiclients");
+      $query = "INSERT INTO `glpi_apiclients`
+                  VALUES (1, 1, 1, 'full access', NOW(), 1, NULL, NULL, NULL, '', '', 0, NULL);";
+      $DB->queryOrDie($query, "9.1 insert first line into table glpi_apiclients");
+   }
+
 
    /************** Date mod/creation for itemtypes *************/
    $migration->displayMessage(sprintf(__('date_mod and date_creation')));
@@ -472,6 +546,7 @@ function update0903to91() {
       }
    }
 
+
    /************** Add more fields to software licenses */
    $new = $migration->addField("glpi_softwarelicenses", "is_deleted", "bool");
    $migration->addField("glpi_softwarelicenses", "locations_id", "integer");
@@ -482,7 +557,9 @@ function update0903to91() {
    $migration->addField("glpi_softwarelicenses", "is_helpdesk_visible", "bool");
    $migration->addField("glpi_softwarelicenses", "is_template", "bool");
    $migration->addField("glpi_softwarelicenses", "template_name", "string");
-   $migration->addField("glpi_softwarelicenses", "states_id", "string");
+   $migration->addField("glpi_softwarelicenses", "states_id", "integer");
+   $migration->addField("glpi_softwarelicenses", "manufacturers_id", "integer");
+
    $migration->addKey("glpi_softwarelicenses", "locations_id");
    $migration->addKey("glpi_softwarelicenses", "users_id_tech");
    $migration->addKey("glpi_softwarelicenses", "users_id");
@@ -492,6 +569,7 @@ function update0903to91() {
    $migration->addKey("glpi_softwarelicenses", "is_deleted");
    $migration->addKey("glpi_softwarelicenses", "is_template");
    $migration->addKey("glpi_softwarelicenses", "states_id");
+   $migration->addKey("glpi_softwarelicenses", "manufacturers_id");
 
    $migration->addField("glpi_infocoms", "decommission_date", "datetime");
    $migration->addField("glpi_entities", "autofill_decommission_date",
@@ -500,12 +578,13 @@ function update0903to91() {
    $migration->addField("glpi_states", "is_visible_softwarelicense", "bool");
    $migration->addKey("glpi_states", "is_visible_softwarelicense");
 
-   /************* Add is_recursive on assets ***/
 
+   /************* Add is_recursive on assets ***/
    foreach (array('glpi_computers', 'glpi_monitors', 'glpi_phones', 'glpi_peripherals') as $table) {
       $migration->addField($table, "is_recursive", "bool");
       $migration->addKey($table, "is_recursive");
    }
+
 
    /************* Add antivirus table */
    if (!TableExists('glpi_computerantiviruses')) {
@@ -614,6 +693,7 @@ function update0903to91() {
       }
    }
 
+
    /** ************ New SLA structure ************ */
    if (!TableExists('glpi_slts')) {
       $query = "CREATE TABLE `glpi_slts` (
@@ -708,6 +788,7 @@ function update0903to91() {
       $migration->changeField('glpi_slts', 'resolution_time', 'number_time', 'integer');
    }
 
+
    /************** High contrast CSS **************/
    Config::setConfigurationValues('core', array('highcontrast_css' => 0));
    $migration->addField("glpi_users", "highcontrast_css", "tinyint(1) DEFAULT 0");
@@ -753,6 +834,13 @@ function update0903to91() {
    $migration->addKey("glpi_requesttypes", "is_followup_default");
    $migration->addField("glpi_requesttypes", "is_mailfollowup_default", "bool", array('value' => 0));
    $migration->addKey("glpi_requesttypes", "is_mailfollowup_default");
+
+   /************** Fix autoclose_delay for root_entity in glpi_entities (from -1 to 0) **************/
+   $query = "UPDATE `glpi_entities`
+             SET `autoclose_delay` = 0
+             WHERE `autoclose_delay` = '-1'
+               AND `id` = 0";
+   $DB->queryOrDie($query, "glpi_entities root_entity change autoclose_delay value from -1 to 0");
 
 
    // ************ Keep it at the end **************

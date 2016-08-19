@@ -533,15 +533,19 @@ class Ticket extends CommonITILObject {
          if ($_SESSION['glpishow_count_on_tabs']) {
             switch ($item->getType()) {
                case 'User' :
-                  $nb = countElementsInTable('glpi_tickets_users',
-                                             "`users_id` = '".$item->getID()."'
-                                                AND `type` = ".CommonITILActor::REQUESTER);
+                  $nb = countElementsInTable(array('glpi_tickets', 'glpi_tickets_users'),
+                                             getEntitiesRestrictRequest("", 'glpi_tickets').
+                                               "AND `glpi_tickets_users`.`tickets_id` = `glpi_tickets`.`id`
+                                                AND `glpi_tickets_users`.`users_id` = '".$item->getID()."'
+                                                AND `glpi_tickets_users`.`type` = ".CommonITILActor::REQUESTER);
                   $title = __('Created tickets');
                   break;
 
                case 'Supplier' :
-                  $nb = countElementsInTable('glpi_suppliers_tickets',
-                                             "`suppliers_id` = '".$item->getID()."'");
+                  $nb = countElementsInTable(array('glpi_tickets', 'glpi_suppliers_tickets'),
+                                             getEntitiesRestrictRequest("", 'glpi_tickets').
+                                               "AND `glpi_suppliers_tickets`.`tickets_id` = `glpi_tickets`.`id`
+                                                AND `glpi_suppliers_tickets`.`suppliers_id` = '".$item->getID()."'");
                   break;
 
                case 'SLT' :
@@ -551,9 +555,11 @@ class Ticket extends CommonITILObject {
                   break;
 
                case 'Group' :
-                  $nb = countElementsInTable('glpi_groups_tickets',
-                                             "`groups_id` = '".$item->getID()."'
-                                               AND `type` = ".CommonITILActor::REQUESTER);
+                  $nb = countElementsInTable(array('glpi_tickets', 'glpi_groups_tickets'),
+                                             getEntitiesRestrictRequest("", 'glpi_tickets').
+                                               "AND `glpi_groups_tickets`.`tickets_id` = `glpi_tickets`.`id`
+                                                AND `glpi_groups_tickets`.`groups_id` = '".$item->getID()."'
+                                                AND `glpi_groups_tickets`.`type` = ".CommonITILActor::REQUESTER);
                   $title = __('Created tickets');
                   break;
 
@@ -3138,6 +3144,7 @@ class Ticket extends CommonITILObject {
             echo "<td>".sprintf(__('%1$s%2$s'), __('Hardware type'),
                                 $tt->getMandatoryMark('items_id'))."</td>";
             echo "<td>";
+            $values['_canupdate'] = Session::haveRight('ticket', CREATE);
             Item_Ticket::itemAddForm($this, $values);
             echo "</td></tr>";
          }
@@ -4182,7 +4189,8 @@ class Ticket extends CommonITILObject {
       if (!$ID) {
          echo "<td rowspan='2'>";
          echo $tt->getBeginHiddenFieldValue('items_id');
-         if (Session::haveRight('ticket', CREATE)) {
+         $values['_canupdate'] = Session::haveRight('ticket', CREATE);
+         if ($values['_canupdate']) {
             Item_Ticket::itemAddForm($this, $values);
          }
          echo $tt->getEndHiddenFieldValue('items_id', $this);
@@ -4191,10 +4199,8 @@ class Ticket extends CommonITILObject {
       } else {
          echo "<td>";
          echo $tt->getBeginHiddenFieldValue('items_id');
-         if ($canupdate
-             || $canupdate_descr) {
-            Item_Ticket::itemAddForm($this, $values);
-         }
+         $values['_canupdate'] = $canupdate || $canupdate_descr;
+         Item_Ticket::itemAddForm($this, $values);
          echo $tt->getEndHiddenFieldValue('items_id', $this);
          echo "</td>";
       }
@@ -5212,9 +5218,9 @@ class Ticket extends CommonITILObject {
                                     'items_id' => $item->getID()));
       }
       echo "</div><div>";
-      echo "<table class='tab_cadre_fixehov'>";
 
       if ($number > 0) {
+         echo "<table class='tab_cadre_fixehov'>";
          if (Session::haveRight(self::$rightname, self::READALL)) {
             Session::initNavigateListItems('Ticket',
             //TRANS : %1$s is the itemtype name, %2$s is the name of the item (used for headings of a list)
@@ -5232,6 +5238,7 @@ class Ticket extends CommonITILObject {
          }
 
       } else {
+         echo "<table class='tab_cadre_fixe'>";
          echo "<tr><th>".__('No ticket found.')."</th></tr>";
       }
 
@@ -6288,11 +6295,14 @@ class Ticket extends CommonITILObject {
          $options = array( 'parent' => $this,
                            'rand' => $rand
                            ) ;
-         $obj = new $item['type'] ;
-         $obj->fields = $item['item'] ;
-         Plugin::doHook('pre_show_item', array('item' => $obj, 'options' => &$options));
+         if( $obj = getItemForItemtype($item['type']) ){
+            $obj->fields = $item['item'] ;
+         } else {
+            $obj = $item ;
+         }
+         Plugin::doHook('pre_show_item', array('item' => &$obj, 'options' => &$options));
 
-         $item_i = $obj->fields;
+         $item_i = $item['item'];
 
          $date = "";
          if (isset($item_i['date'])) {
@@ -6879,20 +6889,22 @@ class Ticket extends CommonITILObject {
     * @since version 9.1
     */
    function getValueToSelect($field_id_or_search_options, $name = '', $values = '', $options = array()){
-      switch( $field_id_or_search_options['linkfield'] ) {
-         case 'requesttypes_id':
-            $opt = 'is_ticketheader = 1';
-            if( Toolbox::in_array_recursive('glpi_ticketfollowups', $field_id_or_search_options['joinparams']) ) {
-               $opt = 'is_ticketfollowup = 1';
-            }
-            if( $field_id_or_search_options['linkfield']  == $name ) {
-               $opt .= ' AND is_active = 1' ;
-            }
-            if(isset( $options['condition'] )) {
-               $opt .=  ' AND '.$options['condition'];
-            }
-            $options['condition'] = $opt;
-            break ;
+      if (isset($field_id_or_search_options['linkfield'])) {
+         switch( $field_id_or_search_options['linkfield'] ) {
+            case 'requesttypes_id':
+               $opt = 'is_ticketheader = 1';
+               if( Toolbox::in_array_recursive('glpi_ticketfollowups', $field_id_or_search_options['joinparams']) ) {
+                  $opt = 'is_ticketfollowup = 1';
+               }
+               if( $field_id_or_search_options['linkfield']  == $name ) {
+                  $opt .= ' AND is_active = 1' ;
+               }
+               if(isset( $options['condition'] )) {
+                  $opt .=  ' AND '.$options['condition'];
+               }
+               $options['condition'] = $opt;
+               break ;
+         }
       }
       return parent::getValueToSelect($field_id_or_search_options, $name, $values, $options);
    }

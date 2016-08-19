@@ -2323,6 +2323,9 @@ class CommonDBTM extends CommonGLPI {
                if ($params['canedit']) {
                   if ( $this instanceof CommonDBChild) {
                      echo Dropdown::getYesNo($this->isRecursive());
+                     if (isset($this->fields["is_recursive"])) {
+                        echo "<input type='hidden' name='is_recursive' value='".$this->fields["is_recursive"]."'>";
+                     }
                      $comment = __("Can't change this attribute. It's inherited from its parent.");
                      // CommonDBChild : entity data is get or copy from parent
 
@@ -2691,36 +2694,6 @@ class CommonDBTM extends CommonGLPI {
       }
       // Return integer value to be used to fill is_deleted field
       return 0;
-
-   }
-
-
-   /**
-    * Is the object may be activated
-    *
-    * @return boolean
-    **/
-   function maybeActive() {
-
-      if (!isset($this->fields['id'])) {
-         $this->getEmpty();
-      }
-      return array_key_exists('is_active', $this->fields);
-   }
-
-
-   /**
-    * Is the object active
-    *
-    * @return boolean
-    **/
-   function isActive() {
-
-      if ($this->maybeActive()) {
-         return $this->fields["is_active"];
-      }
-      // Return integer value to be used to fill is_active field
-      return 1;
 
    }
 

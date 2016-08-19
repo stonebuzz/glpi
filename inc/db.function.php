@@ -124,9 +124,10 @@ function getItemTypeForTable($table) {
       $inittable = $table;
       $table     = str_replace("glpi_", "", $table);
       $prefix    = "";
+      $pref2     = "Glpi\\";
 
-      if (preg_match('/^plugin_([a-z0-9]+)_/',$table,$matches)) {
-         $table  = preg_replace('/^plugin_[a-z0-9]+_/','',$table);
+      if (preg_match('/^plugin_([a-z0-9]+)_/', $table, $matches)) {
+         $table  = preg_replace('/^plugin_[a-z0-9]+_/', '', $table);
          $prefix = "Plugin".Toolbox::ucfirst($matches[1]);
       }
 
@@ -136,7 +137,7 @@ function getItemTypeForTable($table) {
          foreach ($split as $key => $part) {
             $split[$key] = Toolbox::ucfirst(getSingular($part));
          }
-         $table = implode('_',$split);
+         $table = implode('_', $split);
 
       } else {
          $table = Toolbox::ucfirst(getSingular($table));
@@ -144,7 +145,7 @@ function getItemTypeForTable($table) {
 
       $itemtype = $prefix.$table;
       // Get real existence of itemtype
-      if ($item = getItemForItemtype($itemtype)) {
+      if (($item = getItemForItemtype($itemtype))) {
          $itemtype                                   = get_class($item);
          $CFG_GLPI['glpiitemtypetables'][$inittable] = $itemtype;
          $CFG_GLPI['glpitablesitemtype'][$itemtype]  = $inittable;
@@ -175,8 +176,10 @@ function getTableForItemType($itemtype) {
       $prefix = "glpi_";
 
       if ($plug = isPluginItemType($itemtype)) {
+         /* PluginFooBar => glpi_plugin_foor_bars */
          $prefix .= "plugin_".strtolower($plug['plugin'])."_";
          $table   = strtolower($plug['class']);
+
       } else {
          $table = strtolower($itemtype);
       }

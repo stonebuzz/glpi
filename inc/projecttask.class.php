@@ -361,10 +361,10 @@ class ProjectTask extends CommonDBChild {
          $projects_id     = $this->fields['projects_id'];
          $projecttasks_id = $this->fields['projecttasks_id'];
       } else {
+         $this->check(-1, CREATE, $options);
          $projects_id     = $options['projects_id'];
          $projecttasks_id = $options['projecttasks_id'];
          $recursive       = $this->fields['is_recursive'];
-         $this->check(-1, CREATE, $options);
       }
 
       $this->showFormHeader($options);
@@ -1407,7 +1407,9 @@ class ProjectTask extends CommonDBChild {
       $html.= $users_id;
       $html.= "</a>";
 
-      $html.= "<div class='b'>".$val["status"]." % completed</div>";
+      $html.= "<div class='b'>";
+      $html.= sprintf(__('%1$s: %2$s'), __('Percent done'), $val["status"]."%") ;
+      $html.= "</div>";
       $html.= "<div class='event-description'>".html_entity_decode($val["content"])."</div>";
       return $html;
    }
