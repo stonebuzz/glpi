@@ -416,15 +416,19 @@ class TicketFollowup  extends CommonDBTM {
       global $CFG_GLPI;
 
 
-      if (isset($this->input['_stock_image'])) {
+      if (isset($this->input['_stock_image']) || isset($this->input['_filename'])) {
 
          //Reload parent ticket
          $ticket = new Ticket();
          $ticket->getFromDB($this->input['tickets_id']);
 
          //create input for update
-         $ticket->input['_stock_image'] = $this->input['_stock_image'];
-         $ticket->input['_tag_stock_image'] = $this->input['_tag_stock_image'];
+         if(isset($this->input['_stock_image']))$ticket->input['_stock_image'] = $this->input['_stock_image'];
+         if(isset($this->input['_tag_stock_image']))$ticket->input['_tag_stock_image'] = $this->input['_tag_stock_image'];
+
+         if(isset($this->input['_filename']))$ticket->input['_filename'] = $this->input['_filename'];
+         if(isset($this->input['_tag_filename']))$ticket->input['_tag_filename'] = $this->input['_tag_filename'];
+
          $ticket->input['id'] = $this->input['tickets_id'];
          $ticket->input['content'] = $ticket->fields['content'];
          $ticket->prepareInputForUpdate($ticket->input);

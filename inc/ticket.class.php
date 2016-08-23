@@ -4335,41 +4335,46 @@ class Ticket extends CommonITILObject {
       }
       echo "</tr>";
 
-      // View files added
-      echo "<tr class='tab_bg_1'>";
-      // Permit to add doc when creating a ticket
-      echo "<th style='width:$colsize1%'>";
-      echo $tt->getBeginHiddenFieldText('_documents_id');
-      $doctitle =  sprintf(__('File (%s)'), Document::getMaxUploadSize());
-      printf(__('%1$s%2$s'), $doctitle, $tt->getMandatoryMark('_documents_id'));
-      // Do not show if hidden.
-      if (!$tt->isHiddenField('_documents_id')) {
-         DocumentType::showAvailableTypesLink();
-      }
-      echo $tt->getEndHiddenFieldText('_documents_id');
-      echo "</th>";
-      echo "<td colspan='3'>";
-      // Do not set values
-      echo $tt->getEndHiddenFieldValue('_documents_id');
-      if ($tt->isPredefinedField('_documents_id')) {
-         if (isset($values['_documents_id'])
-             && is_array($values['_documents_id'])
-             && count($values['_documents_id'])) {
 
-            echo "<span class='b'>".__('Default documents:').'</span>';
-            echo "<br>";
-            $doc = new Document();
-            foreach ($values['_documents_id'] as $key => $val) {
-               if ($doc->getFromDB($val)) {
-                  echo "<input type='hidden' name='_documents_id[$key]' value='$val'>";
-                  echo "- ".$doc->getNameID()."<br>";
-               }
-            }
-         }
+      if(!CommonGLPI::isLayoutWithMain()){
+        // View files added
+        echo "<tr class='tab_bg_1'>";
+        // Permit to add doc when creating a ticket
+        echo "<th style='width:$colsize1%'>";
+        echo $tt->getBeginHiddenFieldText('_documents_id');
+        $doctitle =  sprintf(__('File (%s)'), Document::getMaxUploadSize());
+        printf(__('%1$s%2$s'), $doctitle, $tt->getMandatoryMark('_documents_id'));
+        // Do not show if hidden.
+        if (!$tt->isHiddenField('_documents_id')) {
+           DocumentType::showAvailableTypesLink();
+        }
+        echo $tt->getEndHiddenFieldText('_documents_id');
+        echo "</th>";
+        echo "<td colspan='3'>";
+        // Do not set values
+        echo $tt->getEndHiddenFieldValue('_documents_id');
+        if ($tt->isPredefinedField('_documents_id')) {
+           if (isset($values['_documents_id'])
+               && is_array($values['_documents_id'])
+               && count($values['_documents_id'])) {
+
+              echo "<span class='b'>".__('Default documents:').'</span>';
+              echo "<br>";
+              $doc = new Document();
+              foreach ($values['_documents_id'] as $key => $val) {
+                 if ($doc->getFromDB($val)) {
+                    echo "<input type='hidden' name='_documents_id[$key]' value='$val'>";
+                    echo "- ".$doc->getNameID()."<br>";
+                 }
+              }
+           }
+        }
+        echo "<div id='fileupload_info'></div>";
+        echo "</td>";
+        echo "</tr>";
       }
-      echo "<div id='fileupload_info'></div>";
-      echo "</td>";
-      echo "</tr>";
+
+
 
       if ((!$ID
            || $canupdate
