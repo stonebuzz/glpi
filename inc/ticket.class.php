@@ -4427,7 +4427,7 @@ class Ticket extends CommonITILObject {
       if (!$CFG_GLPI['use_rich_text']) {
          $colspan = 4;
       }
-      echo "<tr class='tab_bg_1'>";
+      /*echo "<tr class='tab_bg_1'>";
       echo "<td colspan='$colspan'>";
       echo $tt->getBeginHiddenFieldValue('_documents_id');
 
@@ -4449,7 +4449,7 @@ class Ticket extends CommonITILObject {
          }
          echo "</td>";
       }
-      echo "</tr>";
+      echo "</tr>";*/
 
       echo "</table>";
       echo "<input type='hidden' name='id' value='$ID'>";
