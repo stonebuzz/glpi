@@ -456,10 +456,9 @@ class TicketFollowup  extends CommonDBTM {
 
          $ticket->input['id'] = $this->input['tickets_id'];
          $ticket->input['content'] = $ticket->fields['content'];
-         $ticket->prepareInputForUpdate($ticket->input);
 
          //update ticket for new file
-         $ticket->updateInDB($ticket->input);
+         $ticket->update($ticket->input);
 
       }
      
@@ -816,14 +815,17 @@ class TicketFollowup  extends CommonDBTM {
          echo "<td class='middle right'>".__('Description')."</td>";
          echo "<td class='center middle'>";
 
+
          if ($CFG_GLPI["use_rich_text"]) {
             $values["content"] = $ticket->setRichTextContent($content_id, $this->fields["content"], $rand);
+            $cols              = 100;
+            $rows              = 10;
          } else {
             $values["content"] = $this->fields["content"];
          }
 
          echo "<div id='content$rand_text'>";
-         echo "<textarea name='content' cols='80' rows='6'>";
+         echo "<textarea id='$content_id' name='content' cols='$cols' rows='$rows'>";
          echo  $values["content"];
          echo "</textarea>";
          echo "</div>";
@@ -839,18 +841,16 @@ class TicketFollowup  extends CommonDBTM {
          echo "</td></tr>\n";
 
          if ($ID <= 0) {
-           // Document_Item::showSimpleAddForItem($ticket);
-           // 
-      echo "<tr class='tab_bg_1'>";
-      echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
-      DocumentType::showAvailableTypesLink();
-      echo "</td>";
-      echo "<td class='top'>";
-      echo "<div id='fileupload_info'></div>";
-      echo "</td>";
-      echo "</tr>";
+            // Document_Item::showSimpleAddForItem($ticket);
 
-
+            echo "<tr class='tab_bg_1'>";
+            echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
+            DocumentType::showAvailableTypesLink();
+            echo "</td>";
+            echo "<td class='top'>";
+            echo "<div id='fileupload_info'></div>";
+            echo "</td>";
+            echo "</tr>";
          }
 
          $this->showFormButtons($options);
