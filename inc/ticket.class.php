@@ -2885,7 +2885,9 @@ class Ticket extends CommonITILObject {
       // Get default values from posted values on reload form
       if (!$ticket_template) {
          if (isset($_POST)) {
-            $values = Html::cleanPostForTextArea($_POST);
+            if(!$CFG_GLPI['use_rich_text']){
+               $values = Html::cleanPostForTextArea($_POST);
+            }
          }
       }
 
@@ -3225,24 +3227,29 @@ class Ticket extends CommonITILObject {
          echo "<tr class='tab_bg_1'>";
          echo "<td>".sprintf(__('%1$s%2$s'), __('Description'), $tt->getMandatoryMark('content')).
               "</td><td>";
-         $rand      = mt_rand();
+         
+         $rand = mt_rand();
          $rand_text = mt_rand();
-
-         $cols       = 90;
-         $rows       = 6;
          $content_id = "content$rand";
+         echo "<tr class='tab_bg_1'>";
+         echo "<td class='middle right'>".__('Description')."</td>";
+         echo "<td class='center middle'>";
+
 
          if ($CFG_GLPI["use_rich_text"]) {
-            $values["content"] = $this->setRichTextContent($content_id, $values["content"], $rand);
+            $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand);
             $cols              = 100;
             $rows              = 10;
          } else {
-            $values["content"] = $this->setSimpleTextContent($values["content"]);
+            $values["content"] = $this->fields["content"];
          }
 
          echo "<div id='content$rand_text'>";
-         echo "<textarea id='$content_id' name='content' cols='$cols' rows='$rows'>".
-                $values['content']."</textarea></div>";
+         echo "<textarea id='$content_id' name='content' cols='$cols' rows='$rows'>";
+         echo  $values["content"];
+         echo "</textarea>";
+         echo "</div>";
+
          echo "</td></tr>";
       }
 
@@ -3251,16 +3258,18 @@ class Ticket extends CommonITILObject {
       if ($CFG_GLPI['use_rich_text']) {
          $width = '50%';
       }
-      echo "<tr class='tab_bg_1'>";
-      echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
-      DocumentType::showAvailableTypesLink();
-      echo "</td>";
-      echo "<td class='top'>";
-      echo "<div id='fileupload_info'></div>";
-      echo "</td>";
-      echo "</tr>";
 
-      echo "<tr class='tab_bg_1'>";
+      if(!CommonGLPI::isLayoutWithMain()){
+         echo "<tr class='tab_bg_1'>";
+         echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
+         DocumentType::showAvailableTypesLink();
+         echo "</td>";
+         echo "<td class='top'>";
+         echo "<div id='fileupload_info'></div>";
+         echo "</td>";
+         echo "</tr>";
+      }
+      /*echo "<tr class='tab_bg_1'>";
       echo "<td colspan='4'>";
       echo "<table width='100%'><tr>";
       echo "<td width='$width '>";
@@ -3282,7 +3291,7 @@ class Ticket extends CommonITILObject {
       echo "</tr></table>";
 
       echo "</td>";
-      echo "</tr>";
+      echo "</tr>";*/
 
 
 
@@ -4287,8 +4296,35 @@ class Ticket extends CommonITILObject {
          echo $tt->getEndHiddenFieldValue('content', $this);
 
       } else {
-         $content = Toolbox::unclean_cross_side_scripting_deep(Html::entity_decode_deep($this->fields['content']));
-         echo nl2br(Html::Clean($content));
+
+         $rand       = mt_rand();
+         $rand_text  = mt_rand();
+         $rows       = 6;
+         $content_id = "content$rand";
+
+         if ($CFG_GLPI["use_rich_text"]) {
+            $this->fields["content"] = $this->setRichTextContent($content_id,
+                                                                 $this->fields["content"],
+                                                                 $rand);
+            $rows = 10;
+
+
+            echo "<div id='content$rand_text'>";
+            echo "<textarea id='$content_id' name='content' style='width:100%' rows='$rows'>".
+               $this->fields["content"]."</textarea></div>";
+            echo Html::scriptBlock("$(document).ready(function() { $('#$content_id').autogrow(); });");
+            echo $tt->getEndHiddenFieldValue('content', $this);
+
+
+
+         } else {
+            $content = Toolbox::unclean_cross_side_scripting_deep(Html::entity_decode_deep($this->fields['content']));
+            echo nl2br(Html::Clean($content));
+         }
+
+
+
+
       }
       echo "</td>";
       echo "</tr>";
@@ -4336,7 +4372,7 @@ class Ticket extends CommonITILObject {
       echo "</tr>";
 
 
-      if(!CommonGLPI::isLayoutWithMain()){
+      if(!CommonGLPI::isLayoutWithMain() && $ID == 0){
         // View files added
         echo "<tr class='tab_bg_1'>";
         // Permit to add doc when creating a ticket
