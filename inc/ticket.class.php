@@ -900,6 +900,7 @@ class Ticket extends CommonITILObject {
 
             if(isset($input['_filename']))$allowed_fields[] = '_filename';
             if(isset($input['_tag_filename']))$allowed_fields[] = '_tag_filename';
+            
             if(isset($input['content']))$allowed_fields[] = 'content';
 
          }
