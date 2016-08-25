@@ -893,6 +893,15 @@ class Ticket extends CommonITILObject {
                 $allowed_fields[] = 'solutiontypes_id';
                 $allowed_fields[] = 'solution';
             }
+
+            //manage uploaded doc for helpdesk
+            if(isset($input['_stock_image']))$allowed_fields[] = '_stock_image';
+            if(isset($input['_tag_stock_image']))$allowed_fields[] = '_tag_stock_image';
+
+            if(isset($input['_filename']))$allowed_fields[] = '_filename';
+            if(isset($input['_tag_filename']))$allowed_fields[] = '_tag_filename';
+            if(isset($input['content']))$allowed_fields[] = 'content';
+
          }
 
          foreach ($allowed_fields as $field) {
