@@ -47,7 +47,8 @@ Session::checkLoginUser();
 
 if (isset($_POST['data'])) {
    foreach($_POST['data'] as $key =>  $values){
-      $unique_name = Rule::getUuid();
+      //$unique_name = Rule::getUuid();
+      $unique_name = rand(0,1000000);
       $response[$key] = array('tag' => Document::getImageTag($unique_name), 'name' => $unique_name);
    }
 

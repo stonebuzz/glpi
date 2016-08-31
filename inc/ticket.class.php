@@ -4382,7 +4382,7 @@ class Ticket extends CommonITILObject {
       echo "</tr>";
 
 
-      if(!CommonGLPI::isLayoutWithMain() && $ID == 0){
+      if($ID == 0){
         // View files added
         echo "<tr class='tab_bg_1'>";
         // Permit to add doc when creating a ticket
