@@ -3914,7 +3914,8 @@ class Html {
             'tabfocus autoresize link image paste',
             'code fullscreen paste_upload_doc'
          ],
-         toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image searchreplace code fullscreen paste_upload_doc',
+          toolbar: 'styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code fullscreen',
+
       });
    ";
 
