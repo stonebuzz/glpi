@@ -3242,6 +3242,7 @@ class Ticket extends CommonITILObject {
          
          $rand = mt_rand();
          $rand_text = mt_rand();
+         $info = "";
          $content_id = "content$rand";
          echo "<tr class='tab_bg_1'>";
          echo "<td class='middle right'>".__('Description')."</td>";
@@ -3249,6 +3250,7 @@ class Ticket extends CommonITILObject {
 
 
          if ($CFG_GLPI["use_rich_text"]) {
+            $info = __('Attach files by dragging & dropping or copy & paste or ');
             $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand);
             $cols              = 100;
             $rows              = 10;
@@ -3261,7 +3263,7 @@ class Ticket extends CommonITILObject {
          echo  $values["content"];
          echo "</textarea>";
          echo "</div>";
-
+         echo $info;
          echo "</td></tr>";
       }
 
@@ -3271,16 +3273,18 @@ class Ticket extends CommonITILObject {
          $width = '50%';
       }
 
-      if(!CommonGLPI::isLayoutWithMain()){
-         echo "<tr class='tab_bg_1'>";
-         echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
-         DocumentType::showAvailableTypesLink();
-         echo "</td>";
-         echo "<td class='top'>";
-         echo "<div id='fileupload_info'></div>";
-         echo "</td>";
-         echo "</tr>";
-      }
+
+
+
+     echo "<tr class='tab_bg_1'>";
+     echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
+     DocumentType::showAvailableTypesLink();
+     echo "</td>";
+     echo "<td class='top'>";
+     echo "<div id='fileupload_info'></div>";
+     echo "</td>";
+     echo "</tr>";
+
       /*echo "<tr class='tab_bg_1'>";
       echo "<td colspan='4'>";
       echo "<table width='100%'><tr>";
@@ -4289,6 +4293,7 @@ class Ticket extends CommonITILObject {
          echo $tt->getBeginHiddenFieldValue('content');
          $rand       = mt_rand();
          $rand_text  = mt_rand();
+         $info = "";
          $rows       = 6;
          $content_id = "content$rand";
 
