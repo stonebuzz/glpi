@@ -369,6 +369,8 @@ abstract class CommonITILTask  extends CommonDBTM {
 
    function prepareInputForAdd($input) {
 
+    global $CFG_GLPI;
+
       $itemtype = $this->getItilObjectItemType();
 
       Toolbox::manageBeginAndEndPlanDates($input['plan']);
@@ -419,6 +421,19 @@ abstract class CommonITILTask  extends CommonDBTM {
       }
       // Add docs without notif
       $docadded = $input["_job"]->addFiles(0,1);
+
+      if (isset($input["content"])) {
+
+         $input["content"] = preg_replace('/\\\\r\\\\n/',"\n",$input['content']);
+         $input["content"] = preg_replace('/\\\\n/',"\n",$input['content']);
+         $input["content"] = preg_replace('/(<img.+?blob:http[^"]*".*?>)/i','',htmlspecialchars_decode($input['content']));
+
+         if (!$CFG_GLPI['use_rich_text']) {
+            $input["content"] = Html::entity_decode_deep($input["content"]);
+            $input["content"] = Html::entity_decode_deep($input["content"]);
+            $input["content"] = Html::clean($input["content"]);
+         }
+      }
 
       return $input;
    }

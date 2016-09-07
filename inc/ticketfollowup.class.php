@@ -350,8 +350,11 @@ class TicketFollowup  extends CommonDBTM {
 
       
       if (isset($input["content"])) {
+
          $input["content"] = preg_replace('/\\\\r\\\\n/',"\n",$input['content']);
          $input["content"] = preg_replace('/\\\\n/',"\n",$input['content']);
+         $input["content"] = preg_replace('/(<img.+?blob:http[^"]*".*?>)/i','',htmlspecialchars_decode($input['content']));
+
          if (!$CFG_GLPI['use_rich_text']) {
             $input["content"] = Html::entity_decode_deep($input["content"]);
             $input["content"] = Html::entity_decode_deep($input["content"]);
