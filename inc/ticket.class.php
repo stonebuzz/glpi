@@ -4310,6 +4310,11 @@ class Ticket extends CommonITILObject {
          echo "<div id='content$rand_text'>";
          echo "<textarea id='$content_id' name='content' style='width:100%' rows='$rows'>".
                 $this->fields["content"]."</textarea></div>";
+
+         if ($CFG_GLPI["use_rich_text"] &&  !CommonGLPI::isLayoutWithMain()) {
+            echo  Html::fileForRichText(array('name' => 'upload_rich_text', 'editorId' => $content_id ));
+         }
+
          echo Html::scriptBlock("$(document).ready(function() { $('#$content_id').autogrow(); });");
          echo $tt->getEndHiddenFieldValue('content', $this);
 
@@ -4330,18 +4335,18 @@ class Ticket extends CommonITILObject {
             echo "<div id='content$rand_text'>";
             echo "<textarea id='$content_id' name='content' style='width:100%' rows='$rows'>".
                $this->fields["content"]."</textarea></div>";
+
+            if ($CFG_GLPI["use_rich_text"] &&  !CommonGLPI::isLayoutWithMain()) {
+               echo  Html::fileForRichText(array('name' => 'upload_rich_text', 'editorId' => $content_id ));
+            }
+
             echo Html::scriptBlock("$(document).ready(function() { $('#$content_id').autogrow(); });");
             echo $tt->getEndHiddenFieldValue('content', $this);
-
-
 
          } else {
             $content = Toolbox::unclean_cross_side_scripting_deep(Html::entity_decode_deep($this->fields['content']));
             echo nl2br(Html::Clean($content));
          }
-
-
-
 
       }
       echo "</td>";
