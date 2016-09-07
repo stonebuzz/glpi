@@ -5049,6 +5049,254 @@ class Html {
                      Html::parseAttributes($options));
    }
 
+
+   static function fileForRichText($options=array()){
+
+      $p['name']              = 'upload_rich_text';
+      $p['editorId']              = 'editorId';
+
+      if (is_array($options) && count($options)) {
+         foreach ($options as $key => $val) {
+            $p[$key] = $val;
+         }
+      }
+
+
+      $out  =  __('Attach files by dragging & dropping or copy & paste or ').'<a href="" id="upload_link">'.__('selecting them').'</a>';
+      $out .=  "<input id='".$p['name']."' type='file' />";
+
+      $script =   '$(function(){
+                     $("#upload_link").on(\'click\', function(e){
+                        e.preventDefault();
+                        $("#'.$p['name'].':hidden").trigger(\'click\');
+                     });
+                  });';
+
+      $script .= '
+
+ var fileindex = 0;
+
+      $(function() {
+                     $("#'.$p['name'].':hidden").change(function (){
+                        file = $("#'.$p['name'].':hidden")[0].files[0] ;
+
+                        var e = jQuery.Event( "drop" );
+
+                        editor = tinyMCE.get(\''.$p['editorId'].'\');
+
+                        
+
+                var files =file;
+                
+
+                state_upload = \'\';
+                state_upload += \'[** UPLOADING FILE == \'+files.name+\' **]\';
+
+                editor.execCommand(\'mceInsertContent\',false, state_upload);
+
+                //Create formdata objet to upload object as file on ajax request
+                var fd = new FormData(); 
+                fd.append(\'file_0\', files); 
+
+              
+
+                //make ajax call for upload doc
+                res = uploadFile(fd,editor, IsImageFromDrop(files));
+
+
+                //replace upload state by html render of image
+                replaceContent(editor,state_upload,res);
+
+                //Set cursor at the end
+                setCursorAtTheEnd(editor);
+
+                if(IsImageFromDrop(files)){
+                    insertImgFromFile(editor,files,res);
+                }
+                //Set cursor at the end
+                setCursorAtTheEnd(editor);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     });
+                  });
+
+                      function insertImgFromFile(editor,fileImg,tag){
+
+        var urlCreator = window.URL || window.webkitURL;
+        var imageUrl = urlCreator.createObjectURL(fileImg);
+
+        var re = new RegExp(\'#\', \'g\');
+        editor.execCommand(\'mceInsertContent\',false, "<img id=\'"+tag.replace(re,\'\')+"\' src=\'"+imageUrl+"\'>"); 
+
+    }
+
+
+
+    function replaceContent(editor,search,replace){
+
+        if(!replace) replace = \'\';
+
+        var re =/\[\*\*(.*?)\*\*\]/;
+        body = editor.getContent();
+        body = body.replace(re,replace);
+        editor.setContent(body);
+    }
+
+    function setCursorAtTheEnd(editor){
+        body = editor.getContent();
+        body +=\'<p> </p>\';
+        editor.setContent(body);
+        editor.dom.add(editor.getBody(),\'p\');
+        editor.selection.select(editor.getBody(), true); // ed is the editor instance
+        editor.selection.collapse(false);
+    }
+
+
+
+
+    function IsImageFromDrop(file){
+        var fileType = file["type"];
+        var ValidImageTypes = ["image/gif", "image/jpeg","image/jpg", "image/png"];
+        if ($.inArray(fileType, ValidImageTypes) < 0) {
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+
+
+                  function uploadFile(fd,editor,image){ // upload function
+
+        returnS = false;
+
+        $.ajax({ // JQuery Ajax
+            type: \'POST\',
+            url: \'../ajax/uploadfile.php\', 
+            data: fd,
+            processData: false,
+            contentType: false,
+            dataType: \'JSON\',
+            async: false,
+            success: function(data) {
+                $.each(data, function(index, element) {
+                   if(element[0].error == undefined){
+                        
+                        tag = getFileTag(element);
+                        //if is an image add tag 
+                        if(image){
+                            returnS = tag.tag;
+                        }
+                        //display uploaded file
+                        displayUploadedFile(element[0],tag,image,editor);
+
+                   }else{
+                        returnS = false;
+                        alert(element[0].error);
+                   }  
+                });
+            },
+
+            error: function (request, status, error) {
+               alert(request.responseText);
+            }
+        });
+
+        return returnS;
+    }
+
+
+
+    function getFileTag(data){ // upload function
+                               // 
+        returnString = \'\';
+
+        $.ajax({ 
+            type: \'POST\',
+            url: \'../ajax/getFileTag.php\', 
+            data: {\'data\':data},
+            dataType: \'JSON\',
+            async: false,
+            success: function(data) {                   
+                returnString = data[0];
+            },
+            error: function (request, status, error) {
+                console.log(request.responseText);
+                returnString=false;
+            }
+        });
+
+        return returnString;
+
+    }
+
+    function displayUploadedFile(file, tag , image,editor){
+
+        //manage input name switch file type
+        name = \'_stock_image\';
+        if(!image){
+            name = \'_filename\';
+            file.id = file.id.replace(\'docstock_image\',\'docfilename\');
+        }
+
+        rand = Math.random();
+
+
+        var p = $(\'<p/>\').attr(\'id\',file.id).html(\'<b>Fichier : </b>\'+file.display+\' <b>Tag : </b>\'+tag.tag+\' \').appendTo(\'#fileupload_info\');
+        var p2 = $(\'<p/>\').attr(\'id\',file.id+\'2\').css({\'display\':\'none\'}).appendTo(\'#fileupload_info\');
+
+        // File
+        $(\'<input/>\').attr(\'type\', \'hidden\').attr(\'name\', name+\'[\'+fileindex+\']\').attr(\'value\',file.name).appendTo(p);
+        // Tag
+        $(\'<input/>\').attr(\'type\', \'hidden\').attr(\'name\', \'_tag\'+name+\'[\'+fileindex+\']\').attr(\'value\', tag.name).appendTo(p);
+
+        // Delete button
+        var elementsIdToRemove = {0:file.id, 1:file.id+\'2\'};
+        $(\'<img src="../pics/delete.png" class="pointer">\').click(function(){
+        deleteImagePasted(elementsIdToRemove, tag.tag,editor);
+        }).appendTo(p);
+
+        fileindex++;
+    }
+
+
+    function deleteImagePasted(elementsIdToRemove, tagToRemove,editor){
+        // Remove file display lines
+        $.each(elementsIdToRemove, function (index, id) {
+            $(\'#\'+id).remove();
+        });
+
+        editor.setContent(editor.getContent().replace(\'<p>\'+tagToRemove+\'</p>\', \'\'));
+
+        var re = new RegExp(\'#\', \'g\');
+        editor.dom.remove(tagToRemove.replace(re,\'\'));
+    }
+
+    ';
+
+      $out .=   Html::scriptBlock($script);
+
+      return $out;
+
+   }
+                                  
+
+
    /**
     * Creates an input file field. Send file names in _$name field as array.
     * Files are uploaded in files/_tmp/ directory
