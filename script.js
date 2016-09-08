@@ -1098,7 +1098,7 @@ function insertImgFromFile(editor,fileImg,tag){
   var imageUrl = urlCreator.createObjectURL(fileImg);
 
   var re = new RegExp('#', 'g');
-  editor.execCommand('mceInsertContent',false, "<img id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
+  editor.execCommand('mceInsertContent',false, "<img width=\"760\" height=\"251\" id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
 
 }
 
@@ -1351,7 +1351,7 @@ function processFileDrop(e,editor){
        res = uploadFile(fd,editor, IsImageFromDrop(files[0]));
 
        //replace upload state by html render of image
-       replaceContent(editor,state_upload,res);
+       replaceContent(editor,state_upload,'');
 
        //Set cursor at the end
        setCursorAtTheEnd(editor);
@@ -1377,6 +1377,8 @@ function processImageFromPaste(e,editor){
 
    state_upload = '';
 
+   content = e.content;
+
    //extract base64 data
    base64 = extractSrcFromImgTag(content);
 
@@ -1398,7 +1400,7 @@ function processImageFromPaste(e,editor){
    res = uploadFile(fd,editor,true);
 
    //replace upload state by html render of image
-   replaceContent(editor,state_upload,res);
+   replaceContent(editor,state_upload,'');
 
    //Set cursor at the end
    setCursorAtTheEnd(editor); 
@@ -1418,6 +1420,9 @@ function processImageBlobFromPaste(e,editor){
    
    e.preventDefault();
    e.stopPropagation();
+
+
+   content = e.content;
 
    filename = getRandomFileName();
 
@@ -1448,7 +1453,7 @@ function processImageBlobFromPaste(e,editor){
          res = uploadFile(fd,editor,true);
 
          //replace upload state by html render of image
-         replaceContent(editor,state_upload,res);
+         replaceContent(editor,state_upload,'');
 
          setCursorAtTheEnd(editor);  
 
