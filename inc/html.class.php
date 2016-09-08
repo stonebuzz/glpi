@@ -3902,7 +3902,6 @@ class Html {
          browser_spellcheck: true,
          mode: 'exact',
          elements: '$name',
-         object_resizing : false,
          relative_urls: false,
          remove_script_host: false,
          entity_encoding: 'raw',
