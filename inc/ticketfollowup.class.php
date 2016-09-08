@@ -746,7 +746,7 @@ class TicketFollowup  extends CommonDBTM {
 
          echo "<tr class='tab_bg_1'>";
          echo "<td rowspan='3'>".__('Description')."</td>";
-         echo "<td rowspan='3' style='width:60%'>";
+         echo "<td rowspan='3' style='width:65%'>";
 
 
          if ($CFG_GLPI["use_rich_text"]) {
