@@ -1521,10 +1521,8 @@ class Ticket extends CommonITILObject {
       if (isset($input["content"])) {
          $input["content"] = preg_replace('/\\\\r\\\\n/',"\n",$input['content']);
          $input["content"] = preg_replace('/\\\\n/',"\n",$input['content']);
-         $input["content"] = preg_replace('/(<img.+?blob:http[^"]*".*?>)/i','',htmlspecialchars_decode($input['content']));
-
          if (!$CFG_GLPI['use_rich_text']) {
-         $input["content"] = Html::entity_decode_deep($input["content"]);
+            $input["content"] = Html::entity_decode_deep($input["content"]);
             $input["content"] = Html::entity_decode_deep($input["content"]);
             $input["content"] = Html::clean($input["content"]);
          }
@@ -1766,6 +1764,30 @@ class Ticket extends CommonITILObject {
       }
 
 
+      //extract tag from tinyMCE img tag and converted it in glpi image
+      //need to bee porcess here because, befor image oare not precess yet.
+      if(isset($this->input['content'])){
+         $matches = null;
+         preg_match_all('/(<img.+?blob:http[^"]*".*?>)/i',htmlspecialchars_decode($this->input['content']), $matches);
+
+         foreach ($matches[0] as $extract) {
+            $id = $extract;
+            $return = null;
+
+            preg_match_all('/(id|width|height)=(\\\"[^"]*\\\")/i',$id, $return);
+
+            if($return != null){
+               $tag = str_replace(array('"','\\'),'', $return[2][0]);
+               $width = str_replace(array('"','\\'),'', $return[2][1]);
+               $height = str_replace(array('"','\\'),'', $return[2][2]);
+               $this->input["content"] = str_replace($extract,self::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($this->input['content']));
+            }
+
+         }
+         
+      }
+
+
       parent::post_addItem();
 
       $this->manageValidationAdd($this->input);
@@ -1791,6 +1813,7 @@ class Ticket extends CommonITILObject {
                                                             $this->fields['id']."'>".
                                                             $this->fields['id']."</a>")));
       }
+
 
    }
 
@@ -5842,6 +5865,52 @@ class Ticket extends CommonITILObject {
 //         $this->input['_forcenotif'] = 1;
       }
 
+   }
+
+
+/**
+    * Convert tag to image
+    *
+    * @since version 0.85
+    *
+    * @param $content_text         text content of input
+    * @param $force_update         force update of content in item (false by default
+    * @param $doc_data       array of filenames and tags
+    *
+    * @return nothing
+   **/
+   public static function convertTagToHtmlImageTag($tag, $width, $height) {
+      global $CFG_GLPI;
+
+      $doc = new Document();
+      $doc_data = $doc->find("`tag` IN('".$tag."')");
+
+      $out = "";
+
+      if (count($doc_data)) {
+         foreach ($doc_data as $id => $image) {
+            // Add only image files : try to detect mime type
+            $ok       = false;
+            $mime     = '';
+            if (isset($image['filepath'])) {
+               $fullpath = GLPI_DOC_DIR."/".$image['filepath'];
+               $mime = Toolbox::getMime($fullpath);
+               $ok   = Toolbox::getMime($fullpath, 'image');
+            }
+            if (isset($image['tag'])) {
+                if ($ok || empty($mime)) {
+               // Replace tags by image in textarea
+               $out .= '<img alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
+                       '/front/document.send.php?docid='.$id.'"/>';
+
+
+
+               } 
+            }
+         }
+         return $out;
+      }
+      return '#'.$tag.'#';
    }
 
 

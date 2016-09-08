@@ -423,11 +423,8 @@ abstract class CommonITILTask  extends CommonDBTM {
       $docadded = $input["_job"]->addFiles(0,1);
 
       if (isset($input["content"])) {
-
          $input["content"] = preg_replace('/\\\\r\\\\n/',"\n",$input['content']);
          $input["content"] = preg_replace('/\\\\n/',"\n",$input['content']);
-         $input["content"] = preg_replace('/(<img.+?blob:http[^"]*".*?>)/i','',htmlspecialchars_decode($input['content']));
-
          if (!$CFG_GLPI['use_rich_text']) {
             $input["content"] = Html::entity_decode_deep($input["content"]);
             $input["content"] = Html::entity_decode_deep($input["content"]);
@@ -463,6 +460,29 @@ abstract class CommonITILTask  extends CommonDBTM {
          //update ticket for new file
          $ticket->updateInDB($ticket->input);
 
+      }
+
+      //update content to convert tag on img tag
+      if(isset($this->input['content'])){
+
+         $matches = null;
+         preg_match_all('/(<img.+?blob:http[^"]*".*?>)/i',htmlspecialchars_decode($this->input['content']), $matches);
+
+         foreach ($matches[0] as $extract) {
+            $id = $extract;
+            $return = null;
+            
+            preg_match_all('/(id|width|height)=(\\\"[^"]*\\\")/i',$id, $return);
+
+            if($return != null){
+               $tag = str_replace(array('"','\\'),'', $return[2][0]);
+               $width = str_replace(array('"','\\'),'', $return[2][1]);
+               $height = str_replace(array('"','\\'),'', $return[2][2]);
+
+               $this->input["content"] = str_replace($extract,Ticket::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($this->input['content']));
+            }
+
+         }
       }
 
       
