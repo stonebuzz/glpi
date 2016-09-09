@@ -1132,7 +1132,7 @@ function insertImgFromFile(editor,fileImg,tag){
            }
 
 
-         editor.execCommand('mceInsertContent',false, "<img data-zoom-image=='"+imageUrl+"' class='img_wysiwyg' width=\""+imgWidth+"\" height=\""+imgHeight+"\" id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
+         editor.execCommand('mceInsertContent',false, "<img data-zoom-image=='"+imageUrl+"' width=\""+imgWidth+"\" height=\""+imgHeight+"\" id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
 
 
          };
