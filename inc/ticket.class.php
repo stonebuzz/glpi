@@ -4322,7 +4322,7 @@ class Ticket extends CommonITILObject {
          echo "<textarea id='$content_id' name='content' style='width:100%' rows='$rows'>".
                 $this->fields["content"]."</textarea></div>";
 
-         if (($CFG_GLPI["use_rich_text"] &&  !CommonGLPI::isLayoutWithMain()) || $this->isNewItem() ) {
+         if (($CFG_GLPI["use_rich_text"] &&  !CommonGLPI::isLayoutWithMain()) ) {
             echo  Html::fileForRichText(array('name' => 'upload_rich_text', 'editorId' => $content_id ));
          }
 
@@ -4442,6 +4442,22 @@ class Ticket extends CommonITILObject {
         echo "<div id='fileupload_info'></div>";
         echo "</td>";
         echo "</tr>";
+
+         if (!$CFG_GLPI["use_rich_text"]) {
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>";
+            echo "</td>";
+            echo "<td colspan='1'>";
+            echo Html::file(array('multiple' => true,
+                                  'showfilecontainer' => 'fileupload_info'
+                                  ));
+            echo "</td>";
+            echo "<td>";
+            echo "</td>";
+            echo "</tr>";
+         }
+
+
       }
 
 

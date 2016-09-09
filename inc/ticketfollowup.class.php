@@ -440,7 +440,7 @@ class TicketFollowup  extends CommonDBTM {
    function post_addItem() {
       global $CFG_GLPI;
 
-      if (isset($this->input['_stock_image']) || isset($this->input['_filename'])) {
+      if ( (isset($this->input['_stock_image']) || isset($this->input['_filename'])) && $CFG_GLPI['use_rich_text']) {
 
          //Reload parent ticket
          $ticket = new Ticket();
@@ -804,6 +804,22 @@ class TicketFollowup  extends CommonDBTM {
          echo "</td></tr>";
 
          if ($ID <= 0) {
+
+            if (!$CFG_GLPI["use_rich_text"]) {
+               echo "<tr class='tab_bg_1'>";
+               echo "<td>";
+               echo "</td>";
+               echo "<td colspan='1'>";
+               echo Html::file(array('multiple' => true,
+                                     'showfilecontainer' => 'fileupload_info'
+                                     ));
+               echo "</td>";
+               echo "<td>";
+               echo "</td>";
+               echo "</tr>";
+            }
+
+
             //Document_Item::showSimpleAddForItem($this);
             echo "<tr class='tab_bg_1'>";
             echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
@@ -829,11 +845,10 @@ class TicketFollowup  extends CommonDBTM {
          echo "<td class='middle right'>".__('Description')."</td>";
          echo "<td class='center middle'>";
 
-
+         $cols              = 100;
+         $rows              = 10;
          if ($CFG_GLPI["use_rich_text"]) {
             $values["content"] = $ticket->setRichTextContent($content_id, $this->fields["content"], $rand);
-            $cols              = 100;
-            $rows              = 10;
          } else {
             $values["content"] = $this->fields["content"];
          }
@@ -856,6 +871,20 @@ class TicketFollowup  extends CommonDBTM {
 
          if ($ID <= 0) {
             // Document_Item::showSimpleAddForItem($ticket);
+            
+            if (!$CFG_GLPI["use_rich_text"]) {
+               echo "<tr class='tab_bg_1'>";
+               echo "<td>";
+               echo "</td>";
+               echo "<td colspan='1'>";
+               echo Html::file(array('multiple' => true,
+                                     'showfilecontainer' => 'fileupload_info'
+                                     ));
+               echo "</td>";
+               echo "<td>";
+               echo "</td>";
+               echo "</tr>";
+            }
 
             echo "<tr class='tab_bg_1'>";
             echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());

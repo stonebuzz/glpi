@@ -440,7 +440,7 @@ abstract class CommonITILTask  extends CommonDBTM {
       global $CFG_GLPI;
 
 
-      if (isset($this->input['_stock_image']) || isset($this->input['_filename'])) {
+      if ( ((isset($this->input['_stock_image']) || isset($this->input['_filename']) ) &&   $CFG_GLPI['use_rich_text'])   ) {
 
          //Reload parent ticket
          $ticket = new Ticket();
@@ -1394,13 +1394,28 @@ abstract class CommonITILTask  extends CommonDBTM {
       if ($ID <= 0) {
          //Document_Item::showSimpleAddForItem($item);
          //            echo "<tr class='tab_bg_1'>";
-            echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
-            DocumentType::showAvailableTypesLink();
+      
+         if (!$CFG_GLPI["use_rich_text"]) {
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>";
             echo "</td>";
-            echo "<td class='top'>";
-            echo "<div id='fileupload_info'></div>";
+            echo "<td colspan='1'>";
+            echo Html::file(array('multiple' => true,
+                                  'showfilecontainer' => 'fileupload_info'
+                                  ));
+            echo "</td>";
+            echo "<td>";
             echo "</td>";
             echo "</tr>";
+         }
+
+         echo "<td class='top'>".sprintf(__('%1$s (%2$s)'), __('File'), Document::getMaxUploadSize());
+         DocumentType::showAvailableTypesLink();
+         echo "</td>";
+         echo "<td class='top'>";
+         echo "<div id='fileupload_info'></div>";
+         echo "</td>";
+         echo "</tr>";
       }
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('By')."</td>";
