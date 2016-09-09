@@ -5914,7 +5914,6 @@ class Html {
 
       $doc = new Document();
       $doc_data = $doc->find("`tag` IN('".$tag."')");
-
       $out = "";
 
       if (count($doc_data)) {
@@ -5974,10 +5973,7 @@ class Html {
          }
 
       }
-
       return $content;
-
-
    }
 
 

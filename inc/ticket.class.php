@@ -1763,14 +1763,6 @@ class Ticket extends CommonITILObject {
          }
       }
 
-
-      //extract tag from tinyMCE img tag and converted it in glpi image
-      //need to bee porcess here because, befor image oare not precess yet.
-      if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
-         $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
-      }
-
-
       parent::post_addItem();
 
       $this->manageValidationAdd($this->input);
@@ -1797,6 +1789,13 @@ class Ticket extends CommonITILObject {
                                                             $this->fields['id']."</a>")));
       }
 
+
+      
+      //extract tag from tinyMCE img tag and converted it in glpi image
+      //need to bee porcess here because, befor image oare not precess yet.
+      if(isset($this->input['content'])){
+         $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
+      }
 
    }
 

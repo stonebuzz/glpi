@@ -461,11 +461,7 @@ class TicketFollowup  extends CommonDBTM {
 
       }
       
-      //extract tag from tinyMCE img tag and converted it in glpi image
-      //need to bee porcess here because, befor image oare not precess yet.      
-      if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
-         $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
-      }
+
      
       $donotif = $CFG_GLPI["use_mailing"];
 
@@ -545,6 +541,15 @@ class TicketFollowup  extends CommonDBTM {
       $changes[2] = $this->fields['id'];
       Log::history($this->getField('tickets_id'), 'Ticket', $changes, $this->getType(),
                    Log::HISTORY_ADD_SUBITEM);
+
+
+      //extract tag from tinyMCE img tag and converted it in glpi image
+      //need to bee porcess here because, befor image oare not precess yet.      
+      if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
+         $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
+      }
+
+
    }
 
 
