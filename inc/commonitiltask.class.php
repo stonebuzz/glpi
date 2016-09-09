@@ -465,7 +465,8 @@ abstract class CommonITILTask  extends CommonDBTM {
       //extract tag from tinyMCE img tag and converted it in glpi image
       //need to bee porcess here because, befor image oare not precess yet.
       if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
-         $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
+         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
+         $this->updateInDB(array('content'));  
       }
 
       
@@ -1267,7 +1268,7 @@ abstract class CommonITILTask  extends CommonDBTM {
       }
       echo "<tr class='tab_bg_1'>";
       echo "<td rowspan='$rowspan' style='width:100px'>".__('Description')."</td>";
-      echo "<td rowspan='$rowspan' style='width:50%' id='content$rand_text'>";
+      echo "<td rowspan='$rowspan' style='width:65%' id='content$rand_text'>";
 
       $rand_text = mt_rand();
       $content_id = "content$rand";

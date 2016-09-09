@@ -546,7 +546,8 @@ class TicketFollowup  extends CommonDBTM {
       //extract tag from tinyMCE img tag and converted it in glpi image
       //need to bee porcess here because, befor image oare not precess yet.      
       if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
-         $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
+         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
+         $this->updateInDB(array('content'));       
       }
 
 
