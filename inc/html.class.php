@@ -1161,7 +1161,7 @@ class Html {
       //RichText
       if($CFG_GLPI['use_rich_text']){
          echo Html::script($CFG_GLPI["root_doc"]."/lib/jqueryplugins/elevate/jquery.elevateZoom-3.0.8.min.js");
-         echo Html::scriptBlock("$( document ).ready(function() { alert('ok'); $('.img_wysiwyg').elevateZoom(); });");
+         echo Html::scriptBlock("$( document ).ready(function() { $('.img_wysiwyg').elevateZoom(); });");
       }
 
       // layout
