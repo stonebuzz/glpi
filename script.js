@@ -1094,12 +1094,97 @@ function deleteImagePasted(elementsIdToRemove, tagToRemove,editor){
 
 function insertImgFromFile(editor,fileImg,tag){
 
-  var urlCreator = window.URL || window.webkitURL;
-  var imageUrl = urlCreator.createObjectURL(fileImg);
+   var urlCreator = window.URL || window.webkitURL;
+   var imageUrl = urlCreator.createObjectURL(fileImg);
 
-  var re = new RegExp('#', 'g');
-  editor.execCommand('mceInsertContent',false, "<img width=\"760\" height=\"251\" id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
+   var re = new RegExp('#', 'g');
 
+   maxHeight = $(tinyMCE.activeEditor.getContainer()).height() + 60;
+   maxWidth = $(tinyMCE.activeEditor.getContainer()).width()  + 60;
+
+   //imgWidth = getImgWidth(fileImg);
+   //imgHeight =  getImgHeight(fileImg);
+   
+   if ( window.FileReader && window.File && window.FileList && window.Blob ){
+
+      var reader = new FileReader();
+      reader.onload = (function(theFile) { 
+         var image = new Image();
+         image.src = theFile.target.result;
+
+         image.onload = function() {
+            // access image size here 
+            imgWidth = this.width;
+            imgHeight = this.height;
+            ration = 0;
+
+           if(imgWidth > maxWidth){
+               ratio = maxWidth / imgWidth;   // get ratio for scaling image
+               imgHeight = imgHeight * ratio;    // Reset height to match scaled image
+               imgWidth = imgWidth * ratio;    // Reset width to match scaled image
+           }
+
+           // Check if current height is larger than max
+           if(imgHeight > maxHeight){
+               ratio = maxHeight / imgHeight; // get ratio for scaling image
+               imgWidth = imgWidth * ratio;    // Reset width to match scaled image
+               imgHeight = imgHeight * ratio;    // Reset height to match scaled image
+           }
+
+
+         editor.execCommand('mceInsertContent',false, "<img data-zoom-image=='"+imageUrl+"' class='img_wysiwyg' width=\""+imgWidth+"\" height=\""+imgHeight+"\" id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
+
+
+         };
+      });
+      reader.readAsDataURL(fileImg);
+
+
+   }else{
+      console.log('thanks to update your browser to get preview of image');
+   }
+
+}
+
+function getImgWidth(theFile){
+   var reader = new FileReader();
+   var width = 0;
+
+
+   reader.onload = (function(theFile) { 
+      var image = new Image();
+      image.src = theFile.target.result;
+
+      image.onload = function() {
+         // access image size here 
+         width = this.width;
+         return width;
+
+      };
+   });
+   reader.readAsDataURL(theFile);
+   return width;
+}
+
+
+function getImgHeight(theFile){
+   var reader = new FileReader();
+   var height = 0;
+
+
+   reader.onload = (function(theFile) { 
+      var image = new Image();
+      image.src = theFile.target.result;
+
+      image.onload = function() {
+         // access image size here 
+         height =  this.height;
+         return height;
+
+      };
+   });
+   reader.readAsDataURL(theFile);
+   return height;
 }
 
 
