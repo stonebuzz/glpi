@@ -4,7 +4,7 @@
  * @version $Id$
  -------------------------------------------------------------------------
  GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015 Teclib'.
+ Copyright (C) 2015-2016 Teclib'.
 
  http://glpi-project.org
 
@@ -294,9 +294,7 @@ class ComputerAntivirus extends CommonDBChild {
          echo "<td colspan='2'></td>";
       }
       echo "</tr>\n";
-
-      echo "<table class='tab_cadre_fixe' cellpadding='1'>";
-
+      
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Name')."</td>";
       echo "<td>";
