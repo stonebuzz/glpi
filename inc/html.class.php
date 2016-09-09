@@ -5944,6 +5944,43 @@ class Html {
    }
 
 
-   
+   /**
+    * Function to process img tag from tinyMCE
+    * 1 - extract all tag
+    * 2 - extract tag, width, height
+    * 3 - convert tag to glpi img
+    * 4 - replace TinyMCE tag by glpi tag 
+    *
+    * @param      <type>  $content  The content
+    *
+    * @return     <type>  ( description_of_the_return_value )
+    */
+   public static function processImgTagFromRichText($content){
+
+      $matches = null;
+      preg_match_all('/(<img.+?blob:http[^"]*".*?>)/i',htmlspecialchars_decode($content), $matches);
+
+      foreach ($matches[0] as $extract) {
+         $id = $extract;
+         $return = null;
+
+         preg_match_all('/(id|width|height)=(\\\"[^"]*\\\")/i',$id, $return);
+
+         if($return != null){
+            $tag = str_replace(array('"','\\'),'', $return[2][0]);
+            $width = str_replace(array('"','\\'),'', $return[2][1]);
+            $height = str_replace(array('"','\\'),'', $return[2][2]);
+            $content = str_replace($extract,Html::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($content));
+         }
+
+      }
+
+      return $content;
+
+
+   }
+
+
+
 }
 ?>

@@ -465,9 +465,11 @@ class TicketFollowup  extends CommonDBTM {
 
       
       //update content to convert tag on img tag
-      if(isset($this->input['content'])){
+      if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
 
-         $matches = null;
+          $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
+
+        /* $matches = null;
          preg_match_all('/(<img.+?blob:http[^"]*".*?>)/i',htmlspecialchars_decode($this->input['content']), $matches);
 
          foreach ($matches[0] as $extract) {
@@ -484,7 +486,7 @@ class TicketFollowup  extends CommonDBTM {
                $this->input["content"] = str_replace($extract,Html::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($this->input['content']));
             }
 
-         }
+         }*/
       }
      
       $donotif = $CFG_GLPI["use_mailing"];

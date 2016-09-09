@@ -1766,8 +1766,11 @@ class Ticket extends CommonITILObject {
 
       //extract tag from tinyMCE img tag and converted it in glpi image
       //need to bee porcess here because, befor image oare not precess yet.
-      if(isset($this->input['content'])){
-         $matches = null;
+      if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
+
+         $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
+
+         /*$matches = null;
          preg_match_all('/(<img.+?blob:http[^"]*".*?>)/i',htmlspecialchars_decode($this->input['content']), $matches);
 
          foreach ($matches[0] as $extract) {
@@ -1783,7 +1786,7 @@ class Ticket extends CommonITILObject {
                $this->input["content"] = str_replace($extract,Html::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($this->input['content']));
             }
 
-         }
+         }*/
          
       }
 
