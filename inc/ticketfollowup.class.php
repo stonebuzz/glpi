@@ -481,7 +481,7 @@ class TicketFollowup  extends CommonDBTM {
                $width = str_replace(array('"','\\'),'', $return[2][1]);
                $height = str_replace(array('"','\\'),'', $return[2][2]);
 
-               $this->input["content"] = str_replace($extract,Ticket::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($this->input['content']));
+               $this->input["content"] = str_replace($extract,Html::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($this->input['content']));
             }
 
          }

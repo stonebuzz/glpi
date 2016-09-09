@@ -5896,5 +5896,54 @@ class Html {
          }).text('".Toolbox::addslashes_deep($msg)."');
          " ;
    }
+
+
+   /**
+    * Convert tag to image
+    *
+    * @since version 0.85
+    *
+    * @param $content_text         text content of input
+    * @param $force_update         force update of content in item (false by default
+    * @param $doc_data       array of filenames and tags
+    *
+    * @return nothing
+   **/
+   public static function convertTagToHtmlImageTag($tag, $width, $height) {
+      global $CFG_GLPI;
+
+      $doc = new Document();
+      $doc_data = $doc->find("`tag` IN('".$tag."')");
+
+      $out = "";
+
+      if (count($doc_data)) {
+         foreach ($doc_data as $id => $image) {
+            // Add only image files : try to detect mime type
+            $ok       = false;
+            $mime     = '';
+            if (isset($image['filepath'])) {
+               $fullpath = GLPI_DOC_DIR."/".$image['filepath'];
+               $mime = Toolbox::getMime($fullpath);
+               $ok   = Toolbox::getMime($fullpath, 'image');
+            }
+            if (isset($image['tag'])) {
+                if ($ok || empty($mime)) {
+               // Replace tags by image in textarea
+               $out .= '<img alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
+                       '/front/document.send.php?docid='.$id.'"/>';
+
+
+
+               } 
+            }
+         }
+         return $out;
+      }
+      return '#'.$tag.'#';
+   }
+
+
+   
 }
 ?>
