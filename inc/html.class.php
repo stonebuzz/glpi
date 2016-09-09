@@ -5957,7 +5957,7 @@ class Html {
    public static function processImgTagFromRichText($content){
 
       $matches = null;
-      preg_match_all('/(<img.+?blob:http[^"]*".*?>)/i',htmlspecialchars_decode($content), $matches);
+      preg_match_all('/(<img.+?blob:[^"]*".*?>)/i',htmlspecialchars_decode($content), $matches);
 
       foreach ($matches[0] as $extract) {
          $id = $extract;
