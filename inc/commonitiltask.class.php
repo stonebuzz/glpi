@@ -462,30 +462,10 @@ abstract class CommonITILTask  extends CommonDBTM {
 
       }
 
-      //update content to convert tag on img tag
+      //extract tag from tinyMCE img tag and converted it in glpi image
+      //need to bee porcess here because, befor image oare not precess yet.
       if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
-
          $this->input["content"] = Html::processImgTagFromRichText($this->input['content']);
-
-
-         /*$matches = null;
-         preg_match_all('/(<img.+?blob:http[^"]*".*?>)/i',htmlspecialchars_decode($this->input['content']), $matches);
-
-         foreach ($matches[0] as $extract) {
-            $id = $extract;
-            $return = null;
-            
-            preg_match_all('/(id|width|height)=(\\\"[^"]*\\\")/i',$id, $return);
-
-            if($return != null){
-               $tag = str_replace(array('"','\\'),'', $return[2][0]);
-               $width = str_replace(array('"','\\'),'', $return[2][1]);
-               $height = str_replace(array('"','\\'),'', $return[2][2]);
-
-               $this->input["content"] = str_replace($extract,Html::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($this->input['content']));
-            }
-
-         }*/
       }
 
       

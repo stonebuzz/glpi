@@ -5953,7 +5953,7 @@ class Html {
     *
     * @param      <type>  $content  The content
     *
-    * @return     <type>  ( description_of_the_return_value )
+    * @return     <type>  content altered
     */
    public static function processImgTagFromRichText($content){
 
