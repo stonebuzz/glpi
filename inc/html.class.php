@@ -5904,8 +5904,9 @@ class Html {
             if (isset($image['tag'])) {
                 if ($ok || empty($mime)) {
                // Replace tags by image in textarea
-               $out .= '<img alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
-                       '/front/document.send.php?docid='.$id.'"/>';
+               $out .= '<a href="'.$CFG_GLPI['root_doc'].
+                       '/front/document.send.php?docid='.$id.'" target="_blank" ><img class="img_wysiwyg" alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
+                       '/front/document.send.php?docid='.$id.'"/></a>';
 
 
 
