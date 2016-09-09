@@ -1158,6 +1158,12 @@ class Html {
       echo Html::script($CFG_GLPI["root_doc"]."/lib/jqueryplugins/fullcalendar/lib/moment.min.js");
       echo Html::script($CFG_GLPI["root_doc"]."/lib/jqueryplugins/fullcalendar/fullcalendar.min.js");
 
+      //RichText
+      if($CFG_GLPI['use_rich_text']){
+         echo Html::script($CFG_GLPI["root_doc"]."/lib/jqueryplugins/elevate/jquery.elevateZoom-3.0.8.min.js");
+         echo Html::scriptBlock("$( document ).ready(function() { alert('ok'); $('.img_wysiwyg').elevateZoom(); });");
+      }
+
       // layout
       if (CommonGLPI::isLayoutWithMain()
           && !CommonGLPI::isLayoutExcludedPage()) {
@@ -5904,9 +5910,9 @@ class Html {
             if (isset($image['tag'])) {
                 if ($ok || empty($mime)) {
                // Replace tags by image in textarea
-               $out .= '<a href="'.$CFG_GLPI['root_doc'].
-                       '/front/document.send.php?docid='.$id.'" target="_blank" ><img class="img_wysiwyg" alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
-                       '/front/document.send.php?docid='.$id.'"/></a>';
+               $out .= '<img class="img_wysiwyg" alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
+                       '/front/document.send.php?docid='.$id.'" data-zoom-image="'.$CFG_GLPI['root_doc'].
+                       '/front/document.send.php?docid='.$id.'" />';
 
 
 
