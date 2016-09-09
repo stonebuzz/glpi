@@ -5072,64 +5072,39 @@ class Html {
                   });';
 
       $script .= '
-
- var fileindex = 0;
-
-      $(function() {
+                  var fileindex = 0;
+                  $(function() {
                      $("#'.$p['name'].':hidden").change(function (){
                         file = $("#'.$p['name'].':hidden")[0].files[0] ;
 
-                        var e = jQuery.Event( "drop" );
-
                         editor = tinyMCE.get(\''.$p['editorId'].'\');
 
-                        
+                        var files =file;
 
-                var files =file;
-                
+                        state_upload = \'\';
+                        state_upload += \'[** UPLOADING FILE == \'+files.name+\' **]\';
 
-                state_upload = \'\';
-                state_upload += \'[** UPLOADING FILE == \'+files.name+\' **]\';
+                        editor.execCommand(\'mceInsertContent\',false, state_upload);
 
-                editor.execCommand(\'mceInsertContent\',false, state_upload);
+                        //Create formdata objet to upload object as file on ajax request
+                        var fd = new FormData(); 
+                        fd.append(\'file_0\', files); 
 
-                //Create formdata objet to upload object as file on ajax request
-                var fd = new FormData(); 
-                fd.append(\'file_0\', files); 
-
-              
-
-                //make ajax call for upload doc
-                res = uploadFile(fd,editor, IsImageFromDrop(files));
+                        //make ajax call for upload doc
+                        res = uploadFile(fd,editor, IsImageFromDrop(files));
 
 
-                //replace upload state by html render of image
-                replaceContent(editor,state_upload,res);
+                        //replace upload state by html render of image
+                        replaceContent(editor,state_upload,\'\');
 
-                //Set cursor at the end
-                setCursorAtTheEnd(editor);
+                        //Set cursor at the end
+                        setCursorAtTheEnd(editor);
 
-                if(IsImageFromDrop(files)){
-                    insertImgFromFile(editor,files,res);
-                }
-                //Set cursor at the end
-                setCursorAtTheEnd(editor);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                        if(IsImageFromDrop(files)){
+                           insertImgFromFile(editor,files,res);
+                        }
+                        //Set cursor at the end
+                        setCursorAtTheEnd(editor);
 
                      });
                   });
