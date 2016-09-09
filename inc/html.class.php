@@ -5909,7 +5909,7 @@ class Html {
     *
     * @return nothing
    **/
-   public static function convertTagToHtmlImageTag($tag, $width, $height) {
+   public static function convertTagFromRichTextToImageTag($tag, $width, $height) {
       global $CFG_GLPI;
 
       $doc = new Document();
@@ -5970,7 +5970,7 @@ class Html {
             $tag = str_replace(array('"','\\'),'', $return[2][0]);
             $width = str_replace(array('"','\\'),'', $return[2][1]);
             $height = str_replace(array('"','\\'),'', $return[2][2]);
-            $content = str_replace($extract,Html::convertTagToHtmlImageTag($tag,$width,$height),htmlspecialchars_decode($content));
+            $content = str_replace($extract,Html::convertTagFromRichTextToImageTag($tag,$width,$height),htmlspecialchars_decode($content));
          }
 
       }
