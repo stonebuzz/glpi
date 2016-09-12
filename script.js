@@ -1099,8 +1099,8 @@ function insertImgFromFile(editor,fileImg,tag){
 
    var re = new RegExp('#', 'g');
 
-   maxHeight = $(tinyMCE.activeEditor.getContainer()).height() + 60;
-   maxWidth = $(tinyMCE.activeEditor.getContainer()).width()  + 60;
+   maxHeight = $(tinyMCE.activeEditor.getContainer()).height() + 50;
+   maxWidth = $(tinyMCE.activeEditor.getContainer()).width()  + 50;
 
    //imgWidth = getImgWidth(fileImg);
    //imgHeight =  getImgHeight(fileImg);
@@ -1132,7 +1132,7 @@ function insertImgFromFile(editor,fileImg,tag){
            }
 
 
-         editor.execCommand('mceInsertContent',false, "<img data-zoom-image=='"+imageUrl+"' width=\""+imgWidth+"\" height=\""+imgHeight+"\" id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
+         editor.execCommand('mceInsertContent',false, "<img  width=\""+imgWidth+"\" height=\""+imgHeight+"\" id='"+tag.replace(re,'')+"' src='"+imageUrl+"'>"); 
 
 
          };
