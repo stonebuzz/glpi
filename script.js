@@ -1542,7 +1542,7 @@ function processImageBlobFromPaste(e,editor){
 
          setCursorAtTheEnd(editor);  
 
-         insertImgFromFile(editor,blob,res);
+         insertImgFromFile(editor,myBlob,res);
 
          //Set cursor at the end
          setCursorAtTheEnd(editor);  
