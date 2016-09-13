@@ -1049,7 +1049,6 @@ function displayUploadedFile(file, tag , IsImage,editor){
 
    form = $('#fileupload_info').closest('form');
    action = form.attr('action');
-   console.log(action);
 
    div = 'fileupload_info';
    if(action == undefined){
