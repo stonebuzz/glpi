@@ -5907,14 +5907,15 @@ class Html {
     */
    public static function processImgTagFromRichText($content){
 
-      $matches = null;
-      preg_match_all('/(<img.+?blob:[^"]*".*?>)/i',htmlspecialchars_decode($content), $matches);
+      preg_match_all('/(<img\sid=[^"]*\"[^"]*\"\ssrc=[^"]*\"blob[^"]*".*?>)/i',htmlspecialchars_decode($content), $matches);
 
       foreach ($matches[0] as $extract) {
+
          $id = $extract;
          $return = null;
 
          preg_match_all('/(id|width|height)=(\\\"[^"]*\\\")/i',$id, $return);
+
 
          if($return != null){
             $tag = str_replace(array('"','\\'),'', $return[2][0]);
@@ -5924,6 +5925,7 @@ class Html {
          }
 
       }
+
       return $content;
    }
 

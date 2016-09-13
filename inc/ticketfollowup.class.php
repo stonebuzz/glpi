@@ -770,7 +770,7 @@ class TicketFollowup  extends CommonDBTM {
          echo  $values["content"];
          echo "</textarea>";
          echo "</div>";
-         if ($CFG_GLPI["use_rich_text"]) {
+         if ($CFG_GLPI["use_rich_text"] && $ID <= 0 ) {
             echo  Html::fileForRichText(array('name' => 'upload_rich_text', 'editorId' => $content_id ));
          }
 

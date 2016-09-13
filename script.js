@@ -1045,9 +1045,20 @@ function getFileTag(data){
  */
 function displayUploadedFile(file, tag , IsImage,editor){
 
+
+
+   form = $('#fileupload_info').closest('form');
+   action = form.attr('action');
+   console.log(action);
+
+   div = 'fileupload_info';
+   if(action == undefined){
+      div = 'fileupload_info_ticket';
+   }
+
    //manage input name switch file type
    name = '_stock_image';
-   if(!IsImage){
+   if(!IsImage){  
       name = '_filename';
       file.id = file.id.replace('docstock_image','docfilename');
    }
@@ -1055,8 +1066,8 @@ function displayUploadedFile(file, tag , IsImage,editor){
    rand = Math.random();
 
 
-   var p = $('<p/>').attr('id',file.id).html('<b>Fichier : </b>'+file.display+' <b>Tag : </b>'+tag.tag+' ').appendTo('#fileupload_info');
-   var p2 = $('<p/>').attr('id',file.id+'2').css({'display':'none'}).appendTo('#fileupload_info');
+   var p = $('<p/>').attr('id',file.id).html('<b>Fichier : </b>'+file.display+' <b>Tag : </b>'+tag.tag+' ').appendTo('#'+div);
+   var p2 = $('<p/>').attr('id',file.id+'2').css({'display':'none'}).appendTo('#'+div);
 
    // File
    $('<input/>').attr('type', 'hidden').attr('name', name+'['+fileindex+']').attr('value',file.name).appendTo(p);
@@ -1099,8 +1110,8 @@ function insertImgFromFile(editor,fileImg,tag){
 
    var re = new RegExp('#', 'g');
 
-   maxHeight = $(tinyMCE.activeEditor.getContainer()).height() + 50;
-   maxWidth = $(tinyMCE.activeEditor.getContainer()).width()  + 50;
+   maxHeight = $(tinyMCE.activeEditor.getContainer()).height() - 60 ;
+   maxWidth = $(tinyMCE.activeEditor.getContainer()).width()  - 120;
 
    //imgWidth = getImgWidth(fileImg);
    //imgHeight =  getImgHeight(fileImg);
