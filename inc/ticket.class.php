@@ -1243,6 +1243,8 @@ class Ticket extends CommonITILObject {
    function post_updateItem($history=1) {
       global $CFG_GLPI;
 
+
+
       $donotif = count($this->updates);
 
       if (isset($this->input['_forcenotif'])) {
@@ -1372,6 +1374,15 @@ class Ticket extends CommonITILObject {
                              'entities_id'   => $this->fields['entities_id'],
                              'type'          => $type,
                              'max_closedate' => $max_closedate));
+      }
+
+
+
+      //extract tag from tinyMCE img tag and converted it in glpi image
+      //need to bee porcess here because, befor image oare not precess yet.
+      if(isset($this->input['content'])){
+         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
+         $this->updateInDB(array('content'));         
       }
    }
 
@@ -3294,7 +3305,7 @@ class Ticket extends CommonITILObject {
       echo "</td>";
       echo "<td class='top'>";
 
-      echo "<div id='fileupload_info'></div>";
+      echo "<div id='fileupload_info_ticket'></div>";
       echo "</td>";
       echo "</tr>";
 
@@ -4403,10 +4414,10 @@ class Ticket extends CommonITILObject {
          Ticket_Ticket::displayLinkedTicketsTo($ID);
          echo "</td>";
       }
-      echo "</tr>";
+      echo "</tr>";     
 
 
-      if($ID == 0){
+      if(true){
         // View files added
         echo "<tr class='tab_bg_1'>";
         // Permit to add doc when creating a ticket
@@ -4439,7 +4450,7 @@ class Ticket extends CommonITILObject {
               }
            }
         }
-        echo "<div id='fileupload_info'></div>";
+        echo "<div id='fileupload_info_ticket'></div>";
         echo "</td>";
         echo "</tr>";
 
@@ -4449,17 +4460,14 @@ class Ticket extends CommonITILObject {
             echo "</td>";
             echo "<td colspan='1'>";
             echo Html::file(array('multiple' => true,
-                                  'showfilecontainer' => 'fileupload_info'
+                                  'showfilecontainer' => 'fileupload_info_ticket'
                                   ));
             echo "</td>";
             echo "<td>";
             echo "</td>";
             echo "</tr>";
          }
-
-
       }
-
 
 
       if ((!$ID
