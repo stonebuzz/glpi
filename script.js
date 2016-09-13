@@ -1413,6 +1413,11 @@ function extractSrcFromBlobImgTag(content){
    var match = content.match(/\<img[^>]+src="(blob:http%3A\/\/[^">]+)/);
       if(match == null){
          var match = content.match(/\<img[^>]+src="(blob:http:\/\/[^">]+)/);
+
+         if(match == null){
+            var match = content.match(/\<img[^>]+src="(blob:[^">]+)/);
+
+         }
       }
 
    return match[1];
