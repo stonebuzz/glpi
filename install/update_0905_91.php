@@ -568,6 +568,7 @@ function update0905to91() {
    $migration->addField("glpi_softwarelicenses", "template_name", "string");
    $migration->addField("glpi_softwarelicenses", "states_id", "integer");
    $migration->addField("glpi_softwarelicenses", "manufacturers_id", "integer");
+   $migration->addField("glpi_softwarelicenses", "purchase_date", "datetime");
 
    $migration->addKey("glpi_softwarelicenses", "locations_id");
    $migration->addKey("glpi_softwarelicenses", "users_id_tech");

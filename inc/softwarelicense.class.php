@@ -428,6 +428,12 @@ class SoftwareLicense extends CommonDBTM {
       Alert::displayLastAlert('SoftwareLicense', $ID);
       echo "</td></tr>\n";
 
+            echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('Date of purchase')."</td>";
+      echo "<td>";
+      Html::showDateField('purchase_date', array('value' => $this->fields["purchase_date"]));
+      echo "</td></tr>\n";
+
       $this->showFormButtons($options);
 
       return true;
