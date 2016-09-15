@@ -2918,13 +2918,18 @@ class Ticket extends CommonITILObject {
                               '_tag_filename'       => array());
 
       // Get default values from posted values on reload form
+      // 
+       var_dump($_POST);
+      
       if (!$ticket_template) {
          if (isset($_POST)) {
-            if(!$CFG_GLPI['use_rich_text']){
+            //if(!$CFG_GLPI['use_rich_text']){
                $values = Html::cleanPostForTextArea($_POST);
-            }
+            //}
          }
       }
+
+      var_dump($values);
 
       // Restore saved value or override with page parameter
       $saved = $this->restoreInput();
