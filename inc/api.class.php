@@ -297,9 +297,15 @@ abstract class API extends CommonGLPI {
 
       $this->initEndpoint();
 
-      return array("active_entity"           => $_SESSION['glpiactive_entity'],
-                   "active_entity_recursive" => $_SESSION['glpiactive_entity_recursive'],
-                   "active_entities"         => $_SESSION['glpiactiveentities']);
+      $actives_entities = [];
+      foreach (array_values($_SESSION['glpiactiveentities']) as $active_entity) {
+         $actives_entities[] = ['id' => $active_entity];
+      }
+
+      return array("active_entity" => array(
+                     "id"                      => $_SESSION['glpiactive_entity'],
+                     "active_entity_recursive" => $_SESSION['glpiactive_entity_recursive'],
+                     "active_entities"         => $actives_entities));
 
    }
 
@@ -335,7 +341,19 @@ abstract class API extends CommonGLPI {
    protected function getMyProfiles() {
 
       $this->initEndpoint();
-      return $_SESSION['glpiprofiles'];
+
+      $myprofiles = array();
+      foreach($_SESSION['glpiprofiles'] as $profiles_id => $profile) {
+         // append if of the profile into values 
+         $profile = ['id' => $profiles_id] + $profile;
+
+         // don't keep keys for entities
+         $profile['entities'] = array_values($profile['entities']);
+
+         // don't keep keys for profiles
+         $myprofiles[] = $profile;
+      }
+      return array('myprofiles' => $myprofiles);
    }
 
 
@@ -464,6 +482,7 @@ abstract class API extends CommonGLPI {
                              ON (`glpi_computerdisks`.`filesystems_id` = `glpi_filesystems`.`id`)
                    WHERE `computers_id` = '$id'
                          AND `is_deleted` = '0'";
+         $fields['_disks'] = array();
          if ($result = $DB->query($query)) {
             while ($data = $DB->fetch_assoc($result)) {
                unset($data['computers_id']);
@@ -1667,22 +1686,22 @@ abstract class API extends CommonGLPI {
    **/
    private function getGlpiLastMessage() {
 
-      $all_messages = array();
-      $messages     = "";
-      if (isset($_SESSION["MESSAGE_AFTER_REDIRECT"])
-          && !empty($_SESSION["MESSAGE_AFTER_REDIRECT"])) {
-         $messages = $_SESSION["MESSAGE_AFTER_REDIRECT"];
+      $all_messages             = [];
 
+      $messages_after_redirect  = [];
+
+      if (isset($_SESSION["MESSAGE_AFTER_REDIRECT"])
+          && count($_SESSION["MESSAGE_AFTER_REDIRECT"]) > 0) {
+         $messages_after_redirect = $_SESSION["MESSAGE_AFTER_REDIRECT"];
          // Clean messages
-         $_SESSION["MESSAGE_AFTER_REDIRECT"] = "";
+         $_SESSION["MESSAGE_AFTER_REDIRECT"] = [];
       };
 
-      // split in array
-      $all_messages = preg_split( "/ (<br>|<\/h3>) /", $messages );
-
       // clean html
-      foreach($all_messages as &$message) {
-         $message = Html::clean($message);
+      foreach($messages_after_redirect as $type => $messages) {
+         foreach ($messages as $message) {
+            $all_messages[] = Html::clean($message);
+         }
       }
 
       return end($all_messages);
