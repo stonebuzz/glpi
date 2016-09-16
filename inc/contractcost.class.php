@@ -401,9 +401,9 @@ class ContractCost extends CommonDBChild {
                echo "</tr>";
                Session::addToNavigateListItems(__CLASS__, $data['id']);
             }
-            echo "<tr class='b noHover'><td colspan='3'>&nbsp;</td>";
-            echo "<td class='right'>".__('Total cost').'</td>';
-            echo "<td class='numeric'>".Html::formatNumber($total).'</td></tr>';
+            //echo "<tr class='b noHover'><td colspan='3'>&nbsp;</td>";
+            //echo "<td class='right'>".__('Total cost').'</td>';
+            //echo "<td class='numeric'>".Html::formatNumber($total).'</td></tr>';
          } else {
             echo "<tr><th colspan='5'>".__('No item found')."</th></tr>";
          }
