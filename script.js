@@ -1045,13 +1045,12 @@ function getFileTag(data){
  */
 function displayUploadedFile(file, tag , IsImage,editor){
 
-
-
-   form = $('#fileupload_info').closest('form');
+   id = $(editor.getElement()).attr('id');    
+   form = $('#'+id).closest('form');
    action = form.attr('action');
 
    div = 'fileupload_info';
-   if(action == undefined){
+   if(action == undefined || action.indexOf('ticket.form.php') >= 0){
       div = 'fileupload_info_ticket';
    }
 
