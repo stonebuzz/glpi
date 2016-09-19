@@ -529,6 +529,15 @@ class TicketFollowup  extends CommonDBTM {
          $this->input['_job']->update($update);
       }
 
+      //extract tag from tinyMCE img tag and converted it in glpi image
+      //need to bee porcess here because, befor image oare not precess yet.      
+      if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
+         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
+         $this->updateInDB(array('content'));       
+      }
+
+
+
       if ($donotif) {
          $options = array('followup_id' => $this->fields["id"],
                           'is_private'  => $this->fields['is_private']);
@@ -543,12 +552,6 @@ class TicketFollowup  extends CommonDBTM {
                    Log::HISTORY_ADD_SUBITEM);
 
 
-      //extract tag from tinyMCE img tag and converted it in glpi image
-      //need to bee porcess here because, befor image oare not precess yet.      
-      if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
-         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
-         $this->updateInDB(array('content'));       
-      }
 
 
    }

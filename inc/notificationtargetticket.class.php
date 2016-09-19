@@ -292,11 +292,14 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
 
       // Common ITIL datas
       $datas            = parent::getDatasForObject($item, $options, $simple);
-      $datas['##ticket.description##'] = Html::clean($datas['##ticket.description##']);
-
+      if(!$CFG_GLPI['use_rich_text']){
+        $datas['##ticket.description##'] = Html::clean($datas['##ticket.description##']);
+      }else{
       $datas['##ticket.description##']
             = $item->convertContentForNotification($datas['##ticket.description##'],
                                                    $item);
+      }
+
 
       $datas['##ticket.content##'] = $datas['##ticket.description##'];
       // Specific datas
@@ -578,7 +581,15 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
             $tmp['##followup.requesttype##'] = Dropdown::getDropdownName('glpi_requesttypes',
                                                                          $followup['requesttypes_id']);
             $tmp['##followup.date##']        = Html::convDateTime($followup['date']);
-            $tmp['##followup.description##'] = $followup['content'];
+
+            if(!$CFG_GLPI['use_rich_text']){
+              $tmp['##followup.description##'] = Html::clean($followup['content']);
+            }else{
+               $followup['content'] = Html::convertContentForNotification($followup['content'],$item);
+               $tmp['##followup.description##'] = $followup['content'];
+            }
+
+
 
             $datas['followups'][] = $tmp;
          }

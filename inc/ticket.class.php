@@ -1316,6 +1316,13 @@ class Ticket extends CommonITILObject {
 
       }
 
+            //extract tag from tinyMCE img tag and converted it in glpi image
+      //need to bee porcess here because, befor image oare not precess yet.
+      if(isset($this->input['content'])){
+         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content'],false);
+         $this->updateInDB(array('content'));         
+      }
+
       if (isset($this->input['_disablenotif'])) {
          $donotif = false;
       }
@@ -1348,6 +1355,9 @@ class Ticket extends CommonITILObject {
             $mailtype = "rejectsolution";
          }
 
+
+
+
          // Read again ticket to be sure that all data are up to date
          $this->getFromDB($this->fields['id']);
          NotificationEvent::raiseEvent($mailtype, $this);
@@ -1378,12 +1388,7 @@ class Ticket extends CommonITILObject {
 
 
 
-      //extract tag from tinyMCE img tag and converted it in glpi image
-      //need to bee porcess here because, befor image oare not precess yet.
-      if(isset($this->input['content'])){
-         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
-         $this->updateInDB(array('content'));         
-      }
+
    }
 
 
@@ -1783,7 +1788,7 @@ class Ticket extends CommonITILObject {
       //extract tag from tinyMCE img tag and converted it in glpi image
       //need to bee porcess here because, befor image oare not precess yet.
       if(isset($this->input['content'])){
-         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
+         $this->fields['content'] = Html::processImgTagFromRichText($this->input['content'],false);
          $this->updateInDB(array('content'));         
       }
 

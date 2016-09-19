@@ -1012,7 +1012,15 @@ abstract class NotificationTargetCommonITILObject extends NotificationTarget {
             $tmp['##task.category##']     = Dropdown::getDropdownName('glpi_taskcategories',
                                                                       $task['taskcategories_id']);
             $tmp['##task.date##']         = Html::convDateTime($task['date']);
-            $tmp['##task.description##']  = $task['content'];
+
+
+            if(!$CFG_GLPI['use_rich_text']){
+               $tmp['##task.description##']  = $task['content'];
+            }else{
+               $task['content'] = Html::convertContentForNotification($task['content'],$item);
+               $tmp['##task.description##']  = $followup['content'];
+            }
+
             $tmp['##task.time##']         = Ticket::getActionTime($task['actiontime']);
             $tmp['##task.status##']       = Planning::getState($task['state']);
 
