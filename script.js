@@ -1050,7 +1050,7 @@ function displayUploadedFile(file, tag , IsImage,editor){
    action = form.attr('action');
 
    div = 'fileupload_info';
-   if(action == undefined || action.indexOf('ticket.form.php') >= 0){
+   if(action == undefined || action.indexOf('ticket.form.php') >= 0 || action.indexOf('tracking.injector.php') >= 0){
       div = 'fileupload_info_ticket';
    }
 
