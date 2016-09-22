@@ -1751,6 +1751,24 @@ class Config extends CommonDBTM {
       return '';
    }
 
+   /**
+    * Retrieve full directory of a lib
+    * @param  $libstring  object, class or function
+    * @return string       the path or false
+    *
+    * @since version 9.1
+    */
+   static function getLibraryDir($libstring) {
+      if (is_object($libstring)) {
+         return realpath(dirname((new ReflectionObject($libstring))->getFileName()));
+      } elseif (class_exists($libstring)) {
+         return realpath(dirname((new ReflectionClass($libstring))->getFileName()));
+      } elseif (function_exists($libstring)) {
+         return realpath(dirname((new ReflectionFunction($libstring))->getFileName()));
+      }
+      return false;
+   }
+   
 
    /**
     * show Libraries information in system information
