@@ -778,11 +778,6 @@ class TicketFollowup  extends CommonDBTM {
          }
 
 
-         echo "<td rowspan='5' class='middle right'>".__('Description')."</td>";
-         echo "<td class='center middle' rowspan='5'>";
-         echo "<textarea id='content$rand' name='content' cols='70' rows='6'>".$this->fields["content"]."</textarea>";
-         echo Html::scriptBlock("$(document).ready(function() { $('#content$rand').autogrow(); });");
-
 
          if ($this->fields["date"]) {
             echo "</td><td>".__('Date')."</td>";
@@ -809,29 +804,7 @@ class TicketFollowup  extends CommonDBTM {
          Dropdown::showYesNo('is_private', $this->fields["is_private"]);
          echo "</td></tr>";
 
-// ************************************************************************************************
-         if ($CFG_GLPI['use_mailing']) {
 
-            // Get current user's personnal notifying configuration
-            $users_notify_control = FollowupNotify::getUsersNotifyControl();
-
-            //     If followup update, show followup's config form ...
-            // ... else if user's config is set, show user's config form ...
-            // ... else, show general's config form
-            if (isset($_POST['id']) && $_POST['id'] !== '-1') {
-              FollowupNotify::showForm('followup_update', 'followup');
-            }
-            else if (isset($users_notify_control)) {
-              FollowupNotify::showForm('user_config', 'followup');
-            }
-            else {
-              FollowupNotify::showForm('general_config', 'followup');
-            }
-
-            echo "</td></tr>";
-
-         }
-// ************************************************************************************************
 
          if ($ID <= 0) {
 
@@ -860,6 +833,30 @@ class TicketFollowup  extends CommonDBTM {
             echo "</td>";
             echo "</tr>";
          }
+
+         // ************************************************************************************************
+         if ($CFG_GLPI['use_mailing']) {
+
+            // Get current user's personnal notifying configuration
+            $users_notify_control = FollowupNotify::getUsersNotifyControl();
+
+            //     If followup update, show followup's config form ...
+            // ... else if user's config is set, show user's config form ...
+            // ... else, show general's config form
+            if (isset($_POST['id']) && $_POST['id'] !== '-1') {
+              FollowupNotify::showForm('followup_update', 'followup');
+            }
+            else if (isset($users_notify_control)) {
+              FollowupNotify::showForm('user_config', 'followup');
+            }
+            else {
+              FollowupNotify::showForm('general_config', 'followup');
+            }
+
+            echo "</td></tr>";
+
+         }
+// ************************************************************************************************
 
          $this->showFormButtons($options);
 
