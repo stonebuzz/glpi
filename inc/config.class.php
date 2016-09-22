@@ -1932,11 +1932,8 @@ class Config extends CommonDBTM {
             $tabs[4] = __('Assistance');
             if (Config::canUpdate()) {
                $tabs[5] = __('System');
-<<<<<<< HEAD
                $tabs[7] = __('Performance');
                $tabs[8] = __('API');
-=======
->>>>>>> acolombe/followups_notif_control
             }
 
             if (DBConnection::isDBSlaveActive()
@@ -1994,7 +1991,6 @@ class Config extends CommonDBTM {
 
             case 6 :
                $item->showFormDBSlave();
-<<<<<<< HEAD
                break;
 
             case 7 :
@@ -2003,8 +1999,6 @@ class Config extends CommonDBTM {
 
             case 8 :
                $item->showFormAPI();
-=======
->>>>>>> acolombe/followups_notif_control
                break;
 
          }
