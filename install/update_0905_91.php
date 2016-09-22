@@ -851,6 +851,9 @@ function update0905to91() {
                AND `id` = 0";
    $DB->queryOrDie($query, "glpi_entities root_entity change autoclose_delay value from -1 to 0");
 
+   $migration->addField("glpi_ticketfollowups", "notify_control", "text");
+   $migration->addField("glpi_users", "notify_control", "text");
+   $migration->insertInTable("glpi_configs", array('context'=>'core', 'name'=>'notify_control', 'value'=>'{"_users_id_requester":0,"_groups_id_requester":0,"_users_id_observer":0,"_groups_id_observer":0,"_users_id_assign":0,"_groups_id_assign":0,"_suppliers_id_assign":0}'));
 
    // ************ Keep it at the end **************
    $migration->executeMigration();

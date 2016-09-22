@@ -1,8 +1,9 @@
 <?php
 /*
+ * @version $Id$
  -------------------------------------------------------------------------
  GLPI - Gestionnaire Libre de Parc Informatique
- Copyright (C) 2015-2016 Teclib'.
+ Copyright (C) 2015 Teclib'.
 
  http://glpi-project.org
 
@@ -35,7 +36,7 @@
 */
 
 if (!defined('GLPI_ROOT')) {
-   die("Sorry. You can't access this file directly");
+   die("Sorry. You can't access directly to this file");
 }
 
 /**
@@ -212,13 +213,6 @@ class Config extends CommonDBTM {
             }
          }
       }
-
-      // lock mechanism update
-      if (isset( $input['lock_use_lock_item'])) {
-          $input['lock_item_list'] = exportArrayToDB((isset($input['lock_item_list'])
-                                                      ? $input['lock_item_list'] : array()));
-      }
-
       // Beware : with new management system, we must update each value
       unset($input['id']);
       unset($input['_glpi_csrf_token']);
@@ -386,31 +380,6 @@ class Config extends CommonDBTM {
       Dropdown::showFromArray('allow_search_all', $values,
                               array('value' => $CFG_GLPI['allow_search_all']));
       echo "</td><td colspan='2'></td></tr>";
-
-      echo "<tr class='tab_bg_1'><td colspan='4' class='center b'>".__('Item locks')."</td></tr>";
-
-      echo "<tr class='tab_bg_2'>";
-      echo "<td>" . __('Use locks') . "</td><td>";
-      Dropdown::showYesNo("lock_use_lock_item", $CFG_GLPI["lock_use_lock_item"]);
-      echo "</td><td>". __('Profile to be used when locking items')."</td><td>";
-      if ($CFG_GLPI["lock_use_lock_item"]) {
-         Profile::dropdown(array('name'                  => 'lock_lockprofile_id',
-                                 'display_emptychoice'   => true,
-                                 'value'                 => $CFG_GLPI['lock_lockprofile_id']));
-      } else {
-         echo dropdown::getDropdownName( Profile::getTable(), $CFG_GLPI['lock_lockprofile_id']) ;
-      }
-      echo "</td></tr>";
-
-      echo "<tr class='tab_bg_2'>";
-      echo "<td>" . __('List of items to lock') . "</td>";
-      echo "<td  colspan=3>";
-      Dropdown::showFromArray('lock_item_list', ObjectLock::getLockableObjects(),
-                              array('values'   => $CFG_GLPI['lock_item_list'],
-                                    'width'    => '100%',
-                                    'multiple' => true,
-                                    'readonly' => !$CFG_GLPI["lock_use_lock_item"]));
-      echo "</td></tr>";
 
       if ($canedit) {
          echo "<tr class='tab_bg_2'>";
@@ -626,7 +595,7 @@ class Config extends CommonDBTM {
       echo "<table class='tab_cadre_fixe'>";
       $active = DBConnection::isDBSlaveActive();
 
-      echo "<tr class='tab_bg_2'><th colspan='4'>" . _n('SQL replica', 'SQL replicas', Session::getPluralNumber()) .
+      echo "<tr class='tab_bg_2'><th colspan='4'>" . _n('Mysql replica', 'Mysql replicas', Session::getPluralNumber()) .
            "</th></tr>";
       $DBslave = DBConnection::getDBSlaveConf();
 
@@ -636,16 +605,16 @@ class Config extends CommonDBTM {
          $host = $DBslave->dbhost;
       }
       echo "<tr class='tab_bg_2'>";
-      echo "<td>" . __('SQL server (MariaDB or MySQL)') . "</td>";
+      echo "<td>" . __('Mysql server') . "</td>";
       echo "<td><input type='text' name='_dbreplicate_dbhost' size='40' value='$host'></td>";
       echo "<td>" . __('Database') . "</td>";
       echo "<td><input type='text' name='_dbreplicate_dbdefault' value='".$DBslave->dbdefault."'>";
       echo "</td></tr>";
 
       echo "<tr class='tab_bg_2'>";
-      echo "<td>" . __('SQL user') . "</td>";
+      echo "<td>" . __('Mysql user') . "</td>";
       echo "<td><input type='text' name='_dbreplicate_dbuser' value='".$DBslave->dbuser."'></td>";
-      echo "<td>" . __('SQL password') . "</td>";
+      echo "<td>" . __('Mysql password') . "</td>";
       echo "<td><input type='password' name='_dbreplicate_dbpassword' value='".
                  rawurldecode($DBslave->dbpassword)."'>";
       echo "</td></tr>";
@@ -840,6 +809,13 @@ class Config extends CommonDBTM {
       echo "</td><td>" . __('Allow anonymous followups (receiver)') . "</td><td>";
       Dropdown::showYesNo("use_anonymous_followups", $CFG_GLPI["use_anonymous_followups"]);
       echo "</td></tr>";
+
+// ************************************************************************************************
+      echo "<tr>";
+      echo "<td>".__('Notifications')."</td><td>";
+      FollowupNotify::showForm('general_config');
+      echo "</td></tr>";
+// ************************************************************************************************
 
       echo "</table>";
 
@@ -1137,13 +1113,6 @@ class Config extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
 
-      echo "<tr class='tab_bg_2'><td>".__('Enable high contrast')."</td>";
-      echo "<td>";
-      Dropdown::showYesNo('highcontrast_css', $data['highcontrast_css']);
-      echo "</td>";
-      echo "<td>";
-      echo "</td></tr>";
-
       if ($oncentral) {
          echo "<tr class='tab_bg_1'><th colspan='4'>".__('Assistance')."</th></tr>";
 
@@ -1163,19 +1132,12 @@ class Config extends CommonDBTM {
          Dropdown::showYesNo("task_private", $data["task_private"]);
          echo "</td><td> " . __('Request sources by default') . "</td><td>";
          RequestType::dropdown(array('value' => $data["default_requesttypes_id"],
-                                     'name'  => "default_requesttypes_id",
-                                     'condition' => 'is_active = 1 AND is_ticketheader = 1'));
+                                     'name'  => "default_requesttypes_id"));
          echo "</td></tr>";
 
          echo "<tr class='tab_bg_2'><td>" . __('Tasks state by default') . "</td><td>";
          Planning::dropdownState("task_state", $data["task_state"]);
-         echo "</td><td>" . __('Automatically refresh the list of tickets (minutes)') . "</td><td>";
-         Dropdown::showNumber('refresh_ticket_list', array('value' => $data["refresh_ticket_list"],
-                                                           'min'   => 1,
-                                                           'max'   => 30,
-                                                           'step'  => 1,
-                                                           'toadd' => array(0 => __('Never'))));
-         echo "</td></tr>";
+         echo "</td><td colspan='2'>&nbsp;</td></tr>";
 
          echo "<tr class='tab_bg_2'><td>".__('Pre-select me as a technician when creating a ticket').
               "</td><td>";
@@ -1184,13 +1146,14 @@ class Config extends CommonDBTM {
          } else {
             echo Dropdown::getYesNo(0);
          }
-         echo "</td><td>" . __('Pre-select me as a requester when creating a ticket') . "</td><td>";
-         if (!$userpref || Session::haveRight('ticket', CREATE)) {
-            Dropdown::showYesNo("set_default_requester", $data["set_default_requester"]);
-         } else {
-            echo Dropdown::getYesNo(0);
-         }
-         echo "</td></tr>";
+         echo "</td><td>" . __('Automatically refresh the list of tickets (minutes)') . "</td><td>";
+         Dropdown::showNumber('refresh_ticket_list', array('value' => $data["refresh_ticket_list"],
+                                                           'min'   => 1,
+                                                           'max'   => 30,
+                                                           'step'  => 1,
+                                                           'toadd' => array(0 => __('Never'))));
+         echo "</td>";
+         echo "</tr>";
 
          echo "<tr class='tab_bg_2'>";
          echo "<td>" . __('Priority colors') . "</td>";
@@ -1227,9 +1190,14 @@ class Config extends CommonDBTM {
          Dropdown::showYesNo('ticket_timeline_keep_replaced_tabs',
                              $data['ticket_timeline_keep_replaced_tabs']);
          echo "</td></tr>";
-
-
-
+    
+// ************************************************************************************************
+         echo "<tr>";
+         echo "<td>".__('Notifications')."</td><td>";
+         FollowupNotify::showForm('user_config');
+         echo "</td></tr>";
+// ************************************************************************************************
+         
       }
 
       // Only for user
@@ -1289,18 +1257,6 @@ class Config extends CommonDBTM {
       Dropdown::showFromArray("duedatecritical_unit", $elements,
                               array('value' => $data['duedatecritical_unit']));
       echo "</td></tr>";
-
-      if ($oncentral && $CFG_GLPI["lock_use_lock_item"]) {
-         echo "<tr class='tab_bg_1'><th colspan='4' class='center b'>".__('Item locks')."</th></tr>";
-
-         echo "<tr class='tab_bg_2'>";
-         echo "<td>" . __('Auto-lock Mode') . "</td><td>";
-         Dropdown::showYesNo("lock_autolock_mode", $data["lock_autolock_mode"]);
-         echo "</td><td>". __('Direct Notification (requester for unlock will be the notification sender)').
-              "</td><td>";
-         Dropdown::showYesNo("lock_directunlock_notification", $data["lock_directunlock_notification"]);
-         echo "</td></tr>";
-      }
 
          echo "<tr class='tab_bg_2'>";
          echo "<td colspan='4' class='center'>";
@@ -1449,7 +1405,7 @@ class Config extends CommonDBTM {
    }
 
 
-   /**
+  /**
     * Display a report about system performance
     * - opcode cache (opcache)
     * - user data cache (apcu / apcu-bc)
@@ -1573,6 +1529,8 @@ class Config extends CommonDBTM {
       echo "</table></div>\n";
    }
 
+
+
    /**
     * Display a HTML report about systeme information / configuration
    **/
@@ -1607,7 +1565,7 @@ class Config extends CommonDBTM {
       echo "<tr class='tab_bg_2'>";
       echo "<td> " . __('Logs in files (SQL, email, automatic action...)') . "</td><td>";
       Dropdown::showYesNo("use_log_in_files", $CFG_GLPI["use_log_in_files"]);
-      echo "</td><td> " . _n('SQL replica', 'SQL replicas', 1) . "</td><td>";
+      echo "</td><td> " . _n('Mysql replica', 'Mysql replicas', 1) . "</td><td>";
       $active = DBConnection::isDBSlaveActive();
       Dropdown::showYesNo("_dbslave_status", $active);
       echo "</td></tr>";
@@ -1795,28 +1753,6 @@ class Config extends CommonDBTM {
 
 
    /**
-    * Retrieve full directory of a lib
-    * @param  $libstring  object, class or function
-    * @return string       the path or false
-    *
-    * @since version 9.1
-    */
-   static function getLibraryDir($libstring) {
-      if (is_object($libstring)) {
-         return realpath(dirname((new ReflectionObject($libstring))->getFileName()));
-
-      } elseif (class_exists($libstring)) {
-         return realpath(dirname((new ReflectionClass($libstring))->getFileName()));
-
-      } elseif (function_exists($libstring)) {
-         return realpath(dirname((new ReflectionFunction($libstring))->getFileName()));
-
-      }
-      return false;
-   }
-
-
-   /**
     * show Libraries information in system information
     *
     * @since version 0.84
@@ -1829,46 +1765,36 @@ class Config extends CommonDBTM {
       echo "<tr class='tab_bg_1'><td><pre>\n&nbsp;\n";
 
       include_once(GLPI_HTMLAWED);
-      echo "htmLawed version ".hl_version().
-           " in (".self::getLibraryDir("hl_version").")\n";
+      echo "htmLawed version " . hl_version() . " in (" . realpath(dirname(GLPI_HTMLAWED)) . ")\n";
 
-      echo "phpCas version ".phpCAS::getVersion().
-           " in (".(self::getLibraryDir("phpCAS")
-                     ? self::getLibraryDir("phpCAS")
-                     : "system").
-           ")\n";
+      include (GLPI_PHPCAS);
+      echo "phpCas version " . phpCAS::getVersion() . " in (" .
+            (dirname(GLPI_PHPCAS) ? realpath(dirname(GLPI_PHPCAS)) : "system") . ")\n";
 
-
+      require_once(GLPI_PHPMAILER_DIR . "/class.phpmailer.php");
       $pm = new PHPMailer();
-      echo "PHPMailer version ".$pm->Version.
-           " in (" . self::getLibraryDir("PHPMailer") . ")\n";
+      echo "PHPMailer version " . $pm->Version . " in (" . realpath(GLPI_PHPMAILER_DIR) . ")\n";
 
       // EZ component
-      echo "ZetaComponent ezcGraph installed in (".self::getLibraryDir("ezcGraph")."): ".
-           (class_exists('ezcGraph') ? 'OK' : 'KO'). "\n";
+      echo "ZetaComponent ezcGraph installed in (" . dirname(dirname(GLPI_EZC_BASE)) .
+           "):  ".(class_exists('ezcGraph') ? 'OK' : 'KO'). "\n";
 
       // Zend
-      echo "Zend Framework in (".self::getLibraryDir("Zend\Loader\StandardAutoloader").")\n";
+      $zv = new Zend\Version\Version;
+      echo "Zend Framework version " . $zv::VERSION . " in (" . realpath(GLPI_ZEND_PATH) . ")\n";
 
       // SimplePie :
       $sp = new SimplePie();
-      echo "SimplePie version ".SIMPLEPIE_VERSION.
-           " in (".self::getLibraryDir($sp).")\n";
+      echo "SimplePie version " . SIMPLEPIE_VERSION . " in (" . realpath(GLPI_SIMPLEPIE_PATH) . ")\n";
 
       // TCPDF
-      echo "TCPDF version ".TCPDF_STATIC::getTCPDFVersion().
-           " in (".self::getLibraryDir("TCPDF").")\n";
+      include_once(GLPI_TCPDF_DIR.'/include/tcpdf_static.php');
+      echo "TCPDF version " . TCPDF_STATIC::getTCPDFVersion() . " in (" . realpath(GLPI_TCPDF_DIR) . ")\n";
 
       // password_compat
+      require_once GLPI_PASSWORD_COMPAT;
       $check = (PasswordCompat\binary\check() ? "Ok" : "KO");
-      echo "ircmaxell/password-compat in (".
-           self::getLibraryDir("PasswordCompat\binary\check")."). Compatitility: $check\n";
-
-      // autolink
-      echo "iacaml/autolink in (".self::getLibraryDir("autolink").")\n";
-
-      // sabre/vobject
-      echo "sabre/vobject in (".self::getLibraryDir("Sabre\VObject\Component").")\n";
+      echo "ircmaxell/password-compat in (" . realpath(dirname(GLPI_PASSWORD_COMPAT)) . "). Compatitility: $check\n";
 
       // vcard
       echo "guzzlehttp/guzzle in (".self::getLibraryDir("JeroenDesloovere\VCard\VCard").")\n";
@@ -2006,13 +1932,16 @@ class Config extends CommonDBTM {
             $tabs[4] = __('Assistance');
             if (Config::canUpdate()) {
                $tabs[5] = __('System');
+<<<<<<< HEAD
                $tabs[7] = __('Performance');
                $tabs[8] = __('API');
+=======
+>>>>>>> acolombe/followups_notif_control
             }
 
             if (DBConnection::isDBSlaveActive()
                 && Config::canUpdate()) {
-               $tabs[6]  = _n('SQL replica', 'SQL replicas', Session::getPluralNumber());  // Slave
+               $tabs[6]  = _n('Mysql replica', 'Mysql replicas', Session::getPluralNumber());  // Slave
             }
             return $tabs;
       }
@@ -2065,6 +1994,7 @@ class Config extends CommonDBTM {
 
             case 6 :
                $item->showFormDBSlave();
+<<<<<<< HEAD
                break;
 
             case 7 :
@@ -2073,6 +2003,8 @@ class Config extends CommonDBTM {
 
             case 8 :
                $item->showFormAPI();
+=======
+>>>>>>> acolombe/followups_notif_control
                break;
 
          }
@@ -2215,6 +2147,7 @@ class Config extends CommonDBTM {
       }
       error_reporting($oldlevel);
       set_error_handler($oldhand);
+
       return $error;
    }
 
@@ -2351,3 +2284,4 @@ class Config extends CommonDBTM {
    }
 
 }
+?>

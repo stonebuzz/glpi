@@ -946,6 +946,7 @@ INSERT INTO `glpi_configs` VALUES ('155','core','layout','lefttab');
 INSERT INTO `glpi_configs` VALUES ('156','core','ticket_timeline', 1);
 INSERT INTO `glpi_configs` VALUES ('157','core','ticket_timeline_keep_replaced_tabs', 0);
 INSERT INTO `glpi_configs` VALUES ('158','core','palette', 'auror');
+INSERT INTO `glpi_configs` VALUES ('159','core','notify_control', '{"_users_id_requester":0,"_groups_id_requester":0,"_users_id_observer":0,"_groups_id_observer":0,"_users_id_assign":0,"_groups_id_assign":0,"_suppliers_id_assign":0}');
 
 ### Dump table glpi_consumableitems
 
@@ -6352,6 +6353,7 @@ CREATE TABLE `glpi_ticketfollowups` (
   `content` longtext COLLATE utf8_unicode_ci,
   `is_private` tinyint(1) NOT NULL DEFAULT '0',
   `requesttypes_id` int(11) NOT NULL DEFAULT '0',
+  `notify_control` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `date` (`date`),
   KEY `users_id` (`users_id`),
@@ -6752,6 +6754,7 @@ CREATE TABLE `glpi_users` (
   `palette` char(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ticket_timeline` tinyint(1) DEFAULT NULL,
   `ticket_timeline_keep_replaced_tabs` tinyint(1) DEFAULT NULL,
+  `notify_control` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unicity` (`name`),
   KEY `firstname` (`firstname`),
