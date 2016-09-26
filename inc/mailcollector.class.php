@@ -731,6 +731,13 @@ class MailCollector  extends CommonDBTM {
          $tkt['content'] = $body;
       }
 
+      if($CFG_GLPI['use_rich_text']){
+         foreach ($tkt['_tag'] as $tag) {
+            $tkt['content'] .= Html::convertTagFromRichTextToImageTag($tag,600,200, false);
+         }
+      }
+
+
       // See In-Reply-To field
       if (isset($head['in_reply_to'])) {
          if (preg_match($glpi_message_match, $head['in_reply_to'], $match)) {
