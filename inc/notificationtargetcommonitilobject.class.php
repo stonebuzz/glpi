@@ -1018,7 +1018,7 @@ abstract class NotificationTargetCommonITILObject extends NotificationTarget {
                $tmp['##task.description##']  = $task['content'];
             }else{
                $task['content'] = Html::convertContentForNotification($task['content'],$item);
-               $tmp['##task.description##']  = $followup['content'];
+               $tmp['##task.description##']  = $task['content'];
             }
 
             $tmp['##task.time##']         = Ticket::getActionTime($task['actiontime']);
