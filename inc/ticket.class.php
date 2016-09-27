@@ -5963,7 +5963,7 @@ class Ticket extends CommonITILObject {
 
                // Replace tag by the image
                $content_text = preg_replace('/'.Document::getImageTag($image['tag']).'/',
-                                            Html::entities_deep($img), $content_text);
+                                           Html::convertTagFromRichTextToImageTag($image['tag'],400,0, true), $content_text);
 
                // Replace <br> TinyMce bug
                $content_text = str_replace(array('&gt;rn&lt;','&gt;\r\n&lt;','&gt;\r&lt;','&gt;\n&lt;'),
