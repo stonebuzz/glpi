@@ -731,12 +731,6 @@ class MailCollector  extends CommonDBTM {
          $tkt['content'] = $body;
       }
 
-      if($CFG_GLPI['use_rich_text']){
-         foreach ($tkt['_tag'] as $tag) {
-            $tkt['content'] .= Html::convertTagFromRichTextToImageTag($tag,600,200, false);
-         }
-      }
-
 
       // See In-Reply-To field
       if (isset($head['in_reply_to'])) {
@@ -765,13 +759,21 @@ class MailCollector  extends CommonDBTM {
       $is_html = false;
       //If files are present and content is html
       if (isset($this->files)
-          && count($this->files)
-          && ($tkt['content'] != strip_tags($tkt['content']))
-          && !isset($tkt['tickets_id'])) {
+          && count($this->files)) {
          $is_html = true;
+
+         //replace all src by tag correspondoing
          $tkt['content'] = Ticket::convertContentForTicket($tkt['content'],
                                                            array_merge($this->files, $this->altfiles),
                                                            $this->tags);
+
+         //parse other tag (for attachment) no in content
+         foreach ($this->tags as $tag) {
+            if(strpos( $tkt['content'],Document::getImageTag($tag)) === false){
+               $tkt['content'] = str_replace('</body>  </html>', "<p>".Document::getImageTag($tag)."</p></body>  </html>", $tkt['content']);
+            }
+         }
+
       }
 
       // Clean mail content
@@ -1481,8 +1483,7 @@ class MailCollector  extends CommonDBTM {
             if (file_put_contents($path.$filename, $message)) {
                $this->files[$filename] = $filename;
                // If embeded image, we add a tag
-               if (($structure->type == 5)
-                   && $structure->subtype) {
+               if (true) {
                   end($this->files);
                   //$tag = Rule::getUuid();
                   $tag = rand(0,1000000);
