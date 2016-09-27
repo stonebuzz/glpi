@@ -5925,14 +5925,16 @@ class Html {
             }
             if (isset($image['tag'])) {
                 if ($ok || empty($mime)) {
-               // Replace tags by image in textarea
+
+                if ($height !=0) $string_height = 'height="'.$height.'"';
+                else $string_height = '';
                
                if($addOnClick){
                   $out .= '<a href="'.$CFG_GLPI['root_doc'].
-                     '/front/document.send.php?docid='.$id.'" target="_blank"><img alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
+                     '/front/document.send.php?docid='.$id.'" target="_blank"><img alt="'.$image['tag'].'"  '.$string_height.' width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
                      '/front/document.send.php?docid='.$id.'"  /></a>';
                }else{
-                  $out .= '<img alt="'.$image['tag'].'"  height="'.$height.'" width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
+                  $out .= '<img alt="'.$image['tag'].'"  '.$string_height.' width="'.$width.'" src="'.$CFG_GLPI['root_doc'].
                      '/front/document.send.php?docid='.$id.'"  />';
                }
 
