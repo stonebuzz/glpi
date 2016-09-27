@@ -1484,7 +1484,8 @@ class MailCollector  extends CommonDBTM {
                if (($structure->type == 5)
                    && $structure->subtype) {
                   end($this->files);
-                  $tag = Rule::getUuid();
+                  //$tag = Rule::getUuid();
+                  $tag = rand(0,1000000);
                   $this->tags[$filename]  = $tag;
 
                   // Link file based on id
