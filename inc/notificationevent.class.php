@@ -149,101 +149,113 @@ class NotificationEvent extends CommonDBTM {
                $notify_me = $_SESSION['glpinotification_to_myself'];
             }
 
-// ************************************************************************************************
-            // Get notifying control config submitted by new follower
-            $notify_control = FollowupNotify::getNotifyControl($_POST['notify_control']);
+            if(isset($_POST['notify_control'])){
 
-            // Define actors types variables && actors notification booleans
-            $actor_assign           = CommonITILActor::ASSIGN;
-            $actor_requester        = CommonITILActor::REQUESTER;
-            $actor_observer         = CommonITILActor::OBSERVER;
-            $group_assign           = Notification::ASSIGN_GROUP;
-            $group_requester        = Notification::REQUESTER_GROUP;
-            $group_observer         = Notification::OBSERVER_GROUP;
-            $notify_user_assign     = $notify_control->_users_id_assign;
-            $notify_supplier_assign = $notify_control->_suppliers_id_assign;
-            $notify_group_assign    = $notify_control->_groups_id_assign;
-            $notify_user_requester  = $notify_control->_users_id_requester;
-            $notify_group_requester = $notify_control->_groups_id_requester;
-            $notify_user_observer   = $notify_control->_users_id_observer;
-            $notify_group_observer  = $notify_control->_groups_id_observer;
+               // Get notifying control config submitted by new follower
+               $notify_control = FollowupNotify::getNotifyControl($_POST['notify_control']);
+
+               // Define actors types variables && actors notification booleans
+               $actor_assign           = CommonITILActor::ASSIGN;
+               $actor_requester        = CommonITILActor::REQUESTER;
+               $actor_observer         = CommonITILActor::OBSERVER;
+               $group_assign           = Notification::ASSIGN_GROUP;
+               $group_requester        = Notification::REQUESTER_GROUP;
+               $group_observer         = Notification::OBSERVER_GROUP;
+               $notify_user_assign     = $notify_control->_users_id_assign;
+               $notify_supplier_assign = $notify_control->_suppliers_id_assign;
+               $notify_group_assign    = $notify_control->_groups_id_assign;
+               $notify_user_requester  = $notify_control->_users_id_requester;
+               $notify_group_requester = $notify_control->_groups_id_requester;
+               $notify_user_observer   = $notify_control->_users_id_observer;
+               $notify_group_observer  = $notify_control->_groups_id_observer;
+            }
+
 
             // Foreach notification targets
             foreach ($targets as $target) {
 
-              // If this target and all of its users are blocked, break loop
-              // Can't use "switch" because "break" will end "switch" not "foreach"...
-              if ($target['items_id'] == $group_assign &&
-                  $notify_group_assign == 0 &&
-                  $notify_user_assign == 0) {
-                break;
-              }
-              else if ($target['items_id'] == $group_requester &&
-                        $notify_group_requester  == 0 &&
+               //if isset we are in followup
+               if(isset($_POST['notify_control'])){
+                  // If this target and all of its users are blocked, break loop
+                  // Can't use "switch" because "break" will end "switch" not "foreach"...
+                  if ($target['items_id'] == $group_assign && $notify_group_assign == 0 &&
+                        $notify_user_assign == 0) {
+                     break;
+                  }
+                  else if ($target['items_id'] == $group_requester && $notify_group_requester  == 0 &&
                         $notify_user_requester == 0) {
-                break;
-              }
-              else if ($target['items_id'] == $group_observer &&
-                        $notify_group_observer == 0 &&
+                     break;
+                  }
+                  else if ($target['items_id'] == $group_observer && $notify_group_observer == 0 &&
                         $notify_user_observer == 0) {
-                break;
-              }
-
-              // Get all users affected by this notification
-              $notificationtarget->getAddressesByTarget($target,$options);
-
-              // Get mailing list
-              $mails = $notificationtarget->getTargets();
-
-              // Get ticket's roles list
-              $tickets_users = new Ticket_User();
-              $roles = $tickets_users->getActors($item->getID());
-
-              // Foreach roles ...
-              foreach ($roles as $role) {
-
-                // ... get role's actors with its informations
-                foreach ($role as $actor) {
-
-                  // Default : keep mail in mailing list
-                  $unset = 0;
-
-                  // If current actor or his group isn't blocked, keep $unset at "false"
-                  // Else, switch $unset to "true"
-                  switch ($actor['type']) {
-                    case $actor_assign &&
-                          $notify_user_assign == 0 &&
-                          $notify_group_assign == 0:
-                      $unset = 1;
-                      break;
-                    case $actor_assign &&
-                          $notify_supplier_assign == 0 &&
-                          $notify_group_assign == 0:
-                      $unset = 1;
-                      break;
-                    case $actor_requester &&
-                          $notify_user_requester == 0 &&
-                          $notify_group_requester == 0:
-                      $unset = 1;
-                      break;
-                    case $actor_observer &&
-                          $notify_user_observer == 0 &&
-                          $notify_group_observer == 0:
-                      $unset = 1;
-                      break;
+                     break;
                   }
 
-                  // If unset was validated, remove mail from mailing list
-                  if ($unset) {
-                    $mail_to_remove = UserEmail::getDefaultForUser($actor['users_id']);
-                    unset($mails[$mail_to_remove]);
+                  // Get all users affected by this notification
+                  $notificationtarget->getAddressesByTarget($target,$options);
+
+                  // Get mailing list
+                  $mails = $notificationtarget->getTargets();
+
+                  // Get ticket's roles list
+                  $tickets_users = new Ticket_User();
+                  $roles = $tickets_users->getActors($item->getID());
+
+                  // Foreach roles ...
+                  foreach ($roles as $role) {
+
+                     // ... get role's actors with its informations
+                     foreach ($role as $actor) {
+
+                        // Default : keep mail in mailing list
+                        $unset = 0;
+
+                        // If current actor or his group isn't blocked, keep $unset at "false"
+                        // Else, switch $unset to "true"
+                        switch ($actor['type']) {
+                        case $actor_assign &&
+                              $notify_user_assign == 0 &&
+                              $notify_group_assign == 0:
+                           $unset = 1;
+                        break;
+                        case $actor_assign &&
+                              $notify_user_assign == 0 &&
+                              $notify_supplier_assign == 0 &&
+                              $notify_group_assign == 0:
+                           $unset = 1;
+                        break;
+                        case $actor_requester &&
+                           $notify_user_requester == 0 &&
+                              $notify_group_requester == 0:
+                           $unset = 1;
+                        break;
+                        case $actor_observer &&
+                              $notify_user_observer == 0 &&
+                              $notify_group_observer == 0:
+                           $unset = 1;
+                        break;
+                        }
+
+                        // If unset was validated, remove mail from mailing list
+                        if ($unset) {
+                           $mail_to_remove = UserEmail::getDefaultForUser($actor['users_id']);
+                           unset($mails[$mail_to_remove]);
+                        }
+
+                     }
+
                   }
 
-                }
+               //if not we are in description or other and let's Glpi to manage notification
+               }else{
+                  // Get all users affected by this notification
+                  $notificationtarget->getAddressesByTarget($target,$options);
+                  // Get mailing list
+                  $mails = $notificationtarget->getTargets();
+               }
 
-              }
-// ************************************************************************************************
-              // REPLACED $notificationtarget->getTargets() BY $mails
+ 
+            
                foreach ($mails as $user_email => $users_infos) {
 
                   if ($label

@@ -1017,7 +1017,6 @@ abstract class NotificationTargetCommonITILObject extends NotificationTarget {
             if(!$CFG_GLPI['use_rich_text']){
                $tmp['##task.description##']  = $task['content'];
             }else{
-               $task['content'] = Html::convertContentForNotification($task['content'],$item);
                $tmp['##task.description##']  = $task['content'];
             }
 

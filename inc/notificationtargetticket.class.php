@@ -295,9 +295,7 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
       if(!$CFG_GLPI['use_rich_text']){
         $datas['##ticket.description##'] = Html::clean($datas['##ticket.description##']);
       }else{
-      $datas['##ticket.description##']
-            = $item->convertContentForNotification($datas['##ticket.description##'],
-                                                   $item);
+      $datas['##ticket.description##'] = $item->convertTagToImage($datas['##ticket.description##']);
       }
 
 
@@ -585,8 +583,7 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
             if(!$CFG_GLPI['use_rich_text']){
               $tmp['##followup.description##'] = Html::clean($followup['content']);
             }else{
-               $followup['content'] = Html::convertContentForNotification($followup['content'],$item);
-               $tmp['##followup.description##'] = $followup['content'];
+              $tmp['##followup.description##'] = $item->convertTagToImage($followup['content']);
             }
 
 

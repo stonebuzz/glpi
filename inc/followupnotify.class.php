@@ -133,8 +133,17 @@
                   $fup = new TicketFollowUp();
                   // Get current Followup
                   $fup->getFromDB($_POST['id']);
-                  // Attempting to get followup's notification configs
-                  $notify_control = self::getNotifyControl($fup->getField('notify_control'));
+
+                  if($fup->getField('notify_control') == null ){
+                     $default = Config::getConfigurationValues('core', array('notify_control'));
+                     // Attempting to get followup's notification configs
+                     $notify_control = self::getNotifyControl($default['notify_control']);
+                  }else{
+                     // Attempting to get followup's notification configs
+                     $notify_control = self::getNotifyControl($fup->getField('notify_control'));
+
+                  }
+
                   break;
                // Get GLPi's general notifying configuration
                case 'general_config' :
