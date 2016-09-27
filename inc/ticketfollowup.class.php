@@ -363,6 +363,7 @@ class TicketFollowup  extends CommonDBTM {
       // Pass filename if set to ticket
       if (isset($input['_filename'])) {
          $input["_job"]->input['_filename'] = $input['_filename'];
+         $input["_job"]->input['_tag'] = $input['_tag'];
       }
       // Add docs without notif
       $docadded = $input["_job"]->addFiles(0,1);
@@ -529,6 +530,9 @@ class TicketFollowup  extends CommonDBTM {
       //need to bee porcess here because, befor image oare not precess yet.      
       if(isset($this->input['content']) && $CFG_GLPI['use_rich_text']){
          $this->fields['content'] = Html::processImgTagFromRichText($this->input['content']);
+         $this->fields['content'] = htmlentities($this->fields['content']);
+         $this->fields['content'] = str_replace(array('&gt;rn&lt;','&gt;\r\n&lt;','&gt;\r&lt;','&gt;\n&lt;'),
+                                           '&gt;&lt;', $this->fields['content']);
          $this->updateInDB(array('content'));       
       }
 
@@ -856,7 +860,7 @@ class TicketFollowup  extends CommonDBTM {
             echo "</td></tr>";
 
          }
-// ************************************************************************************************
+         // ************************************************************************************************
 
          $this->showFormButtons($options);
 
@@ -1182,7 +1186,7 @@ class TicketFollowup  extends CommonDBTM {
 
 
             if ($CFG_GLPI["use_rich_text"]) { 
-               $content = $ticket->convertTagToImage($content);
+               $content = $ticket->convertTagToImage($content,true);
                $content =  html_entity_decode($content); 
                echo $content.'</div>';
             } else {
