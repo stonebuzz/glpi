@@ -235,6 +235,10 @@ class Document extends CommonDBTM {
          $input['tag'] = array_shift($input["_tag_filename"]);
       }
 
+      if (isset($input["_tag"]) && !empty($input["_tag"]) == 1) {
+         $input['tag'] = array_shift($input["_tag"]);
+      }
+
       if (!isset($input["tag"]) || empty($input["tag"])) {
          $input['tag'] = Rule::getUuid();
       }
