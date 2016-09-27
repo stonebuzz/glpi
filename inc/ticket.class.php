@@ -2952,9 +2952,7 @@ class Ticket extends CommonITILObject {
                               '_tag_filename'       => array());
 
       // Get default values from posted values on reload form
-      // 
-       var_dump($_POST);
-      
+        
       if (!$ticket_template) {
          if (isset($_POST)) {
             //if(!$CFG_GLPI['use_rich_text']){
@@ -2962,8 +2960,6 @@ class Ticket extends CommonITILObject {
             //}
          }
       }
-
-      var_dump($values);
 
       // Restore saved value or override with page parameter
       $saved = $this->restoreInput();
@@ -3311,7 +3307,7 @@ class Ticket extends CommonITILObject {
 
 
          if ($CFG_GLPI["use_rich_text"]) {
-            $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand);
+            $values["content"] = $this->setRichTextContent($content_id, $this->fields["content"], $rand,true);
             $cols              = 100;
             $rows              = 10;
          } else {
@@ -4362,7 +4358,7 @@ class Ticket extends CommonITILObject {
          if ($CFG_GLPI["use_rich_text"]) {
             $this->fields["content"] = $this->setRichTextContent($content_id,
                                                                  $this->fields["content"],
-                                                                 $rand);
+                                                                 $rand,true);
             $rows = 10;
          } else {
             $this->fields["content"] = $this->setSimpleTextContent($this->fields["content"]);
@@ -4389,7 +4385,7 @@ class Ticket extends CommonITILObject {
          if ($CFG_GLPI["use_rich_text"]) {
             $this->fields["content"] = $this->setRichTextContent($content_id,
                                                                  $this->fields["content"],
-                                                                 $rand);
+                                                                 $rand,true);
             $rows = 10;
 
 
@@ -6221,14 +6217,14 @@ class Ticket extends CommonITILObject {
     *
     * @return $content
    **/
-   function setRichTextContent($name, $content, $rand) {
+   function setRichTextContent($name, $content, $rand , $update  = false) {
 
       // Init html editor
       Html::initEditorSystem($name, $rand);
 
       // If no html
       if ($content == strip_tags($content)) {
-         $content = $this->convertTagToImage($content);
+         $content = $this->convertTagToImage($content,false);
       }
 
       // Neutralize non valid HTML tags
@@ -6538,7 +6534,7 @@ class Ticket extends CommonITILObject {
 
 
             if ($CFG_GLPI["use_rich_text"]) { 
-              $content = $this->convertTagToImage($content);
+              $content = $this->convertTagToImage($content,true);
               echo html_entity_decode($content); 
             } else {
               echo $content;
