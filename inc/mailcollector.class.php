@@ -770,7 +770,7 @@ class MailCollector  extends CommonDBTM {
          //parse other tag (for attachment) no in content
          foreach ($this->tags as $tag) {
             if(strpos( $tkt['content'],Document::getImageTag($tag)) === false){
-               $tkt['content'] = str_replace('</body>  </html>', "<p>".Document::getImageTag($tag)."</p></body>  </html>", $tkt['content']);
+               $tkt['content'] .= "<p>".Document::getImageTag($tag)."</p>";
             }
          }
 
