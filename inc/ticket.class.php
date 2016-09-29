@@ -6033,9 +6033,13 @@ class Ticket extends CommonITILObject {
    **/
    static function convertContentForTicket($content_html, $files, $tags) {
 
+      // if cid is present 
+      $content_html = str_replace('cid:', '"', $content_html);
+      $content_html = str_replace(' style="', '" style="', $content_html);
+
       // We inject another meta tag
       $html = Html::entity_decode_deep($content_html);
-      preg_match_all("/src\s*=\s*['|\"](.+?)['|\"]/", $html, $matches, PREG_PATTERN_ORDER);
+      preg_match_all("/src\s*=['|\"|](.+?)['|\"|\s*]/", $html, $matches, PREG_PATTERN_ORDER);
       if (isset($matches[1]) && count($matches[1])) {
          // Get all image src
 
@@ -6049,6 +6053,7 @@ class Ticket extends CommonITILObject {
          }
       }
 
+      
       return $html;
 
    }
