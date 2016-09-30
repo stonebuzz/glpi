@@ -6229,7 +6229,7 @@ class Ticket extends CommonITILObject {
 
       // If no html
       if ($content == strip_tags($content)) {
-         $content = $this->convertTagToImage($content,false);
+         $content = $this->convertTagToImage($content,$update);
       }
 
       // Neutralize non valid HTML tags
@@ -6539,10 +6539,28 @@ class Ticket extends CommonITILObject {
 
 
             if ($CFG_GLPI["use_rich_text"]) { 
-              $content = $this->convertTagToImage($content,true);
-              echo html_entity_decode($content); 
+
+               if(isset($item['type']) && $item['type'] == 'TicketFollowup'){
+
+                  $id_tf =   $item_i['id'];
+                  $tf = new TicketFollowup();
+                  $tf->getFromDB($id_tf);
+                  $content = $tf->convertTagToImage($content,true);
+
+               }elseif(isset($item['type']) && $item['type'] == 'TicketTask'){
+
+                  $id_task =   $item_i['id'];
+                  $ttask = new TicketTask();
+                  $ttask->getFromDB($id_task);
+                  $content = $ttask->convertTagToImage($content,true);
+
+               }else{
+                  $content = $this->convertTagToImage($content,true);
+               }
+
+               echo html_entity_decode($content); 
             } else {
-              echo $content;
+               echo $content;
             }
             //echo "</p>";
 
@@ -6710,7 +6728,7 @@ class Ticket extends CommonITILObject {
          echo "<div class='ticket_description'>";
 
         if ($CFG_GLPI["use_rich_text"]) { 
-          $content = $this->convertTagToImage($this->fields['content']);
+          $content = $this->convertTagToImage($this->fields['content'],true);
           echo html_entity_decode($content); 
         } else {
           echo $this->setSimpleTextContent($this->fields['content']);
