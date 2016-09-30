@@ -1485,8 +1485,7 @@ class MailCollector  extends CommonDBTM {
                // If embeded image, we add a tag
                if (true) {
                   end($this->files);
-                  //$tag = Rule::getUuid();
-                  $tag = rand(0,1000000);
+                  $tag = time().rand(1,10000);
                   $this->tags[$filename]  = $tag;
 
                   // Link file based on id
