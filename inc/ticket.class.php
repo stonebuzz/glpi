@@ -2891,6 +2891,7 @@ class Ticket extends CommonITILObject {
     * @return nothing (print the helpdesk)
    **/
    function showFormHelpdesk($ID, $ticket_template=false) {
+
       global $DB, $CFG_GLPI;
 
       if (!self::canCreate()) {
@@ -6554,6 +6555,8 @@ class Ticket extends CommonITILObject {
                   $ttask->getFromDB($id_task);
                   $content = $ttask->convertTagToImage($content,true);
 
+               }elseif(isset($item['type']) && $item['type'] == 'TicketValidation'){
+                  $content = $this->convertTagToImage($content,false);
                }else{
                   $content = $this->convertTagToImage($content,true);
                }
