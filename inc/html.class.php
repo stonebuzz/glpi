@@ -3934,9 +3934,9 @@ class Html {
          plugins: [
             'table directionality searchreplace',
             'tabfocus autoresize link image paste',
-            'code fullscreen paste_upload_doc'
+            'code fullscreen paste_upload_doc textcolor'
          ],
-          toolbar: 'styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code fullscreen',
+          toolbar: ' forecolor backcolor | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code fullscreen',
 
       });
    ";
@@ -6100,6 +6100,37 @@ class Html {
       }
 
       return $content;
+   }
+
+
+
+   public static function convertImgTagToBlobImgTag($content){
+      global $CFG_GLPI;
+
+
+      preg_match_all('/(<img[\w\W]+?\/>)/',$content, $matches);
+      foreach ($matches[0] as $img_tag) {
+
+         preg_match_all('/(src)="([^"]*)"/',$img_tag, $src);
+         foreach ($src[2] as $src_url) {
+
+            $id = str_replace('docid=', '', explode('?', $src_url)[1]);
+            $doc = new Document();
+            if($doc->getFromDB($id)){  
+
+               $filePath = GLPI_DOC_DIR.'/'.$doc->fields["filepath"];
+
+               $file = file_get_contents($filePath);
+
+               $new_img_tag = preg_replace('/src="([^"]*)"/', 'src="data:'.$doc->fields['mime'].';base64,'.base64_encode($file).'"', $img_tag);
+               $content = str_replace($img_tag, $new_img_tag, $content);
+
+            }
+
+
+         }
+      }
+       return $content;
    }
 
 
