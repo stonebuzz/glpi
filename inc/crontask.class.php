@@ -36,6 +36,9 @@
 * @brief
 */
 
+// Needed for signal handler
+declare(ticks = 1);
+
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
@@ -174,10 +177,30 @@ class CronTask extends CommonDBTM{
       $types= array();
       foreach  ($DB->request("SELECT DISTINCT(`itemtype`)
                             FROM `glpi_crontasks`") as $data) {
-        $types[] = $data['itemtype'];
+         $types[] = $data['itemtype'];
       }
       return $types;
-    }
+   }
+
+   /**
+    * Signal handler callback
+    *
+    * @since 9.1
+    */
+   function signal($signo) {
+      if ($signo == SIGTERM) {
+         pcntl_signal(SIGTERM, SIG_DFL);
+
+         // End of this task
+         $this->end(NULL);
+
+         // End of this cron
+         $_SESSION["glpicronuserrunning"]='';
+         self::release_lock();
+         Toolbox::logInFile('cron', __('Action aborted')."\n");
+         exit;
+      }
+   }
 
    /**
     * Start a task, timer, stat, log, ...
@@ -189,6 +212,10 @@ class CronTask extends CommonDBTM{
 
       if (!isset($this->fields['id']) || ($DB->isSlave())) {
          return false;
+      }
+
+      if (isCommandLine() && function_exists('pcntl_signal')) {
+         pcntl_signal(SIGTERM, [$this, 'signal']);
       }
 
       $query = "UPDATE `".$this->getTable()."`
@@ -262,7 +289,11 @@ class CronTask extends CommonDBTM{
       if ($DB->affected_rows($result) > 0) {
          // No gettext for log but add gettext line to be parsed for pot generation
          // order is important for insertion in english in the database
-         if ($retcode < 0) {
+         if (is_null($retcode)) {
+            $content = __('Action aborted');
+            $content = 'Action aborted';
+         }
+         else if ($retcode < 0) {
             $content = __('Action completed, partially processed');
             $content = 'Action completed, partially processed';
 
@@ -772,7 +803,7 @@ class CronTask extends CommonDBTM{
             Toolbox::logInFile('cron', __('A minimum of 64 Mio is commonly required for GLPI.')."\n");
          }
          // If no task in CLI mode, call cron.php from command line is not really usefull ;)
-         if (!countElementsInTable($crontask->getTable(), "`mode` = '".abs($mode)."'")) {
+         if (!countElementsInTable($crontask->getTable(), ['mode' => abs($mode)])) {
             Toolbox::logInFile('cron',
                                __('No task with Run mode = CLI, fix your tasks configuration')."\n");
          }
@@ -932,11 +963,11 @@ class CronTask extends CommonDBTM{
       echo "<tr><th colspan='2'>&nbsp;".__('Statistics')."</th></tr>\n";
 
       $nbstart = countElementsInTable('glpi_crontasklogs',
-                                      "`crontasks_id` = '".$this->fields['id']."'
-                                          AND `state` = '".CronTaskLog::STATE_START."'");
+                                      ['crontasks_id' => $this->fields['id'],
+                                       'state'        => CronTaskLog::STATE_START ]);
       $nbstop  = countElementsInTable('glpi_crontasklogs',
-                                      "`crontasks_id` = '".$this->fields['id']."'
-                                          AND `state` = '".CronTaskLog::STATE_STOP."'");
+                                      ['crontasks_id' => $this->fields['id'],
+                                       'state'        => CronTaskLog::STATE_STOP ]);
 
       echo "<tr class='tab_bg_2'><td>".__('Run count')."</td><td class='right'>";
       if ($nbstart == $nbstop) {
@@ -1040,8 +1071,8 @@ class CronTask extends CommonDBTM{
 
       // Total Number of events
       $number = countElementsInTable('glpi_crontasklogs',
-                                     "`crontasks_id` = '".$this->fields['id']."'
-                                          AND `state` = '".CronTaskLog::STATE_STOP."'");
+                                     ['crontasks_id' => $this->fields['id'],
+                                      'state'        => CronTaskLog::STATE_STOP ]);
 
       echo "<br><div class='center'>";
       if ($number < 1) {
@@ -1158,7 +1189,6 @@ class CronTask extends CommonDBTM{
                      // Pass content to gettext
                      $content = __($data['content']);
                }
-
 
                echo "<td class='right'>".sprintf(_n('%s second', '%s seconds',
                                                     intval($data['elapsed'])),
@@ -1333,7 +1363,6 @@ class CronTask extends CommonDBTM{
       $tab[8]['massiveaction'] = false;
       $tab[8]['datatype']      = 'itemtypename';
       $tab[8]['types']         = self::getUsedItemtypes();
-
 
       $tab[16]['table']        = $this->getTable();
       $tab[16]['field']        = 'comment';
@@ -1748,4 +1777,3 @@ class CronTask extends CommonDBTM{
       }
    }
 }
-?>

@@ -187,7 +187,7 @@ class TicketFollowup  extends CommonDBTM {
          if (Session::haveRight(self::$rightname, self::SEEPUBLIC)) {
             if ($_SESSION['glpishow_count_on_tabs']) {
                $nb = countElementsInTable('glpi_ticketfollowups',
-                                          "`tickets_id` = '".$item->getID()."'");
+                                          ['tickets_id' => $item->getID()]);
             }
             return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);
          }
@@ -317,8 +317,7 @@ class TicketFollowup  extends CommonDBTM {
              $update['id']            = $this->input['_job']->fields['id'];
              $update['_disablenotif'] = true;
              $this->input['_job']->update($update);
-          }
-
+         }
 
          // Add log entry in the ticket
          $changes[0] = 0;
@@ -377,17 +376,16 @@ class TicketFollowup  extends CommonDBTM {
          }
       }
 
-
       // Pass old assign From Ticket in case of assign change
-//       if (isset($input["_old_assign"])) {
-//          $input["_job"]->fields["_old_assign"] = $input["_old_assign"];
-//       }
+      // if (isset($input["_old_assign"])) {
+      //    $input["_job"]->fields["_old_assign"] = $input["_old_assign"];
+      // }
 
-//      if (!isset($input["type"])) {
-//         $input["type"] = "followup";
-//      }
-//      $input["_type"] = $input["type"];
-//      unset($input["type"]);
+      // if (!isset($input["type"])) {
+      //    $input["type"] = "followup";
+      // }
+      // $input["_type"] = $input["type"];
+      // unset($input["type"]);
       $input['_close'] = 0;
 
       if (!isset($input["users_id"])) {
@@ -396,7 +394,7 @@ class TicketFollowup  extends CommonDBTM {
             $input["users_id"] = $uid;
          }
       }
-//      if ($input["_isadmin"] && $input["_type"]!="update") {
+      // if ($input["_isadmin"] && $input["_type"]!="update") {
       if (isset($input["add_close"])) {
          $input['_close'] = 1;
          if (empty($input['content'])) {
@@ -426,7 +424,7 @@ class TicketFollowup  extends CommonDBTM {
          $input['_reopen'] = 1;
       }
       unset($input["add_reopen"]);
-//      }
+      // }
       unset($input["add"]);
 
       $input["date"] = $_SESSION["glpi_currenttime"];
@@ -461,10 +459,6 @@ class TicketFollowup  extends CommonDBTM {
 
      
       $donotif = $CFG_GLPI["use_mailing"];
-
-//       if (isset($this->input["_no_notif"]) && $this->input["_no_notif"]) {
-//          $donotif = false;
-//       }
 
       $this->input["_job"]->updateDateMod($this->input["tickets_id"], false,
                                           $this->input["users_id"]);
@@ -726,7 +720,7 @@ class TicketFollowup  extends CommonDBTM {
 
       $reopen_case = false;
       if ($this->isNewID($ID)) {
-          if (in_array($ticket->fields["status"], $ticket->getClosedStatusArray())
+         if (in_array($ticket->fields["status"], $ticket->getClosedStatusArray())
              && $ticket->isAllowedStatus($ticket->fields['status'], Ticket::INCOMING)) {
             $reopen_case = true;
             echo "<div class='center b'>".__('If you want to reopen the ticket, you must specify a reason')."</div>";
@@ -966,7 +960,7 @@ class TicketFollowup  extends CommonDBTM {
 
       if ($this->isNewID($ID)) {
          echo Ticket::getSplittedSubmitButtonHtml($this->fields['tickets_id'], 'add');
-//         echo "<input type='hidden' name='id' value='$ID'>";
+         // echo "<input type='hidden' name='id' value='$ID'>";
       } else {
          if ($params['candel']
              && !$this->can($ID, DELETE)
@@ -1349,7 +1343,6 @@ class TicketFollowup  extends CommonDBTM {
       $tab[5]['datatype']     = 'dropdown';
       $tab[5]['right']        = 'all';
 
-
       return $tab;
    }
 
@@ -1497,4 +1490,3 @@ class TicketFollowup  extends CommonDBTM {
       return $content_text;
    }
 }
-?>
