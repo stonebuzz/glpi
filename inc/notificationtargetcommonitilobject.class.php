@@ -1017,7 +1017,7 @@ abstract class NotificationTargetCommonITILObject extends NotificationTarget {
             if(!$CFG_GLPI['use_rich_text']){
                $tmp['##task.description##']  = $task['content'];
             }else{
-               $tmp['##task.description##']  = $task['content'];
+               $tmp['##task.description##']  = Html::convertImgTagToBlobImgTag($task['content']);
             }
 
             $tmp['##task.time##']         = Ticket::getActionTime($task['actiontime']);
