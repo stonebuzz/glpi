@@ -768,11 +768,37 @@ class MailCollector  extends CommonDBTM {
                                                            $this->tags);
 
          //parse other tag (for attachment) no in content
+         foreach ($tkt['_filename'] as $filename) {
+            if(strpos( $tkt['content'], "(Embedded image moved to file: ".$filename.")" ) !== false){
+               $tkt['content'] = str_replace("(Embedded image moved to file: ".$filename.")" , "<p>".Document::getImageTag($this->tags[$filename])."</p>", $tkt['content']);
+            }
+         }
+
+         foreach ($tkt['_filename'] as $filename) {
+            if(strpos( $tkt['content'], "(See attached file: ".$filename.")" ) !== false)  {
+               $tkt['content'] = str_replace("(See attached file: ".$filename.")" , "<p>".Document::getImageTag($this->tags[$filename])."</p>", $tkt['content']);
+            }
+         }
+
+
          foreach ($this->tags as $tag) {
             if(strpos( $tkt['content'],Document::getImageTag($tag)) === false){
                $tkt['content'] .= "<p>".Document::getImageTag($tag)."</p>";
+            }else{
+               //drop file not present on content (-> file already exist)
+               unset($this->tags[$key]);
+               unset($this->files[$key]);
+
+               foreach ($this->altfiles as $k => $value) {
+                  if($value == $key){
+                     unset($this->altfiles[$k]);
+                  }
+               }
             }
          }
+
+
+
 
       }
 
