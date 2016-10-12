@@ -55,7 +55,7 @@ body.layout_vsplit.form.mce-fullscreen div#page {
    position: relative
 }
 
-ul, li, dt, dl, dd, form, img, input {
+, li, dt, dl, dd, form, img, input {
    margin: 0;
    padding: 0;
 }
@@ -63,6 +63,19 @@ ul, li, dt, dl, dd, form, img, input {
 ul {
    list-style-type: none;
 }
+
+
+
+.item_content  ul {
+   /*margin: 0;
+   padding: 0;*/
+}
+
+.item_content ul {
+   list-style-type: disc;
+}
+
+
 
 span.invisible {
    visibility: hidden;
@@ -3802,4 +3815,9 @@ input[type=checkbox]:not(:disabled) ~ .lever:active:after {
    .documentation {
       margin-left: 200px;
    }
+}
+
+.item_content  p {
+    padding: 0;
+    margin: 0px 0;
 }
