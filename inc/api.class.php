@@ -1307,6 +1307,11 @@ abstract class API extends CommonGLPI {
                             400,
                             "ERROR_RANGE_EXCEED_TOTAL");
       }
+      
+      // fix end range
+      if ($params['range'][1] > $cleaned_data['totalcount'] - 1) {
+         $params['range'][1] = $cleaned_data['totalcount'] - 1;
+      }
 
       // fix end range
       if ($params['range'][1] > $cleaned_data['totalcount'] - 1) {

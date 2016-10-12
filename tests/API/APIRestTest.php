@@ -474,7 +474,7 @@ class APIRestTest extends PHPUnit_Framework_TestCase {
                                           ['headers' => [
                                                 'Session-Token' => $session_token],
                                           'json' => [
-                                             'input'            => [
+                                             'input'            => [ 
                                                 'itemtype'                 => 'Computer',
                                                 'items_id'                 => $computers_id,
                                                 'content'                  => 'note about a computer'
