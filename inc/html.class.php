@@ -3846,14 +3846,26 @@ class Html {
          entity_encoding: 'raw',
          paste_data_images: true,
          menubar: false,
+         editor_css : '../css/rich_text.css',
          statusbar: false,
-         skin: 'light',
+         codesample_languages: [
+            {text: 'HTML/XML', value: 'markup'},
+            {text: 'JavaScript', value: 'javascript'},
+            {text: 'CSS', value: 'css'},
+            {text: 'PHP', value: 'php'},
+            {text: 'Ruby', value: 'ruby'},
+            {text: 'Python', value: 'python'},
+            {text: 'Java', value: 'java'},
+            {text: 'C', value: 'c'},
+            {text: 'C#', value: 'csharp'},
+            {text: 'C++', value: 'cpp'}
+         ],
          plugins: [
-            'table directionality searchreplace',
+            'table codesample directionality searchreplace',
             'tabfocus autoresize link image paste',
             'code fullscreen paste_upload_doc textcolor'
          ],
-          toolbar: 'forecolor | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code fullscreen',
+          toolbar: 'forecolor | underline | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code fullscreen codesample',
 
       });
    ";
