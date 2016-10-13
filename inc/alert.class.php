@@ -229,9 +229,10 @@ class Alert extends CommonDBTM {
    **/
    static function displayLastAlert($itemtype, $items_id) {
       global $DB;
+      $alert = new self();
 
       if ($items_id) {
-         $iter = $DB->request($this->getTable(), ['FIELDS'   => 'date',
+         $iter = $DB->request($alert->getTable(), ['FIELDS'   => 'date',
                                                   'ORDER'    => 'date DESC',
                                                   'LIMIT'    => 1,
                                                   'itemtype' => $itemtype,
