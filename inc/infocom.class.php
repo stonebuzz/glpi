@@ -1028,13 +1028,59 @@ class Infocom extends CommonDBChild {
                                         'width'  => '70%'));
             }
             echo "</td>";
-            if (Budget::canView()) {
+            if (Budget::canView() && $ic->fields["budgets_id"] != '0') {
                echo "<td>".__('Budget')."</td><td >";
                Budget::dropdown(array('value'    => $ic->fields["budgets_id"],
                                       'entity'   => $item->getEntityID(),
                                       'comments' => 1));
+
+               if (TableExists('glpi_plugin_order_orders_items') && !empty($ic->fields['order_number'])) {
+
+                  $orderNumber = $ic->fields['order_number'];
+                  $order_item = new PluginOrderOrder_Item();
+                  $o_i = $order_item->find("itemtype = '".$ic->fields['itemtype']."' AND items_id = ".$ic->fields['items_id']);
+                  if(count($o_i) == 1){  
+                        $order_id = 0;               
+                        foreach ($o_i as $key => $value) {
+                           $order_id = $value['plugin_order_orders_id'];
+                        }
+
+                        $order = new PluginOrderOrder();
+                        $order->getFromDB($order_id);
+                        echo "<br>".__("Invoice location", "order")." : ";
+                        echo Dropdown::getDropdownName("glpi_locations",  $order->fields['payment_locations_id']);
+
+                   }
+                 }
+
+
+
             } else {
-               echo "<td colspan='2'>";
+
+               if (TableExists('glpi_plugin_order_orders_items') && !empty($ic->fields['order_number'])) {
+
+                  $orderNumber = $ic->fields['order_number'];
+                  $order_item = new PluginOrderOrder_Item();
+                  $o_i = $order_item->find("itemtype = '".$ic->fields['itemtype']."' AND items_id = ".$ic->fields['items_id']);
+                  if(count($o_i) == 1){  
+                        $order_id = 0;               
+                        foreach ($o_i as $key => $value) {
+                           $order_id = $value['plugin_order_orders_id'];
+                        }
+
+                        $order = new PluginOrderOrder();
+                        $order->getFromDB($order_id);
+                        echo "<td>".__("Invoice location", "order")."</td><td >";
+                        echo Dropdown::getDropdownName("glpi_locations",  $order->fields['payment_locations_id']);
+
+                   }else{
+                     echo "<td colspan='2'>";
+                  }
+                  
+               }else{
+                  echo "<td colspan='2'>";
+               }
+
             }
             echo "</td></tr>";
 
