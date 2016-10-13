@@ -4151,14 +4151,14 @@ class Ticket extends CommonITILObject {
       } else {
          echo $tt->getBeginHiddenFieldValue('global_validation');
 
-         if (Session::haveRightsOr('ticketvalidation', TicketValidation::getCreateRights())
+         /*if (Session::haveRightsOr('ticketvalidation', TicketValidation::getCreateRights())
              && $canupdate) {
             TicketValidation::dropdownStatus('global_validation',
                                              array('global' => true,
                                                    'value'  => $this->fields['global_validation']));
-         } else {
+         } else {*/
             echo TicketValidation::getStatus($this->fields['global_validation']);
-         }
+         /*}*/
          echo $tt->getEndHiddenFieldValue('global_validation',$this);
 
       }
@@ -4186,12 +4186,12 @@ class Ticket extends CommonITILObject {
       echo $tt->getEndHiddenFieldText('locations_id')."</th>";
       echo "<td>";
       echo $tt->getBeginHiddenFieldValue('locations_id');
-      if ($canupdate || !$ID) {
+      /*if ($canupdate || !$ID) {
          Location::dropdown(array('value'  => $this->fields['locations_id'],
                                   'entity' => $this->fields['entities_id']));
-      } else {
+      } else {*/
          echo Dropdown::getDropdownName('glpi_locations', $this->fields["locations_id"]);
-      }
+      /*}*/
       echo $tt->getEndHiddenFieldValue('locations_id', $this);
       echo "</td>";
       echo "</tr>";
