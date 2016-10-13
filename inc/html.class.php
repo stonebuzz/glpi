@@ -3847,25 +3847,14 @@ class Html {
          paste_data_images: true,
          menubar: false,
          editor_css : '../css/rich_text.css',
+         skin: 'light',
          statusbar: false,
-         codesample_languages: [
-            {text: 'HTML/XML', value: 'markup'},
-            {text: 'JavaScript', value: 'javascript'},
-            {text: 'CSS', value: 'css'},
-            {text: 'PHP', value: 'php'},
-            {text: 'Ruby', value: 'ruby'},
-            {text: 'Python', value: 'python'},
-            {text: 'Java', value: 'java'},
-            {text: 'C', value: 'c'},
-            {text: 'C#', value: 'csharp'},
-            {text: 'C++', value: 'cpp'}
-         ],
          plugins: [
-            'table codesample directionality searchreplace',
+            'table directionality searchreplace',
             'tabfocus autoresize link image paste',
             'code fullscreen paste_upload_doc textcolor'
          ],
-          toolbar: 'forecolor | underline | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code fullscreen codesample',
+          toolbar: 'forecolor | underline | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code fullscreen',
 
       });
    ";
