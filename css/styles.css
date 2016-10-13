@@ -2312,6 +2312,7 @@ ul#menu ul.ssmenu {
    background: rgba(255, 255, 255, 0.9);
    display: none;
    box-shadow: 0px 2px 2px 1px #BCB6B3;
+   padding-left : 0px;
 }
 
 ul#menu ul li {
@@ -3184,6 +3185,7 @@ a.copyright {
    display: block;
    float: right;
    opacity: .5;
+   z-index: 200;
 }
 
 .timeline_history .h_content .edit_item:hover {
