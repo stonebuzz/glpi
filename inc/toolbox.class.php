@@ -1555,8 +1555,9 @@ class Toolbox {
     *
     * @return random string
    **/
-   static function getRandomString($length, $high=false) {
-
+   static function getRandomString($length) {
+      $alphabet  = "1234567890abcdefghijklmnopqrstuvwxyz";
+      $rndstring = "";
       for ($a=0 ; $a<$length ; $a++) {
          if (function_exists('random_int')) { // PHP 7+
             $b = random_int(0, strlen($alphabet) - 1);
@@ -1565,8 +1566,7 @@ class Toolbox {
          }
          $rndstring .= $alphabet[$b];
       }
-
-      return $generator->generateString($length, RandomLib\Generator::CHAR_LOWER + RandomLib\Generator::CHAR_DIGITS);
+      return $rndstring;
    }
 
 
