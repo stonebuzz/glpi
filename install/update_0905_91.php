@@ -861,8 +861,7 @@ function update0905to91() {
    $migration->addField("glpi_users", "notify_control", "text");
 
    $notify_control = '{"_users_id_requester":0,"_groups_id_requester":0,"_users_id_observer":0,"_groups_id_observer":0,"_users_id_assign":0,"_groups_id_assign":0,"_suppliers_id_assign":0}';
-   $query = "INSERT INTO glpi_configs (context, name, value) VALUES ('core', 'notify_control', '$notify_control')";
-   $DB->query($query);
+   $query = "UPDATE glpi_configs SET context = 'core', name = 'notify_control', value = '$notify_control' WHERE id = 171";
 
    // ************ Keep it at the end **************
    $migration->executeMigration();
