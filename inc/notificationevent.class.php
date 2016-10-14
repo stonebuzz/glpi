@@ -160,55 +160,60 @@ class NotificationEvent extends CommonDBTM {
 
                //if isset we are in followup
                if(isset($_POST['notify_control'])){
-                  // If this target and all of its users are blocked, break loop
-                  // Can't use "switch" because "break" will end "switch" not "foreach"...
-                  if ($target['items_id'] == Notification::ASSIGN_GROUP     &&
-                      $notify_control->_groups_id_assign     == 0               ||
-                      $target['items_id'] == Notification::REQUESTER_GROUP  &&
-                      $notify_control->_groups_id_requester  == 0               ||
-                      $target['items_id'] == Notification::OBSERVER_GROUP   &&
-                      $notify_control->_groups_id_observer   == 0               ||
-                      $target['items_id'] == Notification::SUPPLIER         &&
-                      $notify_control->_suppliers_id_assign  == 0) {
+
+                  $id = $target['items_id'];
+                  $ag = Notification::ASSIGN_GROUP;
+                  $rg = Notification::REQUESTER_GROUP;
+                  $og = Notification::OBSERVER_GROUP;
+                  $su = Notification::SUPPLIER;
+
+                  // If this target is a group and this group is disabled, skip target
+                  if ($id == $ag && $notify_control->_groups_id_assign    == 0 ||
+                      $id == $rg && $notify_control->_groups_id_requester == 0 ||
+                      $id == $og && $notify_control->_groups_id_observer  == 0 ||
+                      $id == $su && $notify_control->_suppliers_id_assign == 0) {
                     continue;
-                   }
+                  }
 
                   // Get all users affected by this notification
                   $notificationtarget->getAddressesByTarget($target,$options);
 
                   // Get mailing list
                   $mails = $notificationtarget->getTargets();
+                  $mails_backup = $mails;
+                  $restore = array();
 
                   // Get ticket's roles list
                   $tickets_users = new Ticket_User();
                   $roles = $tickets_users->getActors($item->getID());
 
-                  // Foreach roles ...
                   foreach ($roles as $role) {
+                    foreach ($role as $actor) {
 
-                     // ... get role's actors with its informations
-                     foreach ($role as $actor) {
+                      $type   = $actor['type'];
+                      $ua     = CommonITILActor::ASSIGN;
+                      $ur     = CommonITILActor::REQUESTER;
+                      $uo     = CommonITILActor::OBSERVER;
 
-                        // Default : keep mail in mailing list
-                        $unset = 0;
+                      $actor_mail = trim(Toolbox::strtolower(UserEmail::getDefaultForUser($actor['users_id'])));
 
-                        // If current actor or his group isn't blocked, keep $unset at "false"
-                        // Else, switch $unset to "true"
-                        if      ($actor['type'] == CommonITILActor::ASSIGN    &&
-                                 $notify_control->_users_id_assign    == 0) { $unset = 1; }
-                        else if ($actor['type'] == CommonITILActor::REQUESTER &&
-                                 $notify_control->_users_id_requester == 0) { $unset = 1; }
-                        else if ($actor['type'] == CommonITILActor::OBSERVER  &&
-                                 $notify_control->_users_id_observer  == 0) { $unset = 1; }
+                      // If current actor is blocked, switch $unset to "true"
+                      if ($type == $ua && $notify_control->_users_id_assign     == 0 ||
+                          $type == $ur && $notify_control->_users_id_requester  == 0 ||
+                          $type == $uo && $notify_control->_users_id_observer   == 0) {
+                         unset($mails[$actor_mail]);
+                      }
 
-                        // If unset was validated, remove mail from mailing list
-                        if ($unset) {
-                           $mail_to_remove = UserEmail::getDefaultForUser($actor['users_id']);
-                           unset($mails[trim(Toolbox::strtolower($mail_to_remove))]);
+                      // If a user assumes two roles, recover its mail address if enabled
+                      if ($type == $ua && $notify_control->_users_id_assign     == 1 ||
+                          $type == $ur && $notify_control->_users_id_requester  == 1 ||
+                          $type == $uo && $notify_control->_users_id_observer   == 1) {
+                        if (isset($mails_backup[$actor_mail])) {
+                          $restore[$actor_mail] = $mails_backup[$actor_mail];
                         }
+                      }
 
-                     }
-
+                    }
                   }
 
                //if not we are in description or other and let's Glpi to manage notification
