@@ -212,9 +212,10 @@ class NotificationEvent extends CommonDBTM {
                           $restore[$actor_mail] = $mails_backup[$actor_mail];
                         }
                       }
-
                     }
                   }
+
+                  $mails = array_merge($mails, $restore);
 
                //if not we are in description or other and let's Glpi to manage notification
                }else{
@@ -224,7 +225,7 @@ class NotificationEvent extends CommonDBTM {
                   $mails = $notificationtarget->getTargets();
                }
 
- 
+          
             
                foreach ($mails as $user_email => $users_infos) {
 
