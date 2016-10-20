@@ -173,7 +173,7 @@ class APIRest extends API {
          $additionalheaders["Accept-Range"]  = $itemtype." ".Toolbox::get_max_input_vars();
 
          // diffent http return codes for complete or partial response
-         if ($response['count'] >= $response['count']) {
+         if ($response['count'] >= $response['totalcount']) {
             $code = 200; // full content
          } else {
             $code = 206; // partial content
@@ -195,7 +195,7 @@ class APIRest extends API {
                   $response = $this->getItem($itemtype, $id, $this->parameters);
                   if (isset($response['date_mod'])) {
                      $datemod = strtotime($response['date_mod']);
-                     $additionalheaders['Last-Modified'] = date('r', $datemod);
+                     $additionalheaders['Last-Modified'] = gmdate("D, d M Y H:i:s", $datemod)." GMT";
                   }
                } else {
                   // return collection of items
@@ -203,10 +203,18 @@ class APIRest extends API {
                   $response = $this->getItems($itemtype, $this->parameters, $totalcount);
 
                   //add pagination headers
-                  if (!isset($this->parameters['range'])) {
-                     $this->parameters['range'] = "0-50";
+                  $range = [0, $_SESSION['glpilist_limit']];
+                  if (isset($this->parameters['range'])) {
+                     $range = explode("-", $this->parameters['range']);
+                     // fix end range
+                     if($range[1] > $totalcount - 1){
+                        $range[1] = $totalcount - 1;
+                     }
+                     if($range[1] - $range[0] + 1 < $totalcount){
+                         $code = 206; // partial content
+                     }
                   }
-                  $additionalheaders["Content-Range"] = $this->parameters['range']."/".$totalcount;
+                  $additionalheaders["Content-Range"] = implode('-', $range)."/".$totalcount;
                   $additionalheaders["Accept-Range"]  = $itemtype." ".Toolbox::get_max_input_vars();
                }
                break;
@@ -287,6 +295,7 @@ class APIRest extends API {
                $this->parameters['parent_itemtype'] = $itemtype;
                $itemtype                            = $additional_itemtype;
             }
+            $itemtype = ucfirst($itemtype);
             return $itemtype;
          }
          $this->returnError(__("resource not found or not an instance of CommonDBTM"),
