@@ -551,6 +551,10 @@ function update0905to91() {
       }
    }
 
+   /************** Add more fields to contract types */ 
+   $migration->addField("glpi_contracttypes", "is_recursive", "bool");
+   $migration->addField("glpi_contracttypes", "entities_id", "integer");
+
 
    /************** Add more fields to software licenses */
    $migration->addField("glpi_softwarelicenses", "is_deleted", "bool");
