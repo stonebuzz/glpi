@@ -1086,6 +1086,9 @@ class Ticket extends CommonITILObject {
       }
 
       $input = parent::prepareInputForUpdate($input);
+
+      Html::removeDocWhenImgIsDeletedFromContent($this->fields['content'],$input['content'],$this->fields['id']);
+
       return $input;
    }
 

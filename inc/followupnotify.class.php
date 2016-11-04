@@ -13,60 +13,67 @@
             $groups_assigned     = 0;
             $suppliers_assigned  = 0;
 
-            // Check follower allowed notifications
-            switch ($_POST['_requester_control']) {
-               case '_users' :
-                  $users_requester     = 1;
-                  break;
-               case '_groups' :
-                  $groups_requester    = 1;
-                  break;
-               case '_users_groups' :
-                  $users_requester     = 1;
-                  $groups_requester    = 1;
-                  break;
+            if(isset($_POST['_requester_control'])){
+               // Check follower allowed notifications
+               switch ($_POST['_requester_control']) {
+                  case '_users' :
+                     $users_requester     = 1;
+                     break;
+                  case '_groups' :
+                     $groups_requester    = 1;
+                     break;
+                  case '_users_groups' :
+                     $users_requester     = 1;
+                     $groups_requester    = 1;
+                     break;
+               }               
             }
 
-            switch ($_POST['_watcher_control']) {
-               case '_users' :
-                  $users_watcher       = 1;
-                  break;
-               case '_groups' :
-                  $groups_watcher      = 1;
-                  break;
-               case '_users_groups' :
-                  $users_watcher       = 1;
-                  $groups_watcher      = 1;
-                  break;
+
+            if(isset($_POST['_watcher_control'])){
+               switch ($_POST['_watcher_control']) {
+                  case '_users' :
+                     $users_watcher       = 1;
+                     break;
+                  case '_groups' :
+                     $groups_watcher      = 1;
+                     break;
+                  case '_users_groups' :
+                     $users_watcher       = 1;
+                     $groups_watcher      = 1;
+                     break;
+               }
             }
 
-            switch ($_POST['_assigned_control']) {
-               case '_users' :
-                  $users_assigned      = 1;
-                  break;
-               case '_groups' :
-                  $groups_assigned     = 1;
-                  break;
-               case '_suppliers' :
-                  $suppliers_assigned  = 1;
-                  break;
-               case '_users_groups' :
-                  $users_assigned      = 1;
-                  $groups_assigned     = 1;
-                  break;
-               case '_users_suppliers' :
-                  $users_assigned      = 1;
-                  $suppliers_assigned  = 1;
-                  break;
-               case '_groups_suppliers' :
-                  $groups_assigned     = 1;
-                  $suppliers_assigned  = 1;
-                  break;
-               case '_users_groups_suppliers' :
-                  $users_assigned      = 1;
-                  $groups_assigned     = 1;
-                  $suppliers_assigned  = 1;
-                  break;
+            if(isset($_POST['_assigned_control'])){
+               switch ($_POST['_assigned_control']) {
+                  case '_users' :
+                     $users_assigned      = 1;
+                     break;
+                  case '_groups' :
+                     $groups_assigned     = 1;
+                     break;
+                  case '_suppliers' :
+                     $suppliers_assigned  = 1;
+                     break;
+                  case '_users_groups' :
+                     $users_assigned      = 1;
+                     $groups_assigned     = 1;
+                     break;
+                  case '_users_suppliers' :
+                     $users_assigned      = 1;
+                     $suppliers_assigned  = 1;
+                     break;
+                  case '_groups_suppliers' :
+                     $groups_assigned     = 1;
+                     $suppliers_assigned  = 1;
+                     break;
+                  case '_users_groups_suppliers' :
+                     $users_assigned      = 1;
+                     $groups_assigned     = 1;
+                     $suppliers_assigned  = 1;
+                     break;
+               }
             }
 
             // Define "notify_control" array

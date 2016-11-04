@@ -281,6 +281,8 @@ class TicketFollowup  extends CommonDBTM {
          }
       }
 
+      Html::removeDocWhenImgIsDeletedFromContent($this->fields['content'],$input['content'],$this->input['tickets_id']);
+      
       return $input;
    }
 

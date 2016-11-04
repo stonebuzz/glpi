@@ -6030,6 +6030,36 @@ class Html {
    }
 
 
+   public static function removeDocWhenImgIsDeletedFromContent($initial, $now, $ticket_id){
+
+      preg_match_all('/(<img[\w\W]+?\/>)/',$initial, $matches);
+      foreach ($matches[0] as $img_tag) {
+
+         preg_match_all('/(src)="([^"]*)"/',$img_tag, $src);
+         foreach ($src[2] as $src_url) {
+
+            if(strpos($now, $src_url) === false){
+
+               $list = explode('?', $src_url);
+               $id   = str_replace('docid=', '', $list[1]);
+               $doc  = new Document();
+               if($doc->getFromDB($id)){  
+                  //delete document
+                  $doc->delete($doc->fields);
+
+                  //delete link between doc and ticket
+                  $DocItem = new Document_Item();
+                  if($DocItem->getFromDBByQuery(" WHERE documents_id = ".$doc->fields['id']." AND items_id = ".$ticket_id." AND itemtype = 'Ticket'")){
+                     $DocItem->delete($DocItem->fields);
+                  }
+               }
+            }
+
+         }
+      }
+   }
+
+
  }
 
 
