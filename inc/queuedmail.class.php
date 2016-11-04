@@ -373,14 +373,14 @@ class QueuedMail extends CommonDBTM {
                foreach ($documents as $docID) {
                   $doc->getFromDB($docID);
                   // Add embeded image if tag present in ticket content
-                  if (preg_match_all('/'.Document::getImageTag($doc->fields['tag']).'/',
-                                     $this->fields['body_html'], $matches, PREG_PATTERN_ORDER)) {
+                  //if (preg_match_all('/'.Document::getImageTag($doc->fields['tag']).'/',
+                                     //$this->fields['body_html'], $matches, PREG_PATTERN_ORDER)) {
                      $mmail->AddEmbeddedImage(GLPI_DOC_DIR."/".$doc->fields['filepath'],
                                               Document::getImageTag($doc->fields['tag']),
                                               $doc->fields['filename'],
                                               'base64',
                                               $doc->fields['mime']);
-                  }
+                  //}
                }
             }
             $mmail->Body   .= $this->fields['body_html'];

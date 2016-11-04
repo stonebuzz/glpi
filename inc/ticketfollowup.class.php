@@ -362,10 +362,20 @@ class TicketFollowup  extends CommonDBTM {
       }*/
       // Manage File attached (from mailgate)
       // Pass filename if set to ticket
+      
+
+  
       if (isset($input['_filename'])) {
          $input["_job"]->input['_filename'] = $input['_filename'];
-         $input["_job"]->input['_tag'] = $input['_tag'];
+         if(isset($input['_tag']) && isset($input['_tag_filename'])){
+            $input["_job"]->input['_tag'] = array_merge($input['_tag'],$input['_tag_filename']);
+         }else{
+            if(isset($input['_tag']))$input["_job"]->input['_tag'] = $input['_tag'];
+            if(isset($input['_tag_filename']))$input["_job"]->input['_tag'] = $input['_tag_filename'];
+         }
+
       }
+
       // Add docs without notif
       $docadded = $input["_job"]->addFiles(0,1);
 

@@ -970,8 +970,8 @@ class Document extends CommonDBTM {
       }
 
       if (!is_file($fullpath)) {
-         Session::addMessageAfterRedirect(sprintf(__('File %s not found.'), $fullpath),
-                                          false, ERROR);
+         //Session::addMessageAfterRedirect(sprintf(__('File %s not found.'), $fullpath),
+                                          //false, ERROR);
          return false;
       }
       $sha1sum  = sha1_file($fullpath);

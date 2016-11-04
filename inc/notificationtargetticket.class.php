@@ -293,12 +293,11 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
       // Common ITIL datas
       $datas            = parent::getDatasForObject($item, $options, $simple);
       if(!$CFG_GLPI['use_rich_text']){
-        $datas['##ticket.description##'] = Html::clean($datas['##ticket.description##']);
+         $datas['##ticket.description##'] = Html::clean($datas['##ticket.description##']);
       }else{
-      $datas['##ticket.description##'] = Html::convertImgTagToBlobImgTag($datas['##ticket.description##']);
+         $datas['##ticket.description##'] = Html::convertImgTagToBlobImgTag($datas['##ticket.description##']);
       }
-
-      //$item->addDocToNotification($item);
+      $item->addDocToNotification($item);
 
 
       $datas['##ticket.content##'] = $datas['##ticket.description##'];
@@ -586,8 +585,6 @@ class NotificationTargetTicket extends NotificationTargetCommonITILObject {
             }else{
               $tmp['##followup.description##'] =  Html::convertImgTagToBlobImgTag($followup['content']);
             }
-
-
 
             $datas['followups'][] = $tmp;
          }

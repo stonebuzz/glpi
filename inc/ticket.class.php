@@ -1087,7 +1087,11 @@ class Ticket extends CommonITILObject {
 
       $input = parent::prepareInputForUpdate($input);
 
-      Html::removeDocWhenImgIsDeletedFromContent($this->fields['content'],$input['content'],$this->fields['id']);
+      if(isset($input['content'])){
+         Html::removeDocWhenImgIsDeletedFromContent($this->fields['content'],
+            $input['content'],$this->fields['id']);
+      }
+
 
       return $input;
    }
@@ -6118,6 +6122,49 @@ class Ticket extends CommonITILObject {
       }
 
       return $content;
+   }
+
+
+   function addDocToNotification($item){
+
+      global $CFG_GLPI, $DB;
+
+
+
+      // Get all attached documents of ticket
+      $query = "SELECT `glpi_documents_items`.`id` AS assocID,
+                       `glpi_entities`.`id` AS entity,
+                       `glpi_documents`.`name` AS assocName,
+                       `glpi_documents`.*
+                FROM `glpi_documents_items`
+                LEFT JOIN `glpi_documents`
+                  ON (`glpi_documents_items`.`documents_id`=`glpi_documents`.`id`)
+                LEFT JOIN `glpi_entities`
+                  ON (`glpi_documents`.`entities_id`=`glpi_entities`.`id`)
+                WHERE `glpi_documents_items`.`items_id` = '".$item->fields['id']."'
+                      AND `glpi_documents_items`.`itemtype` = '".$item->getType()."'
+                      AND mime not like 'image%'";
+
+      if (Session::getLoginUserID()) {
+         $query .= getEntitiesRestrictRequest(" AND","glpi_documents",'','',true);
+      } else {
+         // Anonymous access from Crontask
+         $query .= " AND `glpi_documents`.`entities_id`= '0' ";
+      }
+      $result = $DB->query($query);
+
+      if ($DB->numrows($result)) {
+         while ($data = $DB->fetch_assoc($result)) {
+            if (!empty($data['id'])) {
+
+
+               if ($CFG_GLPI['attach_ticket_documents_to_mail']) {
+                  // Other document
+                  $item->documents[] = $data['id'];
+               }
+            }
+         }
+      }
    }
 
 
