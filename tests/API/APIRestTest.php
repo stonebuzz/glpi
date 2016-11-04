@@ -68,6 +68,30 @@ class APIRestTest extends PHPUnit_Framework_TestCase {
       }
    }
 
+   public function testCORS() {
+      $res = $this->doHttpRequest('OPTIONS', '',
+                                         ['headers' => [
+                                             'Origin' => "http://localhost",
+                                             'Access-Control-Request-Method'  => 'GET',
+                                             'Access-Control-Request-Headers' => 'X-Requested-With'
+                                         ]]);
+      
+      $this->assertNotEquals(null, $res, $this->last_error);
+      $this->assertEquals(200, $res->getStatusCode());
+      $headers = $res->getHeaders();
+      $this->assertArrayHasKey('Access-Control-Allow-Methods', $headers);
+      $this->assertArrayHasKey('Access-Control-Allow-Headers', $headers);
+      $this->assertContains('GET',           $headers['Access-Control-Allow-Methods'][0]);
+      $this->assertContains('PUT',           $headers['Access-Control-Allow-Methods'][0]);
+      $this->assertContains('POST',          $headers['Access-Control-Allow-Methods'][0]);
+      $this->assertContains('DELETE',        $headers['Access-Control-Allow-Methods'][0]);
+      $this->assertContains('OPTIONS',       $headers['Access-Control-Allow-Methods'][0]);
+      $this->assertContains('origin',        $headers['Access-Control-Allow-Headers'][0]);
+      $this->assertContains('content-type',  $headers['Access-Control-Allow-Headers'][0]);
+      $this->assertContains('accept',        $headers['Access-Control-Allow-Headers'][0]);
+      $this->assertContains('session-token', $headers['Access-Control-Allow-Headers'][0]);
+      $this->assertContains('authorization', $headers['Access-Control-Allow-Headers'][0]);
+   }
 
    /**
     * @group api
@@ -461,7 +485,8 @@ class APIRestTest extends PHPUnit_Framework_TestCase {
                                                 'NetworkName_name'         => "testname",
                                                 'NetworkName_fqdns_id'     => 0,
                                                 'NetworkName__ipaddresses' =>
-                                                   array(-1 => "1.2.3.4")]]]);
+                                                   array(-1 => "1.2.3.4"),
+                                                '_create_children'         => true]]]);
       $this->assertNotEquals(null, $res, $this->last_error);
       $this->assertEquals(201, $res->getStatusCode());
       $body = $res->getBody();
@@ -666,6 +691,23 @@ class APIRestTest extends PHPUnit_Framework_TestCase {
       $this->assertFalse(is_numeric($data[0]['entities_id'])); // for expand_dropdowns
 
 
+      // test retrieve 1 user with a text filter
+      $res = $this->doHttpRequest('GET', 'User/',
+                                         ['headers' => [
+                                             'Session-Token' => $session_token],
+                                          'query' => [
+                                             'searchText' => array('name' => 'gl')]]);
+      $this->assertNotEquals(null, $res, $this->last_error);
+      $this->assertEquals(200, $res->getStatusCode());
+      $body = $res->getBody();
+      $data = json_decode($body, true);
+
+      $this->assertEquals(1, count($data));
+      $this->assertArrayHasKey('id', $data[0]);
+      $this->assertArrayHasKey('name', $data[0]);
+      $this->assertEquals('glpi', $data[0]['name']);
+
+
       // test retrieve invalid range of users
       try {
          $res = $this->doHttpRequest('GET', 'User/',
@@ -697,6 +739,49 @@ class APIRestTest extends PHPUnit_Framework_TestCase {
       $this->assertArrayNotHasKey('name', $data[0]);
       $this->assertArrayNotHasKey('password', $data[0]);
       $this->assertArrayNotHasKey('is_active', $data[0]);
+   }
+
+
+   /**
+    * This function test https://github.com/glpi-project/glpi/issues/1103
+    * A post-only user could retrieve tickets of others users when requesting itemtype
+    * without first letter in uppercase
+    */
+   public function testgetItemsForPostonly() {
+      // init session for postonly
+      $res = $this->doHttpRequest('GET', 'initSession/', ['auth' => ['post-only', 'postonly']]);
+      $body = $res->getBody();
+      $data = json_decode($body, true);
+
+
+      // create a ticket for another user (glpi - super-admin)
+      $ticket = new Ticket;
+      $tickets_id = $ticket->add(array('name'                => 'test post-only',
+                                       'content'             => 'test post-only',
+                                       '_users_id_requester' => 2));
+
+      // try to access this ticket with post-only
+      try {
+         $res = $this->doHttpRequest('GET', "ticket/$tickets_id",
+                                            ['headers' => [
+                                                'Session-Token' => $data['session_token']]]);
+      } catch (ClientException $e) {
+         $response = $e->getResponse();
+         $this->assertEquals(401, $res->getStatusCode());
+      }
+
+      // try to access ticket list (we should get empty return)
+      $res = $this->doHttpRequest('GET', 'ticket/',
+                                         ['headers' => [
+                                             'Session-Token' => $data['session_token']]]);
+      $this->assertNotEquals(null, $res, $this->last_error);
+      $this->assertEquals(200, $res->getStatusCode());
+      $body = $res->getBody();
+      $data = json_decode($body, true);
+      $this->assertEquals(0, count($data));
+
+      // delete ticket
+      $ticket->delete(array('id' => $tickets_id), true);
    }
 
 
