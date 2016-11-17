@@ -5921,8 +5921,9 @@ class Ticket extends CommonITILObject {
             if (isset($image['tag'])) {
 
                if ($ok || empty($mime)) {
+
                   // Replace tags by image in textarea
-                  $img = "<img alt='".$image['tag']."' src='".$CFG_GLPI['root_doc'].
+                  $img = "<img alt='".$image['tag']."' src='".$CFG_GLPI['url_base'].
                           "/front/document.send.php?docid=".$id."&tickets_id=".$this->fields['id']."'/>";
 
                   // Replace tag by the image
@@ -5951,12 +5952,15 @@ class Ticket extends CommonITILObject {
                }
             }
          }
+
+         if ($force_update) {
+            $this->fields['content'] = $content_text;
+            $this->updateInDB(array('content'));
+         }
+
       }
 
-      if ($force_update) {
-         $this->fields['content'] = $content_text;
-         $this->updateInDB(array('content'));
-      }
+
 
       return $content_text;
    }

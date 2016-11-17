@@ -667,6 +667,7 @@ class MailCollector  extends CommonDBTM {
       // max size = 0 : no import attachments
       if ($this->fields['filesize_max'] > 0) {
          if (is_writable(GLPI_TMP_DIR)) {
+            $this->tags = array();
             $tkt['_filename'] = $this->getAttached($i, GLPI_TMP_DIR."/", $this->fields['filesize_max']);
             $tkt['_tag']      = $this->tags;
          } else {
@@ -999,7 +1000,7 @@ class MailCollector  extends CommonDBTM {
       if (count($itemstoclean)) {
          $string = str_replace($itemstoclean, '', $string);
       }
-      $string = str_replace("==$rand==", "\n", $string);
+      $string = str_replace("==$rand==", "<p></p>", $string);
       return $string;
    }
 
