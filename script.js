@@ -1109,7 +1109,7 @@ function insertImgFromFile(editor,fileImg,tag){
    var re = new RegExp('#', 'g');
 
    maxHeight = $(tinyMCE.activeEditor.getContainer()).height() - 60 ;
-   maxWidth = $(tinyMCE.activeEditor.getContainer()).width()  - 120;
+   maxWidth = $(tinyMCE.activeEditor.getContainer()).width()  - 40;
 
    //imgWidth = getImgWidth(fileImg);
    //imgHeight =  getImgHeight(fileImg);

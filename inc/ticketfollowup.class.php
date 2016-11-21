@@ -542,9 +542,7 @@ class TicketFollowup  extends CommonDBTM {
          $this->updateInDB(array('content'));       
       }
 
-
-
-      if ($donotif) {
+      if ($donotif  && !isset($this->input['_mailgate'])) {
          $options = array('followup_id' => $this->fields["id"],
                           'is_private'  => $this->fields['is_private']);
          NotificationEvent::raiseEvent("add_followup", $this->input["_job"], $options);
@@ -556,10 +554,6 @@ class TicketFollowup  extends CommonDBTM {
       $changes[2] = $this->fields['id'];
       Log::history($this->getField('tickets_id'), 'Ticket', $changes, $this->getType(),
                    Log::HISTORY_ADD_SUBITEM);
-
-
-
-
    }
 
 
