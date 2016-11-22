@@ -40,10 +40,6 @@ abstract class API extends CommonGLPI {
    // permit writing to $_SESSION
    protected $session_write = false;
 
-   // avoid disclosure of critical fields
-   protected $excluded_fields = array('password', 'passwd', 'rootdn_passwd',
-                                      'smtp_passwd', 'proxy_passwd');
-
    static $api_url = "";
    protected $format;
    protected $iptxt         = "";
@@ -62,7 +58,7 @@ abstract class API extends CommonGLPI {
 
 
    public function __construct() {
-      global $CFG_GLPI;
+      global $CFG_GLPI, $DB;
 
       // construct api url
       self::$api_url = trim($CFG_GLPI['url_base_api'], "/");
@@ -94,7 +90,7 @@ abstract class API extends CommonGLPI {
                                  AND `ipv4_range_end` >= '$this->ipnum'))";
       } else {
          $where_ip .= " AND (`ipv6` IS NULL
-                             OR `ipv6` = '".addslashes($this->iptxt)."')";
+                             OR `ipv6` = '".$DB->escape($this->iptxt)."')";
       }
       $found_clients = $apiclient->find("`is_active` = '1' $where_ip");
       if (count($found_clients) <= 0) {
@@ -450,9 +446,7 @@ abstract class API extends CommonGLPI {
       $fields =  $item->fields;
 
       // avoid disclosure of critical fields
-      foreach($this->excluded_fields as $key) {
-         unset($fields[$key]);
-      }
+      $item::unsetUndisclosedFields($fields);
 
       // retrieve devices
       if (isset($params['with_devices'])
@@ -1056,10 +1050,8 @@ abstract class API extends CommonGLPI {
             $fields = array('id' => $fields['id']);
          }
 
-         // avoid disclosure of critical fields
-         foreach($this->excluded_fields as $key) {
-            unset($fields[$key]);
-         }
+         // avioid disclosure of critical fields
+         $item::unsetUndisclosedFields($fields);
 
          // expand dropdown (retrieve name of dropdowns) and get hateoas
          $fields = self::parseDropdowns($fields, $params);
@@ -1458,7 +1450,6 @@ abstract class API extends CommonGLPI {
     * @return   array of id
    **/
    protected function createItems($itemtype, $params=array()) {
-
       $this->initEndpoint();
       $input    = isset($params['input']) ? $params["input"] : null;
       $item     = new $itemtype;
@@ -1480,6 +1471,7 @@ abstract class API extends CommonGLPI {
                }
 
                //add current item
+               $object = Toolbox::sanitize($object);
                if ($new_id = $item->add( $object)) {
                   $idCollection[] = array('id' => $new_id);
                } else {
@@ -1509,7 +1501,8 @@ abstract class API extends CommonGLPI {
          }
 
          //add item
-         if ($new_id = $item->add( $input)) {
+         $input = Toolbox::sanitize($input);
+         if ($new_id = $item->add($input)) {
             return array('id' => $new_id);
          } else {
             $this->returnError($this->getGlpiLastMessage(), 400, "ERROR_GLPI_ADD", false);
@@ -1578,7 +1571,8 @@ abstract class API extends CommonGLPI {
                   $idCollection[] = array($object->id => $this->messageRightError(false));
                } else {
                   //update item
-                  if ($update_return = $item->update( (array) $object)) {
+                  $aobject = Toolbox::sanitize((array)$object);
+                  if ($update_return = $item->update($aobject)) {
                      $idCollection[] = array($object->id => $update_return);
                   } else {
                      $failed++;
@@ -1608,6 +1602,7 @@ abstract class API extends CommonGLPI {
          }
 
          // update item
+         $input = Toolbox::sanitize($input);
          if (!$item->update($input)) {
             $this->returnError($this->getGlpiLastMessage(), 400, "ERROR_GLPI_UPDATE", false);
          } else {
@@ -2221,5 +2216,4 @@ abstract class API extends CommonGLPI {
       }
       return array($statuscode, $message);
    }
-
 }

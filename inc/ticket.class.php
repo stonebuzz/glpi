@@ -468,12 +468,13 @@ class Ticket extends CommonITILObject {
       }
 
       // user can delete his ticket if no action on it
-      if (($this->isUser(CommonITILActor::REQUESTER, Session::getLoginUserID())
-           || ($this->fields["users_id_recipient"] === Session::getLoginUserID()))
-          && ($this->numberOfFollowups() == 0)
-          && ($this->numberOfTasks() == 0)
-          && ($this->fields["date"] == $this->fields["date_mod"])) {
-         return true;
+      if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk"
+          && (!($this->isUser(CommonITILActor::REQUESTER, Session::getLoginUserID())
+               || $this->fields["users_id_recipient"] === Session::getLoginUserID())
+             || $this->numberOfFollowups() > 0
+             || $this->numberOfTasks() > 0
+             || $this->fields["date"] != $this->fields["date_mod"])) {
+         return false;
       }
 
       return static::canDelete();
@@ -1933,7 +1934,7 @@ class Ticket extends CommonITILObject {
          if (count($validations_to_send)) {
             $values                = array();
             $values['tickets_id']  = $this->fields['id'];
-            if ($input['id'] != $this->fields['id']) {
+            if (isset($input['id']) && $input['id'] != $this->fields['id']) {
                $values['_ticket_add'] = true;
             }
 
@@ -4511,7 +4512,7 @@ class Ticket extends CommonITILObject {
                             Html::addConfirmationOnAction(__('Confirm the final deletion?')).">";
                   }
                } else {
-                  if (self::canDelete()) {
+                  if ($this->canDeleteItem()) {
                      echo "<input type='submit' class='submit' name='delete' value='".
                             _sx('button', 'Put in dustbin')."'>";
                   }

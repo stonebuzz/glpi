@@ -223,6 +223,15 @@ class CommonDBTM extends CommonGLPI {
 
 
    /**
+    * Actions done to not show some fields when geting a single item from API calls
+    *
+    * @param array $fields Fields to unset undiscloseds
+    */
+   static public function unsetUndisclosedFields(&$fields) {
+   }
+
+
+   /**
     * Retrieve all items from the database
     *
     * @param $condition    condition used to search if needed (empty get all) (default '')
