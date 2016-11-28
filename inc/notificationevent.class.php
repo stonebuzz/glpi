@@ -180,6 +180,7 @@ class NotificationEvent extends CommonDBTM {
 
                   // Get mailing list
                   $mails = $notificationtarget->getTargets();
+
                   $mails_backup = $mails;
                   $restore = array();
 
@@ -195,21 +196,26 @@ class NotificationEvent extends CommonDBTM {
                       $ur     = CommonITILActor::REQUESTER;
                       $uo     = CommonITILActor::OBSERVER;
 
-                      $actor_mail = trim(Toolbox::strtolower(UserEmail::getDefaultForUser($actor['users_id'])));
-
+                      //prevent for user not register on glpi
+                      if($actor['users_id'] != 0){
+                        $actor_mail = trim(Toolbox::strtolower(UserEmail::getDefaultForUser($actor['users_id'])));
+                      }else{
+                        $actor_mail = trim(Toolbox::strtolower($actor['alternative_email']));
+                      }
+                      
                       // If current actor is blocked, switch $unset to "true"
                       if ($type == $ua && $notify_control->_users_id_assign     == 0 ||
                           $type == $ur && $notify_control->_users_id_requester  == 0 ||
                           $type == $uo && $notify_control->_users_id_observer   == 0) {
-                         unset($mails[$actor_mail]);
+                          unset($mails[$actor_mail]);
                       }
 
                       // If a user assumes two roles, recover its mail address if enabled
                       if ($type == $ua && $notify_control->_users_id_assign     == 1 ||
-                          $type == $ur && $notify_control->_users_id_requester  == 1 ||
-                          $type == $uo && $notify_control->_users_id_observer   == 1) {
+                           $type == $ur && $notify_control->_users_id_requester  == 1 ||
+                           $type == $uo && $notify_control->_users_id_observer   == 1) {
                         if (isset($mails_backup[$actor_mail])) {
-                          $restore[$actor_mail] = $mails_backup[$actor_mail];
+                           $restore[$actor_mail] = $mails_backup[$actor_mail];
                         }
                       }
                     }
@@ -224,8 +230,6 @@ class NotificationEvent extends CommonDBTM {
                   // Get mailing list
                   $mails = $notificationtarget->getTargets();
                }
-
-          
             
                foreach ($mails as $user_email => $users_infos) {
 
