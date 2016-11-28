@@ -983,7 +983,7 @@ $ curl -X POST \
 
 < 201 OK
 < Link: http://path/to/glpi/api/Computer/8,http://path/to/glpi/api/Computer/9
-< [ {"id":8}, {"id":false}, {"id":9} ]
+< [ {"id":8, "message": ""}, {"id":false, "message": "You don't have permission to perform this action."}, {"id":9, "message": ""} ]
 ```
 
 ## Update item(s)
@@ -1016,7 +1016,7 @@ $ curl -X PUT \
 'http://path/to/glpi/apirest.php/Computer/10'
 
 < 200 OK
-[{"10":true}]
+[{"10":true, "message": ""}]
 
 
 $ curl -X PUT \
@@ -1027,7 +1027,7 @@ $ curl -X PUT \
 'http://path/to/glpi/apirest.php/Computer/'
 
 < 200 OK
-[{"11":true}]
+[{"11":true, "message": ""}]
 
 
 $ curl -X PUT \
@@ -1038,7 +1038,7 @@ $ curl -X PUT \
 'http://path/to/glpi/apirest.php/Computer/'
 
 < 200 OK
-[{"8":true},{"2":true}]
+[{"8":true, "message": ""},{"2":false, "message": "Item not found"}]
 ```
 
 ## Delete item(s)
@@ -1076,8 +1076,8 @@ $ curl -X DELETE \
 -H "App-Token: f7g3csp8mgatg5ebc5elnazakw20i9fyev1qopya7" \
 'http://path/to/glpi/apirest.php/Computer/16?force_purge=true'
 
-< 204 OK
-
+< 200 OK
+[{"16":true, "message": ""}]
 
 $ curl -X DELETE \
 -H 'Content-Type: application/json' \
@@ -1087,7 +1087,7 @@ $ curl -X DELETE \
 'http://path/to/glpi/apirest.php/Computer/'
 
 < 200 OK
-[{"11":true}]
+{"11":true, "message": ""}
 
 
 $ curl -X DELETE \
@@ -1098,7 +1098,7 @@ $ curl -X DELETE \
 'http://path/to/glpi/apirest.php/Computer/'
 
 < 207 OK
-[{"16":true},{"17":false}]
+[{"16":true, "message": ""},{"17":false, "message": "Item not found"}]
 ```
 
 ## Errors
