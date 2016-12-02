@@ -4886,10 +4886,10 @@ class Ticket extends CommonITILObject {
                   $options['criteria'][2]['value']      = 'old';
                   $options['criteria'][2]['link']       = 'AND NOT';
 
-                  $options['criteria'][3]['field']      = 55; // validation aprobator
-                  $options['criteria'][3]['searchtype'] = 'equals';
-                  $options['criteria'][3]['value']      = '2';
                   $options['criteria'][3]['link']       = 'AND';
+                  $options['criteria'][3]['field']      = 52; //global validation status of ticket
+                  $options['criteria'][3]['searchtype'] = 'equals';
+                  $options['criteria'][3]['value']      = CommonITILValidation::WAITING;
 
 
                   $forcetab                 = 'TicketValidation$1';
