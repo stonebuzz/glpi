@@ -4676,7 +4676,8 @@ class Ticket extends CommonITILObject {
                               AND `users_id_validate` = '".Session::getLoginUserID()."'
                               AND `glpi_ticketvalidations`.`status` = '".CommonITILValidation::WAITING."'
                               AND (`glpi_tickets`.`status` NOT IN ('".self::CLOSED."',
-                                                                   '".self::SOLVED."')) ".
+                                                                   '".self::SOLVED."')) 
+                              AND `glpi_tickets`.`status` != ('".CommonITILValidation::ACCEPTED."')".
                        getEntitiesRestrictRequest("AND", "glpi_tickets");
             break;
 
@@ -4884,6 +4885,13 @@ class Ticket extends CommonITILObject {
                   $options['criteria'][2]['searchtype'] = 'equals';
                   $options['criteria'][2]['value']      = 'old';
                   $options['criteria'][2]['link']       = 'AND NOT';
+
+                  $options['criteria'][3]['field']      = 55; // validation aprobator
+                  $options['criteria'][3]['searchtype'] = 'equals';
+                  $options['criteria'][3]['value']      = '2';
+                  $options['criteria'][3]['link']       = 'AND';
+
+
                   $forcetab                 = 'TicketValidation$1';
 
                   echo "<a href=\"".$CFG_GLPI["root_doc"]."/front/ticket.php?".
