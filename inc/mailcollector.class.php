@@ -807,9 +807,7 @@ class MailCollector  extends CommonDBTM {
       }
       $tkt['content'] = $this->cleanMailContent(Html::entities_deep($tkt['content']), $striptags);
 
-      if ($is_html && !isset($tkt['tickets_id'])) {
-         $tkt['content'] = nl2br($tkt['content']);
-      }
+
 
       $tkt['_supplier_email'] = false;
       // Found ticket link
@@ -894,6 +892,10 @@ class MailCollector  extends CommonDBTM {
             $tkt['content'] = "";
             foreach ($to_keep as $ID ) {
                $tkt['content'] .= $content[$ID]."\n";
+            }
+
+            if ($is_html && !isset($tkt['tickets_id'])) {
+               $tkt['content'] = nl2br($tkt['content']);
             }
 
             // Do not play rules for followups : WRONG : play rules only for refuse options
@@ -1000,7 +1002,7 @@ class MailCollector  extends CommonDBTM {
       if (count($itemstoclean)) {
          $string = str_replace($itemstoclean, '', $string);
       }
-      $string = str_replace("==$rand==", "<p></p>", $string);
+      $string = str_replace("==$rand==", "\n", $string);
       return $string;
    }
 
