@@ -1518,6 +1518,22 @@ function processImageFromPaste(e,editor){
 }
 
 
+function removeUploadDocOnREmoveImgTag(text){
+
+   tag = new String(text);
+   var regex = /(id)=("[^"]*")/i;
+   match = regex.exec(text);
+
+   if(match != null){
+
+      dom = $('input[value='+match[2]+']');
+      dom.parent().remove();
+
+   }
+
+}
+
+
 function processImageBlobFromPaste(e,editor){
    
    e.preventDefault();

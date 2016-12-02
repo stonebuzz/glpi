@@ -3849,6 +3849,28 @@ class Html {
          editor_css : '../css/rich_text.css',
          skin: 'light',
          statusbar: false,
+            setup : function(ed) {
+                  ed.on('keydown', function(e) {
+                      if ((e.keyCode == 8 || e.keyCode == 46) && ed.selection) {
+
+                        //retrieve DOM
+                        var selectedNode = ed.selection.getNode(); // get the selected node (element) in the editor
+
+                        if (selectedNode && selectedNode.nodeName == 'IMG') {
+
+                           var html = $(selectedNode);    
+                           var string = html.prop('outerHTML');
+
+                           removeUploadDocOnREmoveImgTag(string);
+                        }
+
+                        if (selectedNode && selectedNode.nodeName == 'P') {
+                           removeUploadDocOnREmoveImgTag(selectedNode.innerHTML);
+                        }
+                      }
+                  });
+            },
+
          plugins: [
             'table directionality searchreplace',
             'tabfocus autoresize link image paste',
