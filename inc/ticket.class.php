@@ -3654,8 +3654,6 @@ class Ticket extends CommonITILObject {
          $order            = array('\\r', '\\n', "\\");
          $replace          = array("", "", "");
 
-
-
          //clean img tag (when page is reload tinyMCE lost img tag from session)
 
          $values['content'] = str_replace($order,$replace,$values['content']);
