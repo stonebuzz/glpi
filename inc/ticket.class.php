@@ -3658,7 +3658,10 @@ class Ticket extends CommonITILObject {
 
          $values['content'] = str_replace($order,$replace,$values['content']);
 
-         $values['content'] = preg_replace('/(<img[\w\W]+?\/>)/', "", $values['content']);
+         $html = str_replace(array('&','&amp;nbsp;'), array('&amp;',' '),
+                           html_entity_decode($values['content'], ENT_QUOTES, "UTF-8"));
+
+         $values['content'] = preg_replace('/(<img[\w\W]+?\/>)/', "", $html);
       }
       if (isset($values['name'])) {
          $values['name'] = str_replace("\\", "", $values['name']);
