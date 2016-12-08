@@ -233,6 +233,8 @@ class TicketFollowup  extends CommonDBTM {
                         // Force is_private with data / not available
                        'is_private'  => $this->fields['is_private']);
       NotificationEvent::raiseEvent('delete_followup', $job, $options);
+
+      Html::removeDocWhenImgIsDeletedFromContent($this->fields["content"], "", $this->fields["tickets_id"]);
    }
 
 

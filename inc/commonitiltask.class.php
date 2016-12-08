@@ -235,6 +235,8 @@ abstract class CommonITILTask  extends CommonDBTM {
                           'task_groups_id_tech' => $this->fields['groups_id_tech']);
          NotificationEvent::raiseEvent('delete_task', $item, $options);
       }
+
+      Html::removeDocWhenImgIsDeletedFromContent($this->fields["content"], "", $this->fields["tickets_id"]);
    }
 
 
