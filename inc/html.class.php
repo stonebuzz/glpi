@@ -6036,6 +6036,13 @@ class Html {
          foreach ($src[2] as $src_url) {
 
             $id = str_replace('docid=', '', explode('?', $src_url)[1]);
+
+            //clean id if we have ref to ticket
+            if(strpos($id, "tickets_id") !== false){
+              $val = explode("&",$id);
+              $id = $val[0];
+            }
+            
             $doc = new Document();
             if($doc->getFromDB($id)){  
 
@@ -6067,6 +6074,13 @@ class Html {
 
                $list = explode('?', $src_url);
                $id   = str_replace('docid=', '', $list[1]);
+
+                //clean id if we have ref to ticket
+                if(strpos($id, "tickets_id") !== false){
+                  $val = explode("&",$id);
+                  $id = $val[0];
+                }
+
                $doc  = new Document();
                if($doc->getFromDB($id)){  
                   //delete document
