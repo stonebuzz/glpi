@@ -69,6 +69,26 @@ if (isset($_POST['users_id_assign']) && ($_POST['users_id_assign'] > 0)) {
           $ticket->countActiveObjectsForTech($_POST['users_id_assign']));
    echo ")</a>";
 
+   if (isset($_POST['show_other_user'])) {
+      echo "<br>";
+
+      // Display dropdown for add an other technicien to ticket
+
+      $options = array();
+      $options['_users_id_assign'] = -1;
+      $options['_users_id_assign_notif']['use_notification'] = true;
+      $options['entities_id'] = $_SESSION["glpiactive_entity"];
+
+      $rand2 = $ticket->showActorAddFormOnCreate(CommonITILActor::ASSIGN, $options);
+
+      //echo '<hr>';
+      echo "<span id='show_category_by_type_$rand2'></span>";
+
+      //Ajax::updateItemOnSelectEvent("dropdown__users_id_assign[]$rand2", "show_category_by_type_$rand2",
+      //   $CFG_GLPI["root_doc"]."/ajax/otheruser.php"); //not exist
+   }
+
+
 } else if (isset($_POST['groups_id_assign']) && ($_POST['groups_id_assign'] > 0)) {
    $ticket = new Ticket();
 
