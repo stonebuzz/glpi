@@ -1609,8 +1609,20 @@ class Ticket extends CommonITILObject {
             break;
       }
 
+      $have_a_user_assign = false;
+
+      if (isset($this->input["_users_id_assign"])) {
+         $this->input["_users_id_assign"] = array_unique($this->input["_users_id_assign"]);
+
+         foreach ($this->input["_users_id_assign"] as $assign_id) {
+            if ($assign_id > 0) {
+               $have_a_user_assign = true;
+            }
+         }
+      }
+
       // Replay setting auto assign if set in rules engine or by auto_assign_mode
-      if (((isset($input["_users_id_assign"])
+      if ((((isset($input["_users_id_assign"]) && ($have_a_user_assign))
            && ((!is_array($input['_users_id_assign']) &&  $input["_users_id_assign"] > 0)
                || is_array($input['_users_id_assign']) && count($input['_users_id_assign']) > 0))
            || (isset($input["_groups_id_assign"])
