@@ -961,6 +961,10 @@ class MailCollector  extends CommonDBTM {
          }
       }
 
+      if ($CFG_GLPI["use_rich_text"]) {
+         $tkt['content'] = nl2br($tkt['content']);
+      }
+
       $tkt = Toolbox::addslashes_deep($tkt);
       return $tkt;
    }
