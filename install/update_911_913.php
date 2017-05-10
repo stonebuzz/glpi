@@ -93,6 +93,10 @@ function update911to913() {
       "varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL"
    );
 
+
+   $migration->addField("glpi_computers_softwareversions", "date_uninstall", "date");
+   $migration->addField("glpi_computers_softwareversions", "deu", "string");
+
    // ************ Keep it at the end **************
    $migration->executeMigration();
 

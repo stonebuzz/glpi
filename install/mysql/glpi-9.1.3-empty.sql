@@ -852,6 +852,8 @@ CREATE TABLE `glpi_computers_softwareversions` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
   `is_dynamic` tinyint(1) NOT NULL DEFAULT '0',
   `date_install` date DEFAULT NULL,
+  `date_uninstall` date DEFAULT NULL,
+  `deu` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unicity` (`computers_id`,`softwareversions_id`),
   KEY `softwareversions_id` (`softwareversions_id`),
