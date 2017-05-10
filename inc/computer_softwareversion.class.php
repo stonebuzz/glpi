@@ -331,7 +331,9 @@ class Computer_SoftwareVersion extends CommonDBRelation {
                           'groupe,compname'   => __('Group'),
                           'username,compname' => __('User'),
                           'lname'             => _n('License', 'Licenses', Session::getPluralNumber()),
-                          'date_instal'       => __('Installation date'));
+                          'date_instal'       => __('Installation date'),
+                          'date_uninstall'    => __('Uninstall date'),
+                          'deu'               => __('deu'));
       if ($crit != "softwares_id") {
          unset($refcolumns['vername']);
       }
@@ -588,6 +590,8 @@ class Computer_SoftwareVersion extends CommonDBRelation {
                echo "</td>";
 
                echo "<td>".Html::convDate($data['date_install'])."</td>";
+               echo "<td>".Html::convDate($data['date_uninstall'])."</td>";
+               echo "<td>".$data['deu']."</td>";
                echo "</tr>\n";
 
             } while ($data = $DB->fetch_assoc($result));
@@ -700,7 +704,9 @@ class Computer_SoftwareVersion extends CommonDBRelation {
                        `glpi_softwareversions`.`softwares_id`,
                        `glpi_softwareversions`.`name` AS version,
                        `glpi_softwares`.`is_valid` AS softvalid,
-                       `glpi_computers_softwareversions`.`date_install` AS dateinstall
+                       `glpi_computers_softwareversions`.`date_install` AS dateinstall,
+                       `glpi_computers_softwareversions`.`date_uninstall` AS dateuninstall,
+                       `glpi_computers_softwareversions`.`deu` AS deu
                 FROM `glpi_computers_softwareversions`
                 LEFT JOIN `glpi_softwareversions`
                      ON (`glpi_computers_softwareversions`.`softwareversions_id`
@@ -799,7 +805,7 @@ class Computer_SoftwareVersion extends CommonDBRelation {
          }
          $header_end .= "<th>" . __('Name') . "</th><th>" . __('Status') . "</th>";
          $header_end .= "<th>" .__('Version')."</th><th>" . __('License') . "</th>";
-         $header_end .="<th>" . __('Installation date') . "</th>";
+         $header_end .="<th>" . __('Installation date') . "</th><th>" . __('Uninstall date') . "</th><th>" . __('deu') . "</th>";
          if (Plugin::haveImport()) {
             $header_end .= "<th>".__('Automatic inventory')."</th>";
          }
@@ -1026,7 +1032,9 @@ class Computer_SoftwareVersion extends CommonDBRelation {
 
          echo "</td>";
 
-         echo "<td>".Html::convDate($data['dateinstall'])."</td>";
+         echo "<td class='center'>".Html::convDate($data['dateinstall'])."</td>";
+         echo "<td class='center'>".Html::convDate($data['dateuninstall'])."</td>";
+         echo "<td class='center'>".$data['deu']."</td>";
 
          if (isset($data['is_dynamic'])) {
             echo "<td class='center'>".Dropdown::getYesNo($data['is_dynamic'])."</td>";
