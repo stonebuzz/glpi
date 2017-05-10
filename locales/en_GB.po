@@ -15889,3 +15889,9 @@ msgid ""
 "Connection to database failed, verify the connection parameters included in "
 "config_db.php file"
 msgstr "Connection to database failed, verify the connection parameters included in config_db.php file"
+
+msgid "Uninstall date"
+msgstr "Uninstall date"
+
+msgid "deu"
+msgstr "DEU"
