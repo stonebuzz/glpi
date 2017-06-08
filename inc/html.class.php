@@ -3773,7 +3773,7 @@ class Html {
             $out .= " href='".$param['link']."'";
 
             if (!empty($param['popup'])) {
-               $out .= " onClick=\"".Html::jsGetElementbyID('tooltippopup'.$rand).".dialog('open');\" ";
+               $out .= " onClick=\"".Html::jsGetElementbyID('tooltippopup'.$rand).".dialog('open');return false;\" ";
             }
             $out .= '>';
          }
@@ -4220,8 +4220,7 @@ class Html {
           && ($_SESSION["glpiactiveprofile"]["interface"] == "central")) {
 
          echo "<td class='tab_bg_2 responsive_hidden' width='30%'>";
-         echo "<form method='GET' action='".$CFG_GLPI["root_doc"]."/front/report.dynamic.php'
-                target='_blank'>";
+         echo "<form method='GET' action='".$CFG_GLPI["root_doc"]."/front/report.dynamic.php'>";
          echo Html::hidden('item_type', array('value' => $item_type_output));
 
          if ($item_type_output_param != 0) {

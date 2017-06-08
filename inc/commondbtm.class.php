@@ -2482,6 +2482,7 @@ class CommonDBTM extends CommonGLPI {
             return false;
          }
       }
+    
       switch ($right) {
          case READ :
             // Personnal item
@@ -3592,7 +3593,7 @@ class CommonDBTM extends CommonGLPI {
 
          $double_text = '';
          if ($item->canView() && $item->canViewItem()) {
-            $double_text = $item->getLink(array('linkoption' => "target='_blank'"));
+            $double_text = $item->getLink();
          }
 
          foreach ($this->getUnicityFieldsToDisplayInErrorMessage() as $key => $value) {

@@ -1024,7 +1024,7 @@ class Ticket extends CommonITILObject {
       }
 
       foreach ($rule->getCriterias() as $key => $val) {
-         if (array_key_exists($key,$input)) {
+         if (array_key_exists($key, $input) && substr($key, 0, 1) !== '_') {
             if (!isset($this->fields[$key])
                 || ($DB->escape($this->fields[$key]) != $input[$key])) {
                $changes[] = $key;
@@ -3258,7 +3258,7 @@ class Ticket extends CommonITILObject {
       }
       if (($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] != 0)
           && (count($_SESSION["glpiactiveprofile"]["helpdesk_item_type"]))) {
-         if (!$tt->isHiddenField('itemtype')) {
+         if (!$tt->isHiddenField('items_id')) {
             echo "<tr class='tab_bg_1'>";
             echo "<td>".sprintf(__('%1$s%2$s'), __('Hardware type'),
                                 $tt->getMandatoryMark('items_id'))."</td>";
@@ -5294,12 +5294,7 @@ class Ticket extends CommonITILObject {
                                        AND `glpi_tickets_users`.`users_id`
                                             = '".Session::getLoginUserID()."')
                                    OR `glpi_groups_tickets`.`groups_id` IN (".implode(",",$_SESSION['glpigroups'])."))";
-
             }
-            // with this part all incoming ticket will be displayed even they are not selected in the ticket
-            // if (Session::haveRightsAnd(self::$rightname, [self::READASSIGN, self::ASSIGN])) {
-            //   $restrict .= " OR `glpi_tickets`.`status` = ".self::INCOMING.")";
-            //}
 
             $order    = '`glpi_tickets`.`date_mod` DESC';
 
@@ -5321,8 +5316,8 @@ class Ticket extends CommonITILObject {
       $query = "SELECT ".self::getCommonSelect()."
                 FROM `glpi_tickets` ".self::getCommonLeftJoin()."
                 WHERE $restrict ".
-                      " AND glpi_tickets.is_deleted = 0 ".
                       getEntitiesRestrictRequest("AND","glpi_tickets")."
+                AND glpi_tickets.is_deleted = 0
                 ORDER BY $order
                 LIMIT ".intval($_SESSION['glpilist_limit']);
       $result = $DB->query($query);
