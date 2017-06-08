@@ -121,6 +121,20 @@ $affected_computers = $DB->query("
    LEFT JOIN glpi_computers c_5 ON c_5.computertypes_id = ct.id AND c_5.date_creation <= DATE_SUB(NOW(),INTERVAL 5 YEAR) AND c_5.users_id != 0
    GROUP BY ct.id");
 
+
+
+$affected_computers = $DB->query("
+SELECT ct.name, COUNT(i_3.id) AS total_inf_3, COUNT(i_35.id) AS total_sup_3_inf_5, COUNT(i_5.id) AS total_sup_5
+   FROM glpi_computertypes ct
+   LEFT JOIN glpi_computers c_3 ON c_3.computertypes_id = ct.id
+   LEFT JOIN glpi_infocoms as i_3 ON i_3.itemtype = 'Computer' AND i_3.items_id = c_3.id AND i_3.use_date >= DATE_SUB(NOW(),INTERVAL 3 YEAR) AND c_3.users_id != 0
+   LEFT JOIN glpi_infocoms as i_35 ON i_35.itemtype = 'Computer' AND i_35.items_id = c_3.id AND  i_35.use_date BETWEEN DATE_SUB(NOW(),INTERVAL 5 YEAR) AND DATE_SUB(NOW(),INTERVAL 3 YEAR) AND c_3.users_id != 0
+   LEFT JOIN glpi_infocoms as i_5 ON i_5.itemtype = 'Computer' AND i_5.items_id = c_3.id AND i_5.use_date <= DATE_SUB(NOW(),INTERVAL 5 YEAR) AND c_3.users_id != 0
+   GROUP BY ct.id
+");
+
+
+
 $non_affected_computers = $DB->query("
    SELECT ct.name, COUNT(c_3.id) AS total_inf_3, COUNT(c_35.id) AS total_sup_3_inf_5, COUNT(c_5.id) AS total_sup_5
    FROM glpi_computertypes ct
