@@ -110,10 +110,10 @@ $printers_by_status  = $DB->query("SELECT s.name, COUNT(p.id) AS total
                                    LEFT JOIN glpi_printers p ON p.states_id = s.id
                                    GROUP BY s.id");
 
-$nb_affected_computers     = $DB->fetch_assoc($DB->query("SELECT COUNT(id) as total FROM glpi_computers 
-   LEFT JOIN glpi_states st ON c_3.states_id = st.id  WHERE st.name = 'EN FONCTION' "));
-$nb_non_affected_computers = $DB->fetch_assoc($DB->query("SELECT COUNT(id) as total FROM glpi_computers 
-   LEFT JOIN glpi_states st ON c_3.states_id = st.id  WHERE st.name = 'EN FONCTION' "));
+$nb_affected_computers     = $DB->fetch_assoc($DB->query("SELECT COUNT(c.id) as total FROM glpi_computers as c 
+   LEFT JOIN glpi_states st ON c.states_id = st.id  WHERE st.name = 'EN FONCTION' "));
+$nb_non_affected_computers = $DB->fetch_assoc($DB->query("SELECT COUNT(c.id) as total FROM glpi_computers as c 
+   LEFT JOIN glpi_states st ON c.states_id = st.id  WHERE st.name = 'EN FONCTION' "));
 
 
 $affected_computers = $DB->query("
@@ -147,7 +147,7 @@ $spared_computers = $DB->query("
    LEFT JOIN glpi_infocoms as i_3 ON i_3.itemtype     = 'Computer' AND i_3.items_id   = c_3.id AND i_3.use_date >= DATE_SUB(NOW(),INTERVAL 3 YEAR) 
    LEFT JOIN glpi_infocoms as i_35 ON i_35.itemtype = 'Computer' AND i_35.items_id = c_3.id AND i_35.use_date BETWEEN DATE_SUB(NOW(),INTERVAL 5 YEAR) AND DATE_SUB(NOW(),INTERVAL 3 YEAR) 
    LEFT JOIN glpi_infocoms as i_5 ON i_5.itemtype     = 'Computer' AND i_5.items_id   = c_3.id AND i_5.use_date <= DATE_SUB(NOW(),INTERVAL 5 YEAR) 
-   WHERE st.name = 'Spare'
+   WHERE st.name = 'EN SPARE'
    AND c_3.is_deleted = 0
    GROUP BY ct.id
    ");
@@ -160,7 +160,7 @@ $temporarily_affected_computers = $DB->query("
    LEFT JOIN glpi_infocoms as i_3 ON i_3.itemtype     = 'Computer' AND i_3.items_id   = c_3.id AND i_3.use_date >= DATE_SUB(NOW(),INTERVAL 3 YEAR) 
    LEFT JOIN glpi_infocoms as i_35 ON i_35.itemtype = 'Computer' AND i_35.items_id = c_3.id AND i_35.use_date BETWEEN DATE_SUB(NOW(),INTERVAL 5 YEAR) AND DATE_SUB(NOW(),INTERVAL 3 YEAR) 
    LEFT JOIN glpi_infocoms as i_5 ON i_5.itemtype     = 'Computer' AND i_5.items_id   = c_3.id AND i_5.use_date <= DATE_SUB(NOW(),INTERVAL 5 YEAR) 
-   WHERE st.name = 'Affectation provisoire'
+   WHERE st.name = 'EN ATTENTE D\'AFFECTATION'
    AND c_3.is_deleted = 0
    GROUP BY ct.id
 
@@ -174,7 +174,7 @@ $waiting_trash_computers = $DB->query("
    LEFT JOIN glpi_infocoms as i_3 ON i_3.itemtype     = 'Computer' AND i_3.items_id   = c_3.id AND i_3.use_date >= DATE_SUB(NOW(),INTERVAL 3 YEAR) 
    LEFT JOIN glpi_infocoms as i_35 ON i_35.itemtype = 'Computer' AND i_35.items_id = c_3.id AND i_35.use_date BETWEEN DATE_SUB(NOW(),INTERVAL 5 YEAR) AND DATE_SUB(NOW(),INTERVAL 3 YEAR) 
    LEFT JOIN glpi_infocoms as i_5 ON i_5.itemtype     = 'Computer' AND i_5.items_id   = c_3.id AND i_5.use_date <= DATE_SUB(NOW(),INTERVAL 5 YEAR) 
-   WHERE st.name = 'En attente de mise au rebut'
+   WHERE st.name = 'EN REBUT A VENIR'
    AND c_3.is_deleted = 0
    GROUP BY ct.id
 
@@ -183,18 +183,23 @@ $waiting_trash_computers = $DB->query("
 $affected_monitors = $DB->query("
    SELECT mt.name, COUNT(i_w.id)+COUNT(i_nw.id) AS total, COUNT(i_w.id) AS warranted, COUNT(i_nw.id) AS not_warranted
    FROM glpi_monitortypes mt
-   LEFT JOIN glpi_monitors m ON  m.monitortypes_id = mt.id AND m.users_id != 0
+   LEFT JOIN glpi_monitors m ON  m.monitortypes_id = mt.id 
+  LEFT JOIN glpi_states st ON m.states_id = st.id
    LEFT JOIN glpi_infocoms i_w ON i_w.itemtype = 'Monitor' AND i_w.items_id = m.id AND DATE_ADD(i_w.warranty_date, INTERVAL i_w.warranty_duration MONTH) >= NOW()
    LEFT JOIN glpi_infocoms i_nw ON i_nw.itemtype = 'Monitor' AND i_nw.items_id = m.id AND DATE_ADD(i_nw.warranty_date, INTERVAL i_nw.warranty_duration MONTH) < NOW()
+   WHERE st.name = 'EN FONCTION'
    AND m.is_deleted = 0
    GROUP BY mt.id");
 
 $affected_printers = $DB->query("
    SELECT pt.name, COUNT(i_w.id)+COUNT(i_nw.id) AS total, COUNT(i_w.id) AS warranted, COUNT(i_nw.id) AS not_warranted
    FROM glpi_printertypes pt
-   LEFT JOIN glpi_printers p ON  p.printertypes_id = pt.id AND p.users_id != 0
+
+   LEFT JOIN glpi_printers p ON  p.printertypes_id = pt.id 
+   LEFT JOIN glpi_states st ON p.states_id = p.id
    LEFT JOIN glpi_infocoms i_w ON i_w.itemtype = 'Printer' AND i_w.items_id = p.id AND DATE_ADD(i_w.warranty_date, INTERVAL i_w.warranty_duration MONTH) >= NOW()
    LEFT JOIN glpi_infocoms i_nw ON i_nw.itemtype = 'Printer' AND i_nw.items_id = p.id AND DATE_ADD(i_nw.warranty_date, INTERVAL i_nw.warranty_duration MONTH) < NOW()
+   WHERE st.name = 'EN FONCTION'
    AND p.is_deleted = 0
    GROUP BY pt.id");
 
