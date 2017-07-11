@@ -116,6 +116,9 @@ class Report extends CommonGLPI{
       }
       $report_list["park_situation"]["name"] = __('Park Situation');
       $report_list["park_situation"]["file"] = "report.park_situation.php";
+
+      $report_list["park_situation"]["name"] = __('Cartridge');
+      $report_list["park_situation"]["file"] = "report.cartouche.php";
       //Affichage du tableau de presentation des stats
       echo "<table class='tab_cadre_fixe'>";
       echo "<tr><th colspan='2'>".__('Select the report you want to generate')."</th></tr>";
