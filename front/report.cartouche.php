@@ -59,39 +59,91 @@ join glpi_manufacturers as m on c.manufacturers_id = m.id";
 
 $result = $DB->query($query);
 
-echo "<table class='tab_cadre_fixe'>
+echo "<table class='tab_cadre'>
          <tr>
             <th class='center'>Nom</th>
             <th class='center'>Référence</th>
             <th class='center'>Type</th>
             <th class='center'>Fabricant</th>
             <th class='center'>Lieu</th>
-            <th class='center'>Cartouches</th>
+            <th class='center' colspan='4'>Cartouches</th>
          </tr>";
 
 
 while ($row = mysqli_fetch_assoc($result)) {
    echo "<tr>";
 
-      echo "<td>".$row['name']."</td>";
-      echo "<td>".$row['ref']."</td>";
-      echo "<td>".$row['type']."</td>";
-      echo "<td>".$row['manufacturer']."</td>";
-      echo "<td>".$row['location']."</td>";
+   echo "<td>".$row['name']."</td>";
+   echo "<td>".$row['ref']."</td>";
+   echo "<td>".$row['type']."</td>";
+   echo "<td>".$row['manufacturer']."</td>";
+   echo "<td>".$row['location']."</td>";
 
-      $total  = CartridgeItem::getCount($row['id']);
-      $unused = Cartridge::getUnusedNumber($row['id']);
-      $used   = Cartridge::getUsedNumber($row['id']);
-      $old    = Cartridge::getOldNumber($row['id']);
-      
-      if($total != 0){
-         echo "<td>Total : ".$total." ( ".$unused." neuve(s), ".$used." utilisée(s), ".$old." usagées(s))</td>";
-      }else{
-         echo "<td>Aucune cartouche</td>";
-      }
+   $total  = CartridgeItem::getCount($row['id']);
+   $unused = Cartridge::getUnusedNumber($row['id']);
+   $used   = Cartridge::getUsedNumber($row['id']);
+   $old    = Cartridge::getOldNumber($row['id']);
+   
+   if($total != 0){
+      echo "<th>Total : ".$total." ( ".$unused." neuve(s), ".$used." utilisée(s), ".$old." usagées(s))</th>";
+      echo "<th>Statut</th><th>Date de début</th><th>Date de fin</th>";
+   }else{
+      echo "<th>Aucune cartouche</th>";
+      echo "<th></th><th></th><th></th>";
+   }
 
    echo"</tr>";
 
+   if($used > 0){
+
+      for ($i=0; $i < $used; $i++) { 
+         $queryUsed = "SELECT id ,date_use,date_out
+                   FROM `glpi_cartridges`
+                   WHERE (`cartridgeitems_id` = '".$row['id']."'
+                          AND `date_use` IS NOT NULL
+                          AND `date_out` IS NULL)";
+         $resultUsed = $DB->query($queryUsed);
+
+         while ($rowUsed = mysqli_fetch_assoc($resultUsed)) {
+            echo "<tr>";
+            echo "<td></td>";
+            echo "<td></td>";         
+            echo "<td></td>";
+            echo "<td></td>";
+            echo "<td></td>";
+            echo "<td></td>";
+            echo "<td>En cours d'utilisation</td><td>".$rowUsed['date_use']."</td><td></td>";
+            echo "</tr>";
+
+         }
+      }
+   }
+
+   if($old > 0){
+
+      for ($i=0; $i < $old; $i++) { 
+         $queryOld = "SELECT id ,date_use,date_out
+                   FROM `glpi_cartridges`
+                   WHERE (`cartridgeitems_id` = '".$row['id']."'
+                          AND `date_use` IS NOT NULL
+                          AND `date_out` IS NOT NULL)";
+         $resultOld = $DB->query($queryOld);
+
+         while ($rowOld = mysqli_fetch_assoc($resultOld)) {
+            echo "<tr>";
+            echo "<td></td>";
+            echo "<td></td>";         
+            echo "<td></td>";
+            echo "<td></td>";
+            echo "<td></td>";
+            echo "<td></td>";
+            echo "<td>Usagée</td><td>".$rowOld['date_use']."</td><td>".$rowOld['date_out']."</td>";
+            echo "</tr>";
+
+         }
+
+      }
+   }
 }
 
 echo "</table>";
