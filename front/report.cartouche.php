@@ -191,7 +191,7 @@ $export = <<<MY_MARKER
 $(document).ready(function () {
 
     function exportTableToCSV(table, filename) {
-
+var BOM = "\uFEFF";
         var rows = table.find('tr:has(td)'),
 
             // Temporary delimiter characters unlikely to be typed by keyboard
@@ -223,7 +223,7 @@ $(document).ready(function () {
             // Deliberate 'false', see comment below
         if (false && window.navigator.msSaveBlob) {
 
-                  var blob = new Blob([decodeURIComponent(csv)], {
+                  var blob = new Blob([BOM +decodeURIComponent(csv)], {
                  type: 'text/csv;charset=utf8'
             });
             
@@ -236,7 +236,7 @@ $(document).ready(function () {
             
         } else if (window.Blob && window.URL) {
                   // HTML5 Blob        
-            var blob = new Blob([csv], { type: 'text/csv;charset=utf8' });
+            var blob = new Blob([BOM +csv], { type: 'data:application/csv;charset=utf-8' });
             var csvUrl = URL.createObjectURL(blob);
 
             $(this)
@@ -246,7 +246,7 @@ $(document).ready(function () {
                   });
             } else {
             // Data URI
-            var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+            var csvData = 'data:application/csv;charset=utf-8,' + BOM +encodeURIComponent(csv);
 
                   $(this)
                 .attr({
