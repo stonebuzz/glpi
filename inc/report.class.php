@@ -119,6 +119,10 @@ class Report extends CommonGLPI{
 
       $report_list["cartouche"]["name"] = __('Cartridge');
       $report_list["cartouche"]["file"] = "report.cartouche.php";
+
+
+      $report_list["trimestriel"]["name"] = "Récapitulatif trimestriel";
+      $report_list["trimestriel"]["file"] = "report.recapitulatif.php";
       //Affichage du tableau de presentation des stats
       echo "<table class='tab_cadre_fixe'>";
       echo "<tr><th colspan='2'>".__('Select the report you want to generate')."</th></tr>";
