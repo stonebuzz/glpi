@@ -53,8 +53,6 @@ Report::title();
 
 global $DB;
 
-
-
 $debutT1 = date("Y")."-01-01";
 $finT1   = date("Y")."-03-31";
 
