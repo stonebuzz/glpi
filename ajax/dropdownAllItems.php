@@ -57,7 +57,7 @@ if ($_POST["idtable"] && class_exists($_POST["idtable"])) {
                      'valuename'           => Dropdown::EMPTY_VALUE,
                      'itemtype'            => $_POST["idtable"],
                      'display_emptychoice' => true,
-                     'displaywith'         => ['otherserial', 'serial']];
+                     'displaywith'         => ['otherserial', 'serial', 'id']];
    if (isset($_POST['value'])) {
       $p['value'] = $_POST['value'];
    }
