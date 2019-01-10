@@ -911,6 +911,12 @@ class Search {
       $sql = "";
 
       foreach ($criteria as $criterion) {
+         if (!isset($criterion['criteria'])
+             && (!isset($criterion['value'])
+                 || strlen($criterion['value']) <= 0)) {
+            continue;
+         }
+
          $itemtype = $data['itemtype'];
          $meta = false;
          if (isset($criterion['meta'])
@@ -973,12 +979,10 @@ class Search {
                if (!empty($sql)) {
                   $LINK = $tmplink;
                }
-               if (isset($criterion['value']) && (strlen($criterion['value']) > 0)) {
-                  $new_where = self::addWhere($LINK, $NOT, $itemtype, $criterion['field'],
-                                              $criterion['searchtype'], $criterion['value'], $meta);
-                  if ($new_where !== false) {
-                     $sql .= $new_where;
-                  }
+               $new_where = self::addWhere($LINK, $NOT, $itemtype, $criterion['field'],
+                                           $criterion['searchtype'], $criterion['value'], $meta);
+               if ($new_where !== false) {
+                  $sql .= $new_where;
                }
             }
          } else if (isset($criterion['value'])
@@ -5171,8 +5175,7 @@ JAVASCRIPT;
          case "glpi_changes.time_to_resolve" :
          case "glpi_tickets.time_to_own" :
          case "glpi_tickets.internal_time_to_own" :
-            if (($ID <> 151) && ($ID <> 158)
-                && ($ID <> 181) && ($ID <> 186)
+            if (!in_array($ID, [151, 158, 181, 186])
                 && !empty($data[$ID][0]['name'])
                 && ($data[$NAME][0]['status'] != CommonITILObject::WAITING)
                 && ($data[$NAME][0]['name'] < $_SESSION['glpi_currenttime'])) {
@@ -5538,8 +5541,7 @@ JAVASCRIPT;
             case "glpi_tickets.internal_time_to_own" :
             case "glpi_tickets.internal_time_to_resolve" :
                // Due date + progress
-               if (($ID == 151) || ($ID == 158)
-                   ||($ID == 181) ||($ID == 186)) {
+               if (in_array($orig_id, [151, 158, 181, 186])) {
                   $out = Html::convDateTime($data[$ID][0]['name']);
 
                   // No due date in waiting status
@@ -5639,8 +5641,8 @@ JAVASCRIPT;
                      $bar_color = 'yellow';
                   }
 
-                  if (!isset($searchopt[$ID]['datatype'])) {
-                     $searchopt[$ID]['datatype'] = 'progressbar';
+                  if (!isset($so['datatype'])) {
+                     $so['datatype'] = 'progressbar';
                   }
 
                   $progressbar_data = [
