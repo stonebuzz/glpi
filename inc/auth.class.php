@@ -138,7 +138,7 @@ class Auth extends CommonGLPI {
       global $DB;
 
       $result = $DB->request('glpi_users',
-         ['AND'      => [$options],
+         ['WHERE'    => $options,
          'LEFT JOIN' => ['glpi_useremails' => ['FKEY' => ['glpi_users'      => 'id',
                                                           'glpi_useremails' => 'users_id']]]]);
       // Check if there is a row
@@ -1170,6 +1170,11 @@ class Auth extends CommonGLPI {
          }
       }
 
+      // using user token for api login
+      if (!empty($_REQUEST['user_token'])) {
+         return self::API;
+      }
+
       // Using CAS server
       if (!empty($CFG_GLPI["cas_host"])) {
          if ($redirect) {
@@ -1177,11 +1182,6 @@ class Auth extends CommonGLPI {
          } else {
             return self::CAS;
          }
-      }
-
-      // using user token for api login
-      if (!empty($_REQUEST['user_token'])) {
-         return self::API;
       }
 
       $cookie_name = session_name() . '_rememberme';

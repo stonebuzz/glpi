@@ -610,7 +610,11 @@ final class DbUtils {
       }
 
       if (!is_array($value) && strlen($value) == 0) {
-         $value = $_SESSION['glpiactiveentities'];
+         if (isset($_SESSION['glpiactiveentities'])) {
+            $value = $_SESSION['glpiactiveentities'];
+         } else if (isCommandLine() || Session::isCron()) {
+            $value = '0'; // If value is not set, fallback to root entity in cron / command line
+         }
       }
 
       $crit = [$field => $value];
@@ -646,9 +650,12 @@ final class DbUtils {
                $crit = ['OR' => [$field => $value + $ancestors]];
             } else {
                $recur = (empty($table) ? 'is_recursive' : "$table.is_recursive");
-               $crit = ['OR' => [$field => $value,
-                                 'AND' => [$recur => 1,
-                                          $field => $ancestors]]];
+               $crit = [
+                  'OR' => [
+                     $field => $value,
+                     [$recur => 1, $field => $ancestors]
+                  ]
+               ];
             }
          }
       }
@@ -1915,9 +1922,6 @@ final class DbUtils {
          $criteria[] = [$field => ['<=', $end_expr]];
       }
 
-      if (count($criteria)) {
-         $criteria = ['AND' => $criteria];
-      }
       return $criteria;
    }
 

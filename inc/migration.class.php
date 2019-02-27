@@ -43,6 +43,7 @@ class Migration {
 
    private   $change    = [];
    private   $fulltexts = [];
+   private   $uniques   = [];
    protected $version;
    private   $deb;
    private   $lastMessage;
@@ -523,6 +524,8 @@ class Migration {
 
          if ($type == 'FULLTEXT') {
             $this->fulltexts[$table][] = "ADD $type `$indexname` ($fields)";
+         } else if ($type == 'UNIQUE') {
+            $this->uniques[$table][] = "ADD $type `$indexname` ($fields)";
          } else {
             $this->change[$table][] = "ADD $type `$indexname` ($fields)";
          }
@@ -659,7 +662,7 @@ class Migration {
       }
 
       if (isset($this->fulltexts[$table])) {
-         $this->displayMessage( sprintf(__('Adding fulltext index - %s'), $table));
+         $this->displayMessage( sprintf(__('Adding fulltext indices - %s'), $table));
          foreach ($this->fulltexts[$table] as $idx) {
             $query = "ALTER TABLE `$table` ".$idx;
             $DB->queryOrDie($query, $this->version." $idx");
@@ -667,6 +670,14 @@ class Migration {
          unset($this->fulltexts[$table]);
       }
 
+      if (isset($this->uniques[$table])) {
+         $this->displayMessage( sprintf(__('Adding unicity indices - %s'), $table));
+         foreach ($this->uniques[$table] as $idx) {
+            $query = "ALTER TABLE `$table` ".$idx;
+            $DB->queryOrDie($query, $this->version." $idx");
+         }
+         unset($this->uniques[$table]);
+      }
    }
 
 
@@ -685,7 +696,8 @@ class Migration {
 
       $tables = array_merge(
          array_keys($this->change),
-         array_keys($this->fulltexts)
+         array_keys($this->fulltexts),
+         array_keys($this->uniques)
       );
       foreach ($tables as $table) {
          $this->migrationOneTable($table);
@@ -728,7 +740,7 @@ class Migration {
       $rule['description'] = '';
 
       // Compute ranking
-      $sql = "SELECT MAX(`ranking`) AS rank
+      $sql = "SELECT MAX(`ranking`) AS `rank`
               FROM `glpi_rules`
               WHERE `sub_type` = '".$rule['sub_type']."'";
       $result = $DB->query($sql);
@@ -994,61 +1006,73 @@ class Migration {
    public function addRight($name, $rights = ALLSTANDARDRIGHT, $requiredrights = ['config' => READ | UPDATE]) {
       global $DB;
 
-      $count = countElementsInTable(
-         'glpi_profilerights',
-         ['name' => $name]
+      // Get all profiles where new rights has not been added yet
+      $prof_iterator = $DB->request(
+         [
+            'SELECT'    => 'glpi_profiles.id',
+            'FROM'      => 'glpi_profiles',
+            'LEFT JOIN' => [
+               'glpi_profilerights' => [
+                  'ON' => [
+                     'glpi_profilerights' => 'profiles_id',
+                     'glpi_profiles'      => 'id',
+                     [
+                        'AND' => ['glpi_profilerights.name' => $name]
+                     ]
+                  ]
+               ],
+            ],
+            'WHERE'     => [
+               'glpi_profilerights.id' => null,
+            ]
+         ]
       );
 
-      if ($count == 0) {
-         $where = [];
-         foreach ($requiredrights as $reqright => $reqvalue) {
-            $where['OR'][] = [
-               'AND' => [
-                  'name'   => $reqright,
-                  new QueryExpression("{$DB->quoteName('rights')} & $reqvalue = $reqvalue")
-               ]
-            ];
-         }
+      if ($prof_iterator->count() === 0) {
+         return;
+      }
 
-         $prof_iterator = $DB->request([
-            'SELECT' => 'id',
-            'FROM'   => 'glpi_profiles'
-         ]);
+      $where = [];
+      foreach ($requiredrights as $reqright => $reqvalue) {
+         $where['OR'][] = [
+            'name'   => $reqright,
+            new QueryExpression("{$DB->quoteName('rights')} & $reqvalue = $reqvalue")
+         ];
+      }
 
-         while ($profile = $prof_iterator->next()) {
-            if (empty($requiredrights)) {
-               $reqmet = true;
-            } else {
-               $iterator = $DB->request([
-                  'SELECT' => [
-                     'name',
-                     'rights'
-                  ],
-                  'FROM'   => 'glpi_profilerights',
-                  'WHERE'  => $where + ['profiles_id' => $profile['id']]
-               ]);
-
-               $reqmet = (count($iterator) == count($requiredrights));
-            }
-
-            $DB->insertOrDie(
-               'glpi_profilerights', [
-                  'id'           => null,
-                  'profiles_id'  => $profile['id'],
-                  'name'         => $name,
-                  'rights'       => $reqmet ? $rights : 0
+      while ($profile = $prof_iterator->next()) {
+         if (empty($requiredrights)) {
+            $reqmet = true;
+         } else {
+            $iterator = $DB->request([
+               'SELECT' => [
+                  'name',
+                  'rights'
                ],
-               sprintf('%1$s add right for %2$s', $this->version, $name)
-            );
+               'FROM'   => 'glpi_profilerights',
+               'WHERE'  => $where + ['profiles_id' => $profile['id']]
+            ]);
+
+            $reqmet = (count($iterator) == count($requiredrights));
          }
 
-         $this->displayWarning(
-            sprintf(
-               'New rights has been added for %1$s, you should review ACLs after update',
-               $name
-            ),
-            true
+         $DB->insertOrDie(
+            'glpi_profilerights', [
+               'id'           => null,
+               'profiles_id'  => $profile['id'],
+               'name'         => $name,
+               'rights'       => $reqmet ? $rights : 0
+            ],
+            sprintf('%1$s add right for %2$s', $this->version, $name)
          );
       }
+
+      $this->displayWarning(
+         sprintf(
+            'New rights has been added for %1$s, you should review ACLs after update',
+            $name
+         ),
+         true
+      );
    }
 }

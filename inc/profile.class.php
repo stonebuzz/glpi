@@ -445,11 +445,9 @@ class Profile extends CommonDBTM {
              && (Session::getCurrentInterface() == 'central'
                  || in_array($key, self::$helpdesk_rights))) {
             $right_subqueries[] = [
-               'AND' => [
-                  'glpi_profilerights.name'     => $key,
-                  'RAW'                         => [
-                     '(' . DBmysql::quoteName('glpi_profilerights.rights') . ' | ' . DBmysql::quoteValue($val) . ')' => $val
-                  ]
+               'glpi_profilerights.name'     => $key,
+               'RAW'                         => [
+                  '(' . DBmysql::quoteName('glpi_profilerights.rights') . ' | ' . DBmysql::quoteValue($val) . ')' => $val
                ]
             ];
          }
@@ -469,7 +467,7 @@ class Profile extends CommonDBTM {
          return [
             'OR'  => [
                'glpi_profiles.interface' => 'helpdesk',
-               'AND' => [$criteria]
+               $criteria
             ]
          ];
       }
@@ -1549,6 +1547,15 @@ class Profile extends CommonDBTM {
       ];
 
       $tab[] = [
+         'id'                 => '2',
+         'table'              => $this->getTable(),
+         'field'              => 'id',
+         'name'               => __('ID'),
+         'massiveaction'      => false,
+         'datatype'           => 'number'
+      ];
+
+      $tab[] = [
          'id'                 => '19',
          'table'              => $this->getTable(),
          'field'              => 'date_mod',
@@ -1567,7 +1574,7 @@ class Profile extends CommonDBTM {
       ];
 
       $tab[] = [
-         'id'                 => '2',
+         'id'                 => '5',
          'table'              => $this->getTable(),
          'field'              => 'interface',
          'name'               => __("Profile's interface"),

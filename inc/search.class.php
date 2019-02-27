@@ -163,7 +163,7 @@ class Search {
             });
 
          var _loadMap = function(map_elt, itemtype) {
-            L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
+            L.AwesomeMarkers.Icon.prototype.options.prefix = 'far';
             var _micon = 'circle';
 
             var stdMarker = L.AwesomeMarkers.icon({
@@ -440,24 +440,38 @@ class Search {
       }
 
       if (count($p['criteria']) > 0) {
-         foreach ($p['criteria'] as $criterion) {
-            if (isset($criterion['field']) && !in_array($criterion['field'], $data['toview'])) {
-               if ($criterion['field'] != 'all'
-                   && $criterion['field'] != 'view'
-                   && (!isset($criterion['meta'])
-                       || !$criterion['meta'])) {
-                  array_push($data['toview'], $criterion['field']);
-               } else if ($criterion['field'] == 'all') {
-                  $data['search']['all_search'] = true;
-               } else if ($criterion['field'] == 'view') {
-                  $data['search']['view_search'] = true;
+         // use a recursive clojure to push searchoption when using nested criteria
+         $parse_criteria = function($criteria) use (&$parse_criteria, &$data) {
+            foreach ($criteria as $criterion) {
+               // recursive call
+               if (isset($criterion['criteria'])) {
+                  return $parse_criteria($criterion['criteria']);
+               }
+
+               // normal behavior
+               if (isset($criterion['field'])
+                   && !in_array($criterion['field'], $data['toview'])) {
+                  if ($criterion['field'] != 'all'
+                      && $criterion['field'] != 'view'
+                      && (!isset($criterion['meta'])
+                          || !$criterion['meta'])) {
+                     array_push($data['toview'], $criterion['field']);
+                  } else if ($criterion['field'] == 'all') {
+                     $data['search']['all_search'] = true;
+                  } else if ($criterion['field'] == 'view') {
+                     $data['search']['view_search'] = true;
+                  }
+               }
+
+               if (isset($criterion['value'])
+                   && (strlen($criterion['value']) > 0)) {
+                  $data['search']['no_search'] = false;
                }
             }
+         };
 
-            if (isset($criterion['value']) && (strlen($criterion['value']) > 0)) {
-               $data['search']['no_search'] = false;
-            }
-         }
+         // call the clojure
+         $parse_criteria($p['criteria']);
       }
 
       if (count($p['metacriteria'])) {
@@ -946,10 +960,15 @@ class Search {
                $tmplink = " AND ";
             }
 
+            // Manage Link if not first item
+            if (!empty($sql)) {
+               $LINK = $tmplink;
+            }
+
             if (isset($criterion['criteria']) && count($criterion['criteria'])) {
                $sub_sql = self::constructCriteriaSQL($criterion['criteria'], $data, $searchopt, $is_having);
                if (strlen($sub_sql)) {
-                  $sql .= "$tmplink ($sub_sql)";
+                  $sql .= "$LINK ($sub_sql)";
                }
             } else if (isset($searchopt[$criterion['field']]["usehaving"])) {
                if (!$is_having) {
@@ -957,10 +976,6 @@ class Search {
                   continue;
                }
 
-               // Manage Link if not first item
-               if (!empty($sql)) {
-                  $LINK = $tmplink;
-               }
                // Find key
                $item_num = array_search($criterion['field'], $data['tocompute']);
                $new_having = self::addHaving($LINK, $NOT, $itemtype,
@@ -975,10 +990,6 @@ class Search {
                   continue;
                }
 
-               // Manage Link if not first item
-               if (!empty($sql)) {
-                  $LINK = $tmplink;
-               }
                $new_where = self::addWhere($LINK, $NOT, $itemtype, $criterion['field'],
                                            $criterion['searchtype'], $criterion['value'], $meta);
                if ($new_where !== false) {
@@ -1822,23 +1833,25 @@ class Search {
             }
          }
       } else {
-         echo "<div class='center pager_controls'>";
-         if (null == $item || $item->maybeLocated()) {
-            $map_link = "<input type='checkbox' name='as_map' id='as_map' value='1'";
-            if ($data['search']['as_map'] == 1) {
-               $map_link .= " checked='checked'";
+         if (!isset($_GET['_in_modal'])) {
+            echo "<div class='center pager_controls'>";
+            if (null == $item || $item->maybeLocated()) {
+               $map_link = "<input type='checkbox' name='as_map' id='as_map' value='1'";
+               if ($data['search']['as_map'] == 1) {
+                  $map_link .= " checked='checked'";
+               }
+               $map_link .= "/>";
+               $map_link .= "<label for='as_map'><span title='".__s('Show as map')."' class='pointer fa fa-globe-americas'
+                  onClick=\"toogle('as_map','','','');
+                              document.forms['searchform".$data["itemtype"]."'].submit();\"></span></label>";
+               echo $map_link;
             }
-            $map_link .= "/>";
-            $map_link .= "<label for='as_map'><span title='".__s('Show as map')."' class='pointer fa fa-globe-americas'
-               onClick=\"toogle('as_map','','','');
-                           document.forms['searchform".$data["itemtype"]."'].submit();\"></span></label>";
-            echo $map_link;
-         }
 
-         if ($item !== null && $item->maybeDeleted()) {
-            echo self::isDeletedSwitch($data['search']['is_deleted'], $data['itemtype']);
+            if ($item !== null && $item->maybeDeleted()) {
+               echo self::isDeletedSwitch($data['search']['is_deleted'], $data['itemtype']);
+            }
+            echo "</div>";
          }
-         echo "</div>";
          echo self::showError($data['display_type']);
       }
    }
@@ -5564,6 +5577,22 @@ JAVASCRIPT;
                   $currenttime = 0;
                   $slaField    = 'slas_id';
 
+                  // define correct sla field
+                  switch ($table.'.'.$field) {
+                     case "glpi_tickets.time_to_resolve" :
+                        $slaField = 'slas_ttr_id';
+                        break;
+                     case "glpi_tickets.time_to_own" :
+                        $slaField = 'slas_tto_id';
+                        break;
+                     case "glpi_tickets.internal_time_to_own" :
+                        $slaField = 'olas_tto_id';
+                        break;
+                     case "glpi_tickets.internal_time_to_resolve" :
+                        $slaField = 'olas_ttr_id';
+                        break;
+                  }
+
                   switch ($table.'.'.$field) {
                      // If ticket has been taken into account : no progression display
                      case "glpi_tickets.time_to_own" :
@@ -5851,8 +5880,8 @@ JAVASCRIPT;
                if ($data[$ID][0]['is_active']) {
                   return "<a href='reservation.php?reservationitems_id=".
                                           $data["refID"]."' title=\"".__s('See planning')."\">".
-                                          "<img src=\"".$CFG_GLPI["root_doc"].
-                                          "/pics/reservation-3.png\" alt=''></a>";
+                                          "<i class='far fa-calendar-alt'></i>";
+                                          "<span class='sr-only'>".__('See planning')."</span></a>";
                } else {
                   return "&nbsp;";
                }
@@ -5941,7 +5970,7 @@ JAVASCRIPT;
                         ];
                         if (Toolbox::strlen($text) > $CFG_GLPI['cut']) {
                            $popup_params += [
-                              'awesome-class'   => 'fa-comments-o',
+                              'awesome-class'   => 'fa-comments',
                               'autoclose'       => false,
                               'onclick'         => true
                            ];
@@ -6171,7 +6200,7 @@ JAVASCRIPT;
                      $out .= $so['emptylabel'];
                   } else {
                      // Trans field exists
-                     if (isset($data[$ID][$k]['trans']) && !empty($data[p][$k]['trans'])) {
+                     if (isset($data[$ID][$k]['trans']) && !empty($data[$ID][$k]['trans'])) {
                         $out .=  Dropdown::getValueWithUnit($data[$ID][$k]['trans'], $unit);
                      } else {
                         $out .= Dropdown::getValueWithUnit($data[$ID][$k]['name'], $unit);
@@ -6944,6 +6973,7 @@ JAVASCRIPT;
             break;
 
          default :
+            global $CFG_GLPI;
             $out = "<td $extraparam valign='top'>";
 
             if (!preg_match('/'.self::LBHR.'/', $value)) {
@@ -6954,7 +6984,8 @@ JAVASCRIPT;
                $line_delimiter = '<hr>';
             }
 
-            if (count($values) > 1) {
+            if (count($values) > 1
+                && Toolbox::strlen($value) > $CFG_GLPI['cut']) {
                $value = '';
                foreach ($values as $v) {
                   $value .= $v.$line_delimiter;
@@ -6964,7 +6995,7 @@ JAVASCRIPT;
                $value = '<div class="fup-popup">'.$value.'</div>';
                $valTip = "&nbsp;".Html::showToolTip(
                   $value, [
-                     'awesome-class'   => 'fa-comments-o',
+                     'awesome-class'   => 'fa-comments',
                      'display'         => false,
                      'autoclose'       => false,
                      'onclick'         => true

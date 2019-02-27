@@ -829,18 +829,6 @@ class Ticket extends CommonITILObject {
                   echo "</div>";
                   break;
 
-               case 2 :
-                  if (!isset($_GET['load_kb_sol'])) {
-                     $_GET['load_kb_sol'] = 0;
-                  }
-                  $item->showSolutionForm($_GET['load_kb_sol']);
-
-                  if ($item->canApprove()) {
-                     $fup = new ITILFollowup();
-                     $fup->showApprobationForm($item);
-                  }
-                  break;
-
                case 3 :
                   $satisfaction = new TicketSatisfaction();
                   if (($item->fields['status'] == self::CLOSED)
@@ -1652,25 +1640,15 @@ class Ticket extends CommonITILObject {
           && ($rate > 0)
           && (mt_rand(1, 100) <= $rate)) {
 
-         $ticket_inquests = $inquest->find(['tickets_id' => $this->getID()]);
-
-         //Do not create a new satisfaction survey if one exists
-         if (!count($ticket_inquests)) {
-            $inquest_id = $inquest->add(
-               [
-                  'tickets_id'    => $this->fields['id'],
-                  'date_begin'    => $_SESSION["glpi_currenttime"],
-                  'entities_id'   => $this->fields['entities_id'],
-                  'type'          => $type,
-                  'max_closedate' => $max_closedate,
-               ]
-            );
-         } else {
-            $inquest_id = reset($ticket_inquests)['tickets_id'];
-         }
-
-         // Redirect to created survey
-         Html::redirect(TicketSatisfaction::getFormURLWithID($inquest_id));
+         $inquest->add(
+            [
+               'tickets_id'    => $this->fields['id'],
+               'date_begin'    => $_SESSION["glpi_currenttime"],
+               'entities_id'   => $this->fields['entities_id'],
+               'type'          => $type,
+               'max_closedate' => $max_closedate,
+            ]
+         );
       }
    }
 
@@ -2400,13 +2378,15 @@ class Ticket extends CommonITILObject {
             'glpi_items_tickets.items_id' => $items_id,
             'glpi_items_tickets.itemtype' => $itemtype,
             'OR'                          => [
-               'NOT' => [
-                  $this->getTable() . '.status' => array_merge(
-                     $this->getClosedStatusArray(),
-                     $this->getSolvedStatusArray()
-                  )
+               [
+                  'NOT' => [
+                     $this->getTable() . '.status' => array_merge(
+                        $this->getClosedStatusArray(),
+                        $this->getSolvedStatusArray()
+                     )
+                  ]
                ],
-               'AND' => [
+               [
                   'NOT' => [$this->getTable() . '.solvedate' => null],
                   new \QueryExpression(
                      "ADDDATE(" . $DB->quoteName($this->getTable()) .
@@ -2789,10 +2769,16 @@ class Ticket extends CommonITILObject {
                      //Add relation (this is parent of merge target)
                      $tt = new Ticket_Ticket();
                      $linkparams = [
-                        'link'         => Ticket_Ticket::PARENT_OF,
+                        'link'         => Ticket_Ticket::SON_OF,
                         'tickets_id_1' => $id,
                         'tickets_id_2' => $input['_mergeticket']
                      ];
+
+                     $tt->deleteByCriteria([
+                        'tickets_id_1' => $input['_mergeticket'],
+                        'tickets_id_2' => $id,
+                        'link' => Ticket_Ticket::SON_OF]);
+
                      if (!$tt->add($linkparams)) {
                         //Cannot link tickets. Abort/fail the merge
                         throw new \RuntimeException(ERROR_ON_ACTION, MassiveAction::ACTION_KO);
@@ -4455,6 +4441,10 @@ class Ticket extends CommonITILObject {
          $options['name'] = str_replace($order, $replace, $options['name']);
       }
 
+      if (!isset($options['_skip_promoted_fields'])) {
+         $options['_skip_promoted_fields'] = false;
+      }
+
       if (!$ID) {
          // Override defaut values from projecttask if needed
          if (isset($options['_projecttasks_id'])) {
@@ -4465,7 +4455,7 @@ class Ticket extends CommonITILObject {
             }
          }
          // Override defaut values from followup if needed
-         if (isset($options['_promoted_fup_id'])) {
+         if (isset($options['_promoted_fup_id']) && !$options['_skip_promoted_fields']) {
             $fup = new ITILFollowup();
             if ($fup->getFromDB($options['_promoted_fup_id'])) {
                $options['content'] = $fup->getField('content');
@@ -4475,6 +4465,8 @@ class Ticket extends CommonITILObject {
                   'tickets_id_2' => $fup->fields['items_id']
                ];
             }
+            //Allow overriding the default values
+            $options['_skip_promoted_fields'] = true;
          }
       }
 
@@ -5318,6 +5310,7 @@ class Ticket extends CommonITILObject {
                       value=\"".Toolbox::prepareArrayForInput($predefined_fields)."\">";
             }
             echo Html::hidden('_promoted_fup_id', ['value' => $options['_promoted_fup_id']]);
+            echo Html::hidden('_skip_promoted_fields', ['value' => $options['_skip_promoted_fields']]);
             echo '</div>';
          }
       }
@@ -6436,16 +6429,24 @@ class Ticket extends CommonITILObject {
 
       // Recherche des entit??s
       $tot = 0;
-      foreach (Entity::getEntitiesToNotify('autoclose_delay') as $entity => $delay) {
+
+      $entities = $DB->request(
+         [
+            'SELECT' => 'id',
+            'FROM'   => Entity::getTable(),
+         ]
+      );
+      foreach ($entities as $entity) {
+         $delay  = Entity::getUsedConfig('autoclose_delay', $entity['id'], '', Entity::CONFIG_NEVER);
          if ($delay >= 0) {
             $query = "SELECT *
                       FROM `glpi_tickets`
-                      WHERE `entities_id` = '".$entity."'
+                      WHERE `entities_id` = '".$entity['id']."'
                             AND `status` = '".self::SOLVED."'
                             AND `is_deleted` = 0";
 
             if ($delay > 0) {
-               $calendars_id = Entity::getUsedConfig('calendars_id', $entity);
+               $calendars_id = Entity::getUsedConfig('calendars_id', $entity['id']);
                if ($calendars_id > 0) {
                   $calendar = new Calendar;
                   $calendar->getFromDB($calendars_id);
@@ -6473,7 +6474,7 @@ class Ticket extends CommonITILObject {
             if ($nb) {
                $tot += $nb;
                $task->addVolume($nb);
-               $task->log(Dropdown::getDropdownName('glpi_entities', $entity)." : $nb");
+               $task->log(Dropdown::getDropdownName('glpi_entities', $entity['id'])." : $nb");
             }
          }
       }
@@ -6790,15 +6791,19 @@ class Ticket extends CommonITILObject {
       if (isset($field_id_or_search_options['linkfield'])) {
          switch ($field_id_or_search_options['linkfield']) {
             case 'requesttypes_id':
-               $opt = 'is_ticketheader = 1';
                if (isset($field_id_or_search_options['joinparams']) && Toolbox::in_array_recursive('glpi_itilfollowups', $field_id_or_search_options['joinparams'])) {
-                  $opt = 'is_itilfollowup = 1';
+                  $opt = ['is_itilfollowup' => 1];
+               } else {
+                  $opt = ['is_ticketheader' => 1];
                }
                if ($field_id_or_search_options['linkfield']  == $name) {
-                  $opt .= ' AND is_active = 1';
+                  $opt['is_active'] = 1;
                }
                if (isset( $options['condition'] )) {
-                  $opt .=  ' AND '.$options['condition'];
+                  if (!is_array($options['condition'])) {
+                     $options['condition'] = [$options['condition']];
+                  }
+                  $opt = array_merge($opt, $options['condition']);
                }
                $options['condition'] = $opt;
                break;

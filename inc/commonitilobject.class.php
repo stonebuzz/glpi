@@ -1270,6 +1270,10 @@ abstract class CommonITILObject extends CommonDBTM {
                'LIMIT'  => 1
             ]
          );
+
+         //Delete existing survey
+         $inquest = new TicketSatisfaction();
+         $inquest->delete(['tickets_id' => $this->getID()]);
       }
 
       if (isset($this->input['_accepted'])) {
@@ -3542,8 +3546,9 @@ abstract class CommonITILObject extends CommonDBTM {
                   $icontitle = __s('Group in charge of the ticket');
                   break;
             }
-            return  "<img src='".$CFG_GLPI['root_doc']."/pics/group.png'
-                      alt=\"$icontitle\" title=\"$icontitle\">";
+
+            return "<i class='fas fa-users' title='$icontitle'></i>" .
+                "<span class='sr-only'>$icontitle</span>";
 
          case 'supplier' :
             $icontitle = __('Supplier');
@@ -4443,27 +4448,6 @@ abstract class CommonITILObject extends CommonDBTM {
                return $item->getNameID();
             }
             return "";
-      }
-   }
-
-
-   /**
-    * Form to add a solution to an ITIL object
-    *
-    * @param $knowbase_id_toload integer  load a kb article as solution (0 = no load by default)
-    *                                     (default 0)
-   **/
-   function showSolutions($knowbase_id_toload = 0) {
-
-      $solution = new ITILSolution();
-      $solution->showSummary($this);
-      if (ITILSolution::countFor($this->getType(), $this->getID()) > 0) {
-         $rand = mt_rand();
-         Html::file(['editor_id' => "solution$rand",
-                     'showtitle' => false,
-                     'multiple' => true]);
-      } else {
-         $solution->showForm(null, ['item' => $this]);
       }
    }
 
@@ -6214,6 +6198,7 @@ abstract class CommonITILObject extends CommonDBTM {
               "javascript:viewAddSubitem".$this->fields['id']."$rand(\"Solution\");'>"
               ."<i class='fa fa-check'></i>".__("Solution")."</li>";
       }
+      Plugin::doHook('timeline_actions', ['item' => $this, 'rand' => $rand]);
 
       echo "</ul>"; // timeline_choices
       echo "<div class='clear'>&nbsp;</div>";
@@ -6338,7 +6323,7 @@ abstract class CommonITILObject extends CommonDBTM {
                'timeline_position'  => self::TIMELINE_RIGHT,
                'users_id_editor'    => $solution_item['users_id_editor'],
                'date_mod'           => $solution_item['date_mod'],
-               'users_id_approval'  => $solution_item['users_id_editor'],
+               'users_id_approval'  => $solution_item['users_id_approval'],
                'date_approval'      => $solution_item['date_approval'],
                'status'             => $solution_item['status']
             ]
@@ -6555,6 +6540,7 @@ abstract class CommonITILObject extends CommonDBTM {
          if (!in_array($item['type'], ['Document_Item', 'Assign'])
              && $item_i['can_edit']) {
             echo "<div class='h_controls'>";
+            // merge/split icon
             if ($objType == 'Ticket' && $item['type'] == ITILFollowup::getType()) {
                if (isset($item_i['sourceof_items_id']) && $item_i['sourceof_items_id'] > 0) {
                   echo Html::link('', Ticket::getFormURLWithID($item_i['sourceof_items_id']), [
@@ -6568,9 +6554,17 @@ abstract class CommonITILObject extends CommonDBTM {
                   ]);
                }
             }
+            // edit item
             echo "<span class='far fa-edit control_item' title='".__('Edit')."'";
             echo "onclick='javascript:viewEditSubitem".$this->fields['id']."$rand(event, \"".$item['type']."\", ".$item_i['id'].", this, \"$randdomid\")'";
             echo "></span>";
+
+            // show "is_private" icon
+            if (isset($item_i['is_private']) && $item_i['is_private']) {
+               echo "<span class='private'><i class='fas fa-lock control_item' title='" . __s('Private') .
+                  "'></i><span class='sr-only'>".__('Private')."</span></span>";
+            }
+
             echo "</div>";
          }
          if (isset($item_i['requesttypes_id'])
@@ -6650,7 +6644,7 @@ abstract class CommonITILObject extends CommonDBTM {
          if (isset($item_i['groups_id_tech']) && ($item_i['groups_id_tech'] > 0)) {
             echo "<div class='groups_id_tech'>";
             $group->getFromDB($item_i['groups_id_tech']);
-            echo Html::image($CFG_GLPI['root_doc']."/pics/group.png")."&nbsp;";
+            echo "<i class='fas fa-users' aria-hidden='true'></i>&nbsp;";
             echo $group->getLink()."&nbsp;";
             echo Html::showToolTip($group->getComments(),
                                    ['link' => $group->getLinkURL()]);
@@ -6700,12 +6694,6 @@ abstract class CommonITILObject extends CommonDBTM {
             echo Html::showToolTip($userdata["comment"],
                                    ['link' => $userdata['link']]);
             echo "</div>";
-         }
-
-         // show "is_private" icon
-         if (isset($item_i['is_private']) && $item_i['is_private']) {
-            echo "<div class='private'><i class='fas fa-lock fa-2x' title='" . __s('Private') .
-               "'></i><span class='sr-only'>".__('Private')."</span></div>";
          }
 
          echo "</div>"; // b_right
@@ -6805,7 +6793,7 @@ abstract class CommonITILObject extends CommonDBTM {
          echo "</div>"; //h_info
 
          echo "<div class='h_content ITILContent'>";
-
+         echo "<div class='displayed_content'>";
          echo "<div class='b_right'>";
 
          if ($objType == 'Ticket') {
@@ -6840,6 +6828,7 @@ abstract class CommonITILObject extends CommonDBTM {
 
          echo "</div>"; // h_content ITILContent
 
+         echo "</div>"; // .displayed_content
          echo "</div>"; // h_item middle
 
          echo "<div class='break'></div>";

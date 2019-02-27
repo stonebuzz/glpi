@@ -155,7 +155,7 @@ class User extends CommonDBTM {
 
       if (isset($this->fields['id'])) {
          foreach ($CFG_GLPI['user_pref_field'] as $f) {
-            if (is_null($this->fields[$f]) || !Session::haveRight('personalization', UPDATE)) {
+            if (is_null($this->fields[$f])) {
                $this->fields[$f] = $CFG_GLPI[$f];
             }
          }
@@ -2487,7 +2487,7 @@ class User extends CommonDBTM {
             }
             echo "</td></tr>";
          } else {
-            echo "<tr><td colspan='2'></td></tr>";
+            echo "<tr class='tab_bg_1'><td colspan='2'></td></tr>";
          }
 
          echo "<tr class='tab_bg_1'>";
@@ -3472,7 +3472,7 @@ class User extends CommonDBTM {
                switch ($r) {
                   case  'own_ticket' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => 'ticket',
                            'glpi_profilerights.rights'   => ['&', Ticket::OWN]
                         ] + getEntitiesRestrictCriteria('glpi_profiles_users', '', $entity_restrict, 1)
@@ -3481,7 +3481,7 @@ class User extends CommonDBTM {
 
                   case 'create_ticket_validate' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'  => 'ticketvalidation',
                            'OR'                       => [
                               'glpi_profilerights.rights'   => ['&', TicketValidation::CREATEREQUEST],
@@ -3494,7 +3494,7 @@ class User extends CommonDBTM {
 
                   case 'validate_request' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => 'ticketvalidation',
                            'glpi_profilerights.rights'   => ['&', TicketValidation::VALIDATEREQUEST]
                         ] + getEntitiesRestrictCriteria('glpi_profiles_users', '', $entity_restrict, 1)
@@ -3504,7 +3504,7 @@ class User extends CommonDBTM {
 
                   case 'validate_incident' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => 'ticketvalidation',
                            'glpi_profilerights.rights'   => ['&', TicketValidation::VALIDATEINCIDENT]
                         ] + getEntitiesRestrictCriteria('glpi_profiles_users', '', $entity_restrict, 1)
@@ -3514,7 +3514,7 @@ class User extends CommonDBTM {
 
                   case 'validate' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => 'changevalidation',
                            'glpi_profilerights.rights'   => ['&', ChangeValidation::VALIDATE]
                         ] + getEntitiesRestrictCriteria('glpi_profiles_users', '', $entity_restrict, 1)
@@ -3523,7 +3523,7 @@ class User extends CommonDBTM {
 
                   case 'create_validate' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => 'changevalidation',
                            'glpi_profilerights.rights'   => ['&', ChangeValidation::CREATE]
                         ] + getEntitiesRestrictCriteria('glpi_profiles_users', '', $entity_restrict, 1)
@@ -3532,7 +3532,7 @@ class User extends CommonDBTM {
 
                   case 'see_project' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => 'project',
                            'glpi_profilerights.rights'   => ['&', Project::READMY]
                         ] + getEntitiesRestrictCriteria('glpi_profiles_users', '', $entity_restrict, 1)
@@ -3541,7 +3541,7 @@ class User extends CommonDBTM {
 
                   case 'faq' :
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => 'knowbase',
                            'glpi_profilerights.rights'   => ['&', KnowbaseItem::READFAQ]
                         ] + getEntitiesRestrictCriteria('glpi_profiles_users', '', $entity_restrict, 1)
@@ -3550,7 +3550,7 @@ class User extends CommonDBTM {
                   default :
                      // Check read or active for rights
                      $ORWHERE[] = [
-                        'AND' => [
+                        [
                            'glpi_profilerights.name'     => $r,
                            'glpi_profilerights.rights'   => [
                               '&',
@@ -4392,7 +4392,7 @@ class User extends CommonDBTM {
          'FROM'   => self::getTable(),
          'WHERE'  => [
             'password_forget_token'       => $token,
-            new \QueryExpression('NOW() < ADDDATE(password_forget_token_date, INTERVAL 1 DAY))')
+            new \QueryExpression('NOW() < ADDDATE(' . $DB->quoteName('password_forget_token_date') . ', INTERVAL 1 DAY)')
          ]
       ]);
 

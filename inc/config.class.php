@@ -304,12 +304,11 @@ class Config extends CommonDBTM {
       echo "</tr>";
 
       echo "<tr class='tab_bg_2'>";
-      echo "<td><label for='dropdown_cut$rand'>" . __('Default characters limit (summary text boxes)') . "</label></td><td>";
-      Dropdown::showNumber('cut', ['value' => $CFG_GLPI["cut"],
-                                   'min'   => 50,
-                                   'max'   => 500,
-                                   'step'  => 50,
-                                   'rand'  => $rand]);
+      echo "<td><label for='cut$rand'>" . __('Default characters limit (summary text boxes)') . "</label></td><td>";
+      echo Html::input('cut', [
+         'value' => $CFG_GLPI["cut"],
+         'id'    => "cut$rand"
+      ]);
       echo "</td><td><label for='dropdown_url_maxlength$rand'>" . __('Default url length limit') . "</td><td>";
       Dropdown::showNumber('url_maxlength', ['value' => $CFG_GLPI["url_maxlength"],
                                              'min'   => 20,
@@ -437,7 +436,7 @@ class Config extends CommonDBTM {
          __('Display source dropdown on login page').
          "</label></td><td>";
       Dropdown::showYesNo("display_login_source", $CFG_GLPI["display_login_source"], -1, ['rand' => $rand]);
-      echo "</td></tr>";
+      echo "</td><td colspan='2'></td></tr>";
 
       if ($canedit) {
          echo "<tr class='tab_bg_2'>";
@@ -873,7 +872,7 @@ class Config extends CommonDBTM {
       Dropdown::showYesNo("use_anonymous_helpdesk", $CFG_GLPI["use_anonymous_helpdesk"], -1, ['rand' => $rand]);
       echo "</td></tr><tr class='tab_bg_2'><td><label for='dropdown_use_anonymous_followups$rand'>" . __('Allow anonymous followups (receiver)') . "</label></td><td>";
       Dropdown::showYesNo("use_anonymous_followups", $CFG_GLPI["use_anonymous_followups"], -1, ['rand' => $rand]);
-      echo "</td></tr>";
+      echo "</td><td colspan='2'></td></tr>";
 
       echo "</table>";
 
@@ -1919,8 +1918,6 @@ class Config extends CommonDBTM {
                  'check'   => 'Sabre\\VObject\\Component' ],
                [ 'name'    => 'zendframework/zend-cache',
                  'check'   => 'Zend\\Cache\\Module' ],
-               [ 'name'    => 'zendframework/zend-console',
-                 'check'   => 'Zend\\Console\\Console' ],
                [ 'name'    => 'zendframework/zend-i18n',
                  'check'   => 'Zend\\I18n\\Module' ],
                [ 'name'    => 'zendframework/zend-serializer',
@@ -2946,7 +2943,6 @@ class Config extends CommonDBTM {
       $conf = [];
       if ($DB
          && $DB->connected
-         && $DB->tableExists(self::getTable())
          && $DB->fieldExists(self::getTable(), 'context')
       ) {
          $conf = self::getConfigurationValues($context, [$optname]);
@@ -2970,8 +2966,8 @@ class Config extends CommonDBTM {
 
       if (!isset($opt['options']['namespace'])) {
          $namespace = "glpi_${optname}_" . GLPI_VERSION;
-         if ($DB && $DB->connected) {
-            $namespace .= Telemetry::getInstanceUuid();
+         if ($DB) {
+            $namespace .= md5($DB->dbhost . $DB->dbdefault);
          }
          $opt['options']['namespace'] = $namespace;
       }

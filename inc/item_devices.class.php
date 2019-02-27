@@ -78,6 +78,14 @@ class Item_Devices extends CommonDBRelation {
       return true;
    }
 
+   function getRawName() {
+      $item = new $this->fields[static::$itemtype_1];
+      $item->getFromDB($this->fields[static::$items_id_1]);
+      $itemtype = static::$itemtype_2;
+      $name = sprintf(__('%1$s of item "%2$s"'), $itemtype::getTypeName(1), $item->getName());
+      return $name;
+   }
+
    /**
     * @since 0.85
    **/
@@ -911,13 +919,11 @@ class Item_Devices extends CommonDBRelation {
             'FROM'   => 'glpi_documents_items',
             'WHERE'  => [
                'OR' => [
-                  'AND' => [
+                  [
                      'itemtype'  => $this->getType(),
                      'items_id'  => $link['id']
-                  ]
-               ],
-               'OR' => [
-                  'AND' => [
+                  ],
+                  [
                      'itemtype'  => $this->getDeviceType(),
                      'items_id'  => $link[$this->getDeviceForeignKey()]
                   ]

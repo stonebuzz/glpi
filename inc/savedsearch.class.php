@@ -983,8 +983,9 @@ class SavedSearch extends CommonDBTM {
                      $this->fields["id"]."\" title='".$title."'>".
                      $text;
             if ($_SESSION['glpishow_count_on_tabs']) {
-               echo "<span class='primary-bg primary-fg count'>$count</span></a>";
+               echo "<span class='primary-bg primary-fg count'>$count</span>";
             }
+            echo "</a>";
             echo "</td>";
             echo "</tr>";
          }
@@ -1470,7 +1471,7 @@ class SavedSearch extends CommonDBTM {
       if (Session::haveRight(self::$rightname, READ)) {
          $restrict = [
             'OR' => [
-               'AND'                            => $restrict,
+               $restrict,
                self::getTable() . '.is_private' => 0
             ]
          ];
