@@ -89,23 +89,25 @@ class Plugin extends CommonDBTM {
 
 
    /**
-    * Init plugins list reading plugins directory
+    * Init plugins list.
     *
     * @return void
    **/
    function init() {
-      global $GLPI_CACHE;
+      global $DB, $GLPI_CACHE;
 
-      $this->checkStates();
-      $plugins                  = $this->find(['state' => self::ACTIVATED]);
-
-      $GLPI_CACHE->set('plugins_init', true);
       $GLPI_CACHE->set('plugins', []);
 
-      if (count($plugins)) {
-         foreach ($plugins as $ID => $plug) {
-            $this->setLoaded($ID, $plug['directory']);
-         }
+      if (!isset($DB) || !$DB->connected) {
+         // Cannot init plugins list if DB is not connected
+         return;
+      }
+
+      $this->checkStates();
+      $plugins = $this->find(['state' => self::ACTIVATED]);
+
+      foreach ($plugins as $ID => $plug) {
+         $this->setLoaded($ID, $plug['directory']);
       }
    }
 
@@ -114,10 +116,15 @@ class Plugin extends CommonDBTM {
     * Are plugin initialized (Plugin::Init() called)
     *
     * @return boolean
+    *
+    * @deprecated 9.4.1
     */
    public static function hasBeenInit() {
+      Toolbox::deprecated();
+
       global $GLPI_CACHE;
-      return $GLPI_CACHE->has('plugins_init');
+
+      return $GLPI_CACHE->has('plugins');
    }
 
 
@@ -226,9 +233,11 @@ class Plugin extends CommonDBTM {
    /**
     * Check plugins states and detect new plugins.
     *
+    * @param boolean $scan_for_new_plugins
+    *
     * @return void
     */
-   public function checkStates() {
+   public function checkStates($scan_for_new_plugins = false) {
 
       $directories = [];
 
@@ -238,13 +247,15 @@ class Plugin extends CommonDBTM {
          $directories[] = $plugin['directory'];
       }
 
-      // Add found directories to the check list
-      $plugins_directory = GLPI_ROOT."/plugins";
-      $directory_handle  = opendir($plugins_directory);
-      while (false !== ($filename = readdir($directory_handle))) {
-         if (!in_array($filename, ['.svn', '.', '..'])
-             && is_dir($plugins_directory . DIRECTORY_SEPARATOR . $filename)) {
-             $directories[] = $filename;
+      if ($scan_for_new_plugins) {
+         // Add found directories to the check list
+         $plugins_directory = GLPI_ROOT."/plugins";
+         $directory_handle  = opendir($plugins_directory);
+         while (false !== ($filename = readdir($directory_handle))) {
+            if (!in_array($filename, ['.svn', '.', '..'])
+                && is_dir($plugins_directory . DIRECTORY_SEPARATOR . $filename)) {
+                $directories[] = $filename;
+            }
          }
       }
 
@@ -695,9 +706,8 @@ class Plugin extends CommonDBTM {
    **/
    function isActivated($plugin) {
 
-      if ($this->getFromDBbyDir($plugin)) {
-         return ($this->fields['state'] == self::ACTIVATED);
-      }
+      $activePlugins = $this->getPlugins();
+      return in_array($plugin, $activePlugins);
    }
 
 
@@ -707,6 +717,11 @@ class Plugin extends CommonDBTM {
     * @param $plugin plugin directory
    **/
    function isInstalled($plugin) {
+
+      if ($this->isActivated($plugin)) {
+         // Prevent call on DB if plugin is activated.
+         return true;
+      }
 
       if ($this->getFromDBbyDir($plugin)) {
          return (($this->fields['state']    == self::ACTIVATED)
@@ -773,6 +788,17 @@ class Plugin extends CommonDBTM {
                           42 => "NetworkPort",
                           43 => "TicketFollowup",
                           44 => "Budget"];
+
+      // Filter tables that does not exists or does not contains an itemtype field.
+      // This kind of case exist when current method is called from plugins that based their
+      // logic on an old GLPI datamodel that may have changed upon time.
+      // see https://github.com/pluginsGLPI/order/issues/111
+      $glpitables = array_filter(
+         $glpitables,
+         function ($table) use ($DB) {
+            return $DB->tableExists($table) && $DB->fieldExists($table, 'itemtype');
+         }
+      );
 
       //Add plugins types
       $typetoname = self::doHookFunction("migratetypes", $typetoname);
@@ -1672,10 +1698,13 @@ class Plugin extends CommonDBTM {
     */
    public static function getPlugins() {
       global $GLPI_CACHE;
-      if ($GLPI_CACHE && $GLPI_CACHE->has('plugins')) {
-         return $GLPI_CACHE->get('plugins');
+
+      if (!$GLPI_CACHE->has('plugins')) {
+         $self = new self();
+         $self->init();
       }
-      return [];
+
+      return $GLPI_CACHE->get('plugins');
    }
 
    /**

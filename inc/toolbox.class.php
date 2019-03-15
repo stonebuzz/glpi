@@ -1830,7 +1830,7 @@ class Toolbox {
     * @param $where string: where to redirect ?
    **/
    static function manageRedirect($where) {
-      global $CFG_GLPI, $PLUGIN_HOOKS;
+      global $CFG_GLPI;
 
       if (!empty($where)) {
 
@@ -2660,22 +2660,29 @@ class Toolbox {
       }
 
       if (count($doc_data)) {
+         $base_path = $CFG_GLPI['root_doc'];
+         if (isCommandLine()) {
+            $base_path = parse_url($CFG_GLPI['url_base'], PHP_URL_PATH);
+         }
+
          foreach ($doc_data as $id => $image) {
             if (isset($image['tag'])) {
                // Add only image files : try to detect mime type
                if ($document->getFromDB($id)
                    && strpos($document->fields['mime'], 'image/') !== false) {
-                  // append ticket reference in image link
-                  $ticket_url_param = "";
-                  if ($item instanceof Ticket) {
-                     $ticket_url_param = "&tickets_id=".$item->fields['id'];
+                  // append itil object reference in image link
+                  $itil_object = null;
+                  if ($item instanceof CommonITILObject) {
+                     $itil_object = $item;
+                  } else if (isset($item->input['_job'])
+                             && $item->input['_job'] instanceof CommonITILObject) {
+                     $itil_object = $item->input['_job'];
                   }
-                  if (isset($item->input['_job'])
-                      && $item->input['_job'] instanceof Ticket) {
-                     $ticket_url_param = "&tickets_id=".$item->input['_job']->fields['id'];
-                  }
-                  $img = "<img alt='".$image['tag']."' src='".$CFG_GLPI['root_doc'].
-                          "/front/document.send.php?docid=".$id.$ticket_url_param."'/>";
+                  $itil_url_param = null !== $itil_object
+                     ? "&{$itil_object->getForeignKeyField()}={$itil_object->fields['id']}"
+                     : "";
+                  $img = "<img alt='".$image['tag']."' src='".$base_path.
+                          "/front/document.send.php?docid=".$id.$itil_url_param."'/>";
 
                   // 1 - Replace direct tag (with prefix and suffix) by the image
                   $content_text = preg_replace('/'.Document::getImageTag($image['tag']).'/',
@@ -2705,7 +2712,7 @@ class Toolbox {
                      // replace image
                      $new_image =  Html::convertTagFromRichTextToImageTag($image['tag'],
                                                                           $width, $height,
-                                                                          true, $ticket_url_param);
+                                                                          true, $itil_url_param);
                      $content_text = preg_replace(
                         $regex,
                         $new_image,

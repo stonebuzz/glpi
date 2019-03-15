@@ -3623,7 +3623,7 @@ class User extends CommonDBTM {
          ]
       ];
       if ($count) {
-         $criteria['COUNT DISTINCT'] = 'glpi_users.*';
+         $criteria['SELECT'] = ['COUNT DISTINCT' => 'glpi_users.id AS CPT'];
       } else {
          $criteria['SELECT DISTINCT'] = 'glpi_users.*';
       }
@@ -3648,12 +3648,16 @@ class User extends CommonDBTM {
       if (!$count) {
          if ((strlen($search) > 0)) {
             $txt_search = Search::makeTextSearchValue($search);
+
+            $firstname_field = $DB->quoteName(self::getTableField('firstname'));
+            $realname_field = $DB->quoteName(self::getTableField('realname'));
+            $fields = $_SESSION["glpinames_format"] == self::FIRSTNAME_BEFORE
+               ? [$firstname_field, $realname_field]
+               : [$realname_field, $firstname_field];
+
             $concat = new \QueryExpression(
-               "CONCAT(
-                  glpi_users.realname,
-                  glpi_users.firstname,
-                  glpi_users.firstname
-               ) LIKE '$txt_search'"
+               'CONCAT(' . implode(',' . $DB->quoteValue(' ') . ',', $fields) . ')'
+               . ' LIKE ' . $DB->quoteValue($txt_search)
             );
             $WHERE[] = [
                'OR' => [
@@ -4511,7 +4515,7 @@ class User extends CommonDBTM {
                }
                $input2 = [
                   'password_forget_token'      => '',
-                  'password_forget_token_date' => null,
+                  'password_forget_token_date' => 'NULL',
                   'id'                         => $this->fields['id']
                ];
                $this->update($input2);
@@ -4763,24 +4767,48 @@ class User extends CommonDBTM {
     * @since 9.4
     *
     * @param string $field the field storing the token
+    * @param boolean $force_new force generation of a new token
     *
     * @return string|false token or false in case of error
     */
-   public function getAuthToken($field = 'personal_token') {
-      global $DB;
+   public function getAuthToken($field = 'personal_token', $force_new = false) {
+      global $CFG_GLPI;
 
       if ($this->isNewItem()) {
          return false;
       }
 
-      if (!empty($this->fields[$field])) {
+      // check date validity for cookie token
+      $outdated = false;
+      if ($field === 'cookie_token') {
+         $date_create = new DateTime($this->fields[$field."_date"]);
+         $date_expir  = $date_create->add(new DateInterval('PT'.$CFG_GLPI["login_remember_time"].'S'));
+
+         if ($date_expir < new DateTime()) {
+            $outdated = true;
+         }
+      }
+
+      // token exists, is not oudated, and we may use it
+      if (!empty($this->fields[$field]) && !$force_new && !$outdated) {
          return $this->fields[$field];
       }
+
+      // else get a new token
       $token = self::getUniqueToken($field);
+
+      // for cookie token, we need to store it hashed
+      $hash = $token;
+      if ($field === 'cookie_token') {
+         $hash = Auth::getPasswordHash($token);
+      }
+
+      // save this token in db
       $this->update(['id'             => $this->getID(),
-                     $field           => $token,
+                     $field           => $hash,
                      $field . "_date" => $_SESSION['glpi_currenttime']]);
-      return $this->fields[$field];
+
+      return $token;
    }
 
 

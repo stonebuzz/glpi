@@ -528,7 +528,7 @@ class Search {
     * @return nothing
    **/
    static function constructSQL(array &$data) {
-      global $CFG_GLPI;
+      global $CFG_GLPI, $DB;
 
       if (!isset($data['itemtype'])) {
          return false;
@@ -845,9 +845,19 @@ class Search {
                   $tmpquery.= $GROUPBY.
                               $HAVING;
 
-                  $tmpquery = str_replace($CFG_GLPI["union_search_type"][$data['itemtype']],
-                                          $ctable, $tmpquery);
-
+                  // Replace 'asset_types' by itemtype table name
+                  $tmpquery = str_replace(
+                     $CFG_GLPI["union_search_type"][$data['itemtype']],
+                     $ctable,
+                     $tmpquery
+                  );
+                  // Replace 'AllAssets' by itemtype
+                  // Use quoted value to prevent replacement of AllAssets in column identifiers
+                  $tmpquery = str_replace(
+                     $DB->quoteValue('AllAssets'),
+                     $DB->quoteValue($ctype),
+                     $tmpquery
+                  );
                } else {// Ref table case
                   $reftable = getTableForItemType($data['itemtype']);
 
@@ -1038,6 +1048,7 @@ class Search {
                   $items[$val2] = $searchopt[$val2];
                }
             }
+            $view_sql = "";
             foreach ($items as $key2 => $val2) {
                if (isset($val2['nosearch']) && $val2['nosearch']) {
                   continue;
@@ -1054,13 +1065,13 @@ class Search {
                                                  $criterion['searchtype'], $criterion['value'], $meta);
                      if ($new_where !== false) {
                         $first2  = false;
-                        $sql .=  $new_where;
+                        $view_sql .=  $new_where;
                      }
                   }
                }
             }
-            if (strlen($sql)) {
-               $sql = " ($sql) ";
+            if (strlen($view_sql)) {
+               $sql.= " ($view_sql) ";
             }
          }
       }
@@ -3611,13 +3622,13 @@ JAVASCRIPT;
                   $TRANS = '';
                   if (Session::haveTranslations(getItemTypeForTable($table), $field)) {
                       $TRANS = "GROUP_CONCAT(DISTINCT CONCAT(IFNULL($tocomputetrans, '".self::NULLVALUE."'),
-                                                             '".self::SHORTSEP."',$tocomputeid)
+                                                             '".self::SHORTSEP."',$tocomputeid) ORDER BY $tocomputeid
                                              SEPARATOR '".self::LONGSEP."')
                                      AS `".$NAME."_trans`, ";
                   }
 
                   return " GROUP_CONCAT(DISTINCT CONCAT($tocompute, '".self::SHORTSEP."' ,
-                                                        `$table$addtable`.`id`)
+                                                        `$table$addtable`.`id`) ORDER BY `$table$addtable`.`id`
                                         SEPARATOR '".self::LONGSEP."') AS `".$NAME."`,
                            $TRANS
                            $ADDITONALFIELDS";
@@ -3637,12 +3648,12 @@ JAVASCRIPT;
          $TRANS = '';
          if (Session::haveTranslations(getItemTypeForTable($table), $field)) {
             $TRANS = "GROUP_CONCAT(DISTINCT CONCAT(IFNULL($tocomputetrans, '".self::NULLVALUE."'),
-                                                   '".self::SHORTSEP."',$tocomputeid) SEPARATOR '".self::LONGSEP."')
+                                                   '".self::SHORTSEP."',$tocomputeid) ORDER BY $tocomputeid SEPARATOR '".self::LONGSEP."')
                                   AS `".$NAME."_trans`, ";
 
          }
          return " GROUP_CONCAT(DISTINCT CONCAT(IFNULL($tocompute, '".self::NULLVALUE."'),
-                                               '".self::SHORTSEP."',$tocomputeid) SEPARATOR '".self::LONGSEP."')
+                                               '".self::SHORTSEP."',$tocomputeid) ORDER BY $tocomputeid SEPARATOR '".self::LONGSEP."')
                               AS `".$NAME."`,
                   $TRANS
                   $ADDITONALFIELDS";

@@ -922,9 +922,14 @@ class MailCollector  extends CommonDBTM {
          $tkt['content'] = $body;
       }
 
+      // prepare match to find ticket id in headers
+      // pattern: GLPI-{itemtype}-{items_id}
+      // ex: GLPI-Ticket-26739
+      $ref_match = "GLPI-[A-Z]\w+-([0-9]+)";
+
       // See In-Reply-To field
       if (isset($head['in_reply_to'])) {
-         if (preg_match($glpi_message_match, $head['in_reply_to'], $match)) {
+         if (preg_match($ref_match, $head['in_reply_to'], $match)) {
             $tkt['tickets_id'] = intval($match[1]);
          }
       }
@@ -932,7 +937,7 @@ class MailCollector  extends CommonDBTM {
       // See in References
       if (!isset($tkt['tickets_id'])
           && isset($head['references'])) {
-         if (preg_match($glpi_message_match, $head['references'], $match)) {
+         if (preg_match($ref_match, $head['references'], $match)) {
             $tkt['tickets_id'] = intval($match[1]);
          }
       }
@@ -964,87 +969,36 @@ class MailCollector  extends CommonDBTM {
                $tkt['content'] = sprintf(__('From %s'), $head[$this->getRequesterField()])."\n\n".$tkt['content'];
             }
 
-            $content        = explode("\n", $tkt['content']);
-            $tkt['content'] = "";
-            $to_keep        = [];
-
-            $begin_strip     = -1;
-            $end_strip       = -1;
             $header_tag      = NotificationTargetTicket::HEADERTAG;
             $header_pattern  = $header_tag . '.*' . $header_tag;
             $footer_tag      = NotificationTargetTicket::FOOTERTAG;
             $footer_pattern  = $footer_tag . '.*' . $footer_tag;
-            foreach ($content as $ID => $val) {
-               // Get first tag for begin
-               if ($begin_strip < 0) {
-                  if (preg_match('/' . $header_pattern . '/', $val)) {
-                     $begin_strip = $ID;
-                  }
-               }
-               // Get last tag for end
-               if ($begin_strip >= 0) {
-                  if (preg_match('/' . $footer_pattern . '/', $val)) {
-                     $end_strip = $ID;
-                     continue;
-                  }
-               }
-            }
 
-            if ($begin_strip >= 0 && $end_strip >= 0 && $begin_strip === $end_strip) {
-               // If header and footer tag are on same line,
-               // remove contents between header and footer tag
-               $content[$begin_strip] = preg_replace(
-                  '/' . $header_pattern . '.*' . $footer_pattern . '/',
+            $has_header_line = preg_match('/' . $header_pattern . '/s', $tkt['content']);
+            $has_footer_line = preg_match('/' . $footer_pattern . '/s', $tkt['content']);
+
+            if ($has_header_line && $has_footer_line) {
+               // Strip all contents between header and footer line
+               $tkt['content'] = preg_replace(
+                  '/' . $header_pattern . '.*' . $footer_pattern . '/s',
                   '',
-                  $content[$begin_strip]
+                  $tkt['content']
                );
-            } else {
-               if ($begin_strip >= 0) {
-                  // Remove contents between header and end of line
-                  $content[$begin_strip] = preg_replace(
-                     '/' . $header_pattern . '.*$/',
-                     '',
-                     $content[$begin_strip]
-                  );
-               }
-               if ($end_strip >= 0) {
-                  // Remove contents between beginning of line and footer
-                  $content[$end_strip] = preg_replace(
-                     '/^.*' . $footer_pattern . '/',
-                     '',
-                     $content[$end_strip]
-                  );
-               }
+            } else if ($has_header_line) {
+               // Strip all contents between header line and end of message
+               $tkt['content'] = preg_replace(
+                  '/' . $header_pattern . '.*$/s',
+                  '',
+                  $tkt['content']
+               );
+            } else if ($has_footer_line) {
+               // Strip all contents between begin of message and footer line
+               $tkt['content'] = preg_replace(
+                  '/^.*' . $footer_pattern . '/s',
+                  '',
+                  $tkt['content']
+               );
             }
-
-            if ($begin_strip >= 0) {
-               $length = count($content);
-               // Use end strip if set
-               if (($end_strip >= 0) && ($end_strip < $length)) {
-                  $length = $end_strip;
-               }
-
-               for ($i = ($begin_strip+1); $i < $length; $i++) {
-                  unset($content[$i]);
-               }
-            }
-
-            $to_keep = [];
-            // Aditional clean for thunderbird
-            foreach ($content as $ID => $val) {
-               if (!isset($val[0]) || ($val[0] != '>')) {
-                  $to_keep[$ID] = $ID;
-               }
-            }
-
-            $tkt['content'] = "";
-            foreach ($to_keep as $ID) {
-               $tkt['content'] .= $content[$ID]."\n";
-            }
-
-            // Do not play rules for followups : WRONG : play rules only for refuse options
-            //$play_rules = false;
-
          } else {
             // => to handle link in Ticket->post_addItem()
             $tkt['_linkedto'] = $tkt['tickets_id'];

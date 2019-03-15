@@ -318,9 +318,6 @@ class ITILSolution extends CommonDBChild {
 
    function post_addItem() {
 
-      // Replace inline pictures
-      $this->input = $this->addFiles($this->input, ['force_update' => true]);
-
       //adding a solution mean the ITIL object is now solved
       //and maybe closed (according to entitiy configuration)
       if ($this->item == null) {
@@ -329,6 +326,16 @@ class ITILSolution extends CommonDBChild {
       }
 
       $item = $this->item;
+
+      // Replace inline pictures
+      $this->input["_job"] = $this->item;
+      $this->input = $this->addFiles($this->input, ['force_update' => true]);
+
+      // Add solution to duplicates
+      if ($this->item->getType() == 'Ticket' && !isset($this->input['_linked_ticket'])) {
+         Ticket_Ticket::manageLinkedTicketsOnSolved($this->item->getID(), $this);
+      }
+
       $status = $item::SOLVED;
 
       //handle autoclose, for tickets only
@@ -350,9 +357,6 @@ class ITILSolution extends CommonDBChild {
          'id'     => $this->item->getID(),
          'status' => $status
       ]);
-      if ($this->item->getType() == 'Ticket' && !isset($this->input['_linked_ticket'])) {
-         Ticket_Ticket::manageLinkedTicketsOnSolved($this->item->getID(), $this);
-      }
       parent::post_addItem();
    }
 

@@ -975,7 +975,7 @@ class Transfer extends CommonDBTM {
       // printer -> cartridges : keep / delete + clean
       if ($this->options['keep_cartridgeitem']) {
          if (isset($this->needtobe_transfer['Printer']) && count($this->needtobe_transfer['Printer'])) {
-            $iterator = $DB->requests([
+            $iterator = $DB->request([
                'SELECT' => 'cartridgeitems_id',
                'FROM'   => 'glpi_cartridges',
                'WHERE'  => ['printers_id' => $this->needtobe_transfer['Printer']]
@@ -1319,7 +1319,7 @@ class Transfer extends CommonDBTM {
                         ]);
 
                         if (count($items_iterator)) {
-                           $row =$ $items_iterator->next();
+                           $row = $items_iterator->next();
                            $newcarttypeID = $row['id'];
                         }
 

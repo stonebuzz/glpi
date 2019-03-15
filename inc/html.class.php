@@ -1293,6 +1293,10 @@ class Html {
       if (isset($PLUGIN_HOOKS['add_css']) && count($PLUGIN_HOOKS['add_css'])) {
 
          foreach ($PLUGIN_HOOKS["add_css"] as $plugin => $files) {
+            if (!Plugin::isPluginLoaded($plugin)) {
+               continue;
+            }
+
             $version = Plugin::getInfo($plugin, 'version');
 
             if (!is_array($files)) {
@@ -1408,6 +1412,9 @@ class Html {
          if (isset($PLUGIN_HOOKS["menu_toadd"]) && count($PLUGIN_HOOKS["menu_toadd"])) {
 
             foreach ($PLUGIN_HOOKS["menu_toadd"] as $plugin => $items) {
+               if (!Plugin::isPluginLoaded($plugin)) {
+                  continue;
+               }
                if (count($items)) {
                   foreach ($items as $key => $val) {
                      if (is_array($val)) {
@@ -1484,7 +1491,7 @@ class Html {
     * @param $option    option corresponding to the page displayed (default '')
    **/
    static function header($title, $url = '', $sector = "none", $item = "none", $option = "") {
-      global $CFG_GLPI, $PLUGIN_HOOKS, $HEADER_LOADED, $DB;
+      global $CFG_GLPI, $HEADER_LOADED, $DB;
 
       // If in modal : display popHeader
       if (isset($_REQUEST['_in_modal']) && $_REQUEST['_in_modal']) {
@@ -1727,7 +1734,7 @@ class Html {
     * @param $url    not used anymore (default '')
    **/
    static function helpHeader($title, $url = '') {
-      global $CFG_GLPI, $HEADER_LOADED, $PLUGIN_HOOKS;
+      global $CFG_GLPI, $HEADER_LOADED;
 
       // Print a nice HTML-head for help page
       if ($HEADER_LOADED) {
@@ -1880,7 +1887,7 @@ class Html {
     * @param $iframed indicate if page loaded in iframe - css target (default false)
    **/
    static function popHeader($title, $url = '', $iframed = false) {
-      global $CFG_GLPI, $PLUGIN_HOOKS, $HEADER_LOADED;
+      global $CFG_GLPI, $HEADER_LOADED;
 
       // Print a nice HTML-head for every page
       if ($HEADER_LOADED) {
@@ -2624,7 +2631,7 @@ class Html {
                   showButtonPanel: true,
                   changeMonth: true,
                   changeYear: true,
-                  showOn: 'button',
+                  showOn: 'both',
                   showWeek: true,
                   buttonText: '<i class=\'far fa-calendar-alt\'></i>'";
 
@@ -2831,7 +2838,7 @@ class Html {
                   showButtonPanel: true,
                   changeMonth: true,
                   changeYear: true,
-                  showOn: 'button',
+                  showOn: 'both',
                   showWeek: true,
                   controlType: 'select',
                   buttonText: '<i class=\'far fa-calendar-alt\'></i>'";
@@ -3548,6 +3555,9 @@ class Html {
          // init editor
          tinyMCE.init({
             language: '$language',
+            invalid_elements: 'form,iframe,script,@[onclick|ondblclick|'
+               + 'onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|'
+               + 'onkeydown|onkeyup]',
             browser_spellcheck: true,
             mode: 'exact',
             elements: '$name',
@@ -3555,7 +3565,6 @@ class Html {
             remove_script_host: false,
             entity_encoding: 'raw',
             paste_data_images: $('.fileupload').length,
-            paste_block_drop: true,
             menubar: false,
             statusbar: false,
             skin_url: '".$CFG_GLPI['root_doc']."/css/tiny_mce/skins/light',
@@ -5694,6 +5703,11 @@ class Html {
       $out = "";
 
       if (count($doc_data)) {
+         $base_path = $CFG_GLPI['root_doc'];
+         if (isCommandLine()) {
+            $base_path = parse_url($CFG_GLPI['url_base'], PHP_URL_PATH);
+         }
+
          foreach ($doc_data as $id => $image) {
             // Add only image files : try to detect mime type
             $ok       = false;
@@ -5705,21 +5719,17 @@ class Html {
             }
             if (isset($image['tag'])) {
                if ($ok || empty($mime)) {
-                  $glpi_root = $CFG_GLPI['root_doc'];
-                  if (isCommandLine() && isset($CFG_GLPI['url_base'])) {
-                     $glpi_root = $CFG_GLPI['url_base'];
-                  }
                   // Replace tags by image in textarea
                   if ($addLink) {
                      $out .= '<a '
-                             . 'href="' . $glpi_root . '/front/document.send.php?docid=' . $id . $more_link . '" '
+                             . 'href="' . $base_path . '/front/document.send.php?docid=' . $id . $more_link . '" '
                              . 'target="_blank" '
                              . '>';
                   }
                   $out .= '<img '
                           . 'alt="' . $image['tag'] . '" '
                           . 'width="' . $width . '" '
-                          . 'src="' . $glpi_root . '/front/document.send.php?docid=' . $id.$more_link . '" '
+                          . 'src="' . $base_path . '/front/document.send.php?docid=' . $id.$more_link . '" '
                           . '/>';
                   if ($addLink) {
                      $out .= '</a>';
@@ -5928,6 +5938,9 @@ class Html {
       if (isset($PLUGIN_HOOKS['add_javascript']) && count($PLUGIN_HOOKS['add_javascript'])) {
 
          foreach ($PLUGIN_HOOKS["add_javascript"] as $plugin => $files) {
+            if (!Plugin::isPluginLoaded($plugin)) {
+               continue;
+            }
             $version = Plugin::getInfo($plugin, 'version');
             if (!is_array($files)) {
                $files = [$files];
@@ -6344,6 +6357,9 @@ class Html {
             && count($PLUGIN_HOOKS["helpdesk_menu_entry"])) {
 
             foreach ($PLUGIN_HOOKS["helpdesk_menu_entry"] as $plugin => $active) {
+               if (!Plugin::isPluginLoaded($plugin)) {
+                  continue;
+               }
                if ($active) {
                   $infos = Plugin::getInfo($plugin);
                   $link = "";

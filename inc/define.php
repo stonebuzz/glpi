@@ -31,7 +31,7 @@
 */
 
 // Current version of GLPI
-define('GLPI_VERSION', '9.4.1');
+define('GLPI_VERSION', '9.4.1.1');
 if (substr(GLPI_VERSION, -4) === '-dev') {
    //for dev version
    define('GLPI_PREVER', str_replace('-dev', '', GLPI_VERSION));
@@ -41,10 +41,10 @@ if (substr(GLPI_VERSION, -4) === '-dev') {
    );
 } else {
    //for stable version
-   define("GLPI_SCHEMA_VERSION", '9.4');
+   define("GLPI_SCHEMA_VERSION", '9.4.1');
 }
 define('GLPI_MIN_PHP', '5.6.0'); // Must also be changed in top of index.php
-define('GLPI_YEAR', '2018');
+define('GLPI_YEAR', '2019');
 if (!defined('GLPI_DEMO_MODE')) {
    define('GLPI_DEMO_MODE', '0');
 }
@@ -199,11 +199,11 @@ $LANG             = [];
 $CFG_GLPI["unicity_types"]                = ['Budget', 'Computer', 'Contact', 'Contract',
                                                   'Infocom', 'Monitor', 'NetworkEquipment',
                                                   'Peripheral', 'Phone', 'Printer', 'Software',
-                                                  'SoftwareLicense', 'Supplier','User', 'Certicate', 'Rack', 'Enclosure', 'Pdu'];
+                                                  'SoftwareLicense', 'Supplier','User', 'Certicate', 'Rack', 'Enclosure', 'PDU'];
 
 $CFG_GLPI["state_types"]                  = ['Computer', 'Monitor', 'NetworkEquipment',
                                                   'Peripheral', 'Phone', 'Printer', 'SoftwareLicense',
-                                                  'Certificate', 'Enclosure', 'Pdu', 'Line',
+                                                  'Certificate', 'Enclosure', 'PDU', 'Line',
                                                    'Rack', 'SoftwareVersion'];
 
 $CFG_GLPI["asset_types"]                  = ['Computer', 'Monitor', 'NetworkEquipment',
