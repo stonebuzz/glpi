@@ -38,6 +38,8 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
 
+use Psr\SimpleCache\CacheInterface;
+
 class Plugin extends CommonDBTM {
 
    // Class constant : Plugin state
@@ -96,18 +98,23 @@ class Plugin extends CommonDBTM {
    function init() {
       global $DB, $GLPI_CACHE;
 
-      $GLPI_CACHE->set('plugins', []);
-
       if (!isset($DB) || !$DB->connected) {
          // Cannot init plugins list if DB is not connected
+         $GLPI_CACHE->set('plugins_init', true);
+         $GLPI_CACHE->set('plugins', []);
          return;
       }
 
       $this->checkStates();
       $plugins = $this->find(['state' => self::ACTIVATED]);
 
-      foreach ($plugins as $ID => $plug) {
-         $this->setLoaded($ID, $plug['directory']);
+      $GLPI_CACHE->set('plugins_init', true);
+      $GLPI_CACHE->set('plugins', []);
+
+      if (count($plugins)) {
+         foreach ($plugins as $ID => $plug) {
+            $this->setLoaded($ID, $plug['directory']);
+         }
       }
    }
 
@@ -123,8 +130,7 @@ class Plugin extends CommonDBTM {
       Toolbox::deprecated();
 
       global $GLPI_CACHE;
-
-      return $GLPI_CACHE->has('plugins');
+      return $GLPI_CACHE->has('plugins_init');
    }
 
 
@@ -233,21 +239,22 @@ class Plugin extends CommonDBTM {
    /**
     * Check plugins states and detect new plugins.
     *
-    * @param boolean $scan_for_new_plugins
+    * @param boolean $scan_inactive_and_new_plugins
     *
     * @return void
     */
-   public function checkStates($scan_for_new_plugins = false) {
+   public function checkStates($scan_inactive_and_new_plugins = false) {
 
       $directories = [];
 
       // Add known plugins to the check list
-      $known_plugins = $this->find();
+      $condition = $scan_inactive_and_new_plugins ? [] : ['state' => self::ACTIVATED];
+      $known_plugins = $this->find($condition);
       foreach ($known_plugins as $plugin) {
          $directories[] = $plugin['directory'];
       }
 
-      if ($scan_for_new_plugins) {
+      if ($scan_inactive_and_new_plugins) {
          // Add found directories to the check list
          $plugins_directory = GLPI_ROOT."/plugins";
          $directory_handle  = opendir($plugins_directory);
@@ -486,6 +493,12 @@ class Plugin extends CommonDBTM {
       $type = ERROR;
 
       if ($this->getFromDB($ID)) {
+         // Clear locale cache to prevent errors while reloading plugin locales
+         $translation_cache = Config::getCache('cache_trans', 'core', true);
+         if ($translation_cache instanceof CacheInterface) {
+            $translation_cache->clear();
+         }
+
          self::load($this->fields['directory'], true);
          $function   = 'plugin_' . $this->fields['directory'] . '_install';
          if (function_exists($function)) {
@@ -706,8 +719,9 @@ class Plugin extends CommonDBTM {
    **/
    function isActivated($plugin) {
 
-      $activePlugins = $this->getPlugins();
-      return in_array($plugin, $activePlugins);
+      if ($this->getFromDBbyDir($plugin)) {
+         return ($this->fields['state'] == self::ACTIVATED);
+      }
    }
 
 
@@ -717,11 +731,6 @@ class Plugin extends CommonDBTM {
     * @param $plugin plugin directory
    **/
    function isInstalled($plugin) {
-
-      if ($this->isActivated($plugin)) {
-         // Prevent call on DB if plugin is activated.
-         return true;
-      }
 
       if ($this->getFromDBbyDir($plugin)) {
          return (($this->fields['state']    == self::ACTIVATED)
@@ -1698,13 +1707,10 @@ class Plugin extends CommonDBTM {
     */
    public static function getPlugins() {
       global $GLPI_CACHE;
-
-      if (!$GLPI_CACHE->has('plugins')) {
-         $self = new self();
-         $self->init();
+      if ($GLPI_CACHE && $GLPI_CACHE->has('plugins')) {
+         return $GLPI_CACHE->get('plugins');
       }
-
-      return $GLPI_CACHE->get('plugins');
+      return [];
    }
 
    /**

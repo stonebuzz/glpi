@@ -156,6 +156,18 @@ class CommonDBTM extends CommonGLPI {
    public $notificationqueueonaction = false;
 
    /**
+    * Computed/forced values of classes tables.
+    * @var string[]
+    */
+   protected static $tables_of = [];
+
+   /**
+    * Computed values of classes foreign keys.
+    * @var string[]
+    */
+   protected static $foreign_key_fields_of = [];
+
+   /**
     * Constructor
    **/
    function __construct () {
@@ -166,13 +178,13 @@ class CommonDBTM extends CommonGLPI {
     * Get known tables
     *
     * @return array
+    *
+    * @deprecated 9.4.2
     */
    public static function getTablesOf() {
-      global $GLPI_CACHE;
-      if ($GLPI_CACHE != null && $GLPI_CACHE->has('table_of')) {
-         return $GLPI_CACHE->get('table_of');
-      }
-      return [];
+      Toolbox::deprecated();
+
+      return self::$tables_of;
    }
 
 
@@ -184,8 +196,6 @@ class CommonDBTM extends CommonGLPI {
     * @return string
    **/
    static function getTable($classname = null) {
-      global $GLPI_CACHE;
-
       if ($classname === null) {
          $classname = get_called_class();
       }
@@ -194,15 +204,11 @@ class CommonDBTM extends CommonGLPI {
          return '';
       }
 
-      $glpi_tables = self::getTablesOf();
-      if (!isset($glpi_tables[$classname]) || empty($glpi_tables[$classname])) {
-         $glpi_tables[$classname] = getTableForItemType($classname);
-         if ($GLPI_CACHE != null) {
-            $GLPI_CACHE->set('table_of', $glpi_tables);
-         }
+      if (!isset(self::$tables_of[$classname]) || empty(self::$tables_of[$classname])) {
+         self::$tables_of[$classname] = getTableForItemType($classname);
       }
 
-      return $glpi_tables[$classname];
+      return self::$tables_of[$classname];
    }
 
 
@@ -214,10 +220,7 @@ class CommonDBTM extends CommonGLPI {
     * @return void
    **/
    static function forceTable($table) {
-      global $GLPI_CACHE;
-      $glpi_tables = self::getTablesOf();
-      $glpi_tables[get_called_class()] = $table;
-      $GLPI_CACHE->set('table_of', $glpi_tables);
+      self::$tables_of[get_called_class()] = $table;
    }
 
 
@@ -225,27 +228,25 @@ class CommonDBTM extends CommonGLPI {
     * Get known foreign keys
     *
     * @return array
+    *
+    * @deprecated 9.4.2
     */
    public static function getForeignKeyFieldsOf() {
-      global $GLPI_CACHE;
-      if ($GLPI_CACHE->has('foreign_key_field_of')) {
-         return $GLPI_CACHE->get('foreign_key_field_of');
-      }
-      return [];
+      Toolbox::deprecated();
+
+      return self::$foreign_key_fields_of;
    }
 
 
    static function getForeignKeyField() {
-      global $GLPI_CACHE;
-
-      $fkeys = self::getForeignKeyFieldsOf();
       $classname = get_called_class();
-      if (!isset($fkeys[$classname]) || empty($fkeys[$classname])) {
-         $fkeys[$classname] = getForeignKeyFieldForTable(static::getTable());
-         $GLPI_CACHE->set('foreign_key_field_of', $fkeys);
+
+      if (!isset(self::$foreign_key_fields_of[$classname])
+         || empty(self::$foreign_key_fields_of[$classname])) {
+         self::$foreign_key_fields_of[$classname] = getForeignKeyFieldForTable(static::getTable());
       }
 
-      return $fkeys[$classname];
+      return self::$foreign_key_fields_of[$classname];
    }
 
    /**
@@ -1505,14 +1506,17 @@ class CommonDBTM extends CommonGLPI {
                'FROM'   => $item->getTable()
             ];
 
+            $OR = [];
             if ($item->isField('itemtype')) {
-               $query['WHERE'] = [
+               $OR[] = [
                   'itemtype'  => $this->getType(),
                   'items_id'  => $this->getID()
                ];
-            } else {
-               $query['WHERE'] = [$this->getForeignKeyField() => $this->getID()];
             }
+            if ($item->isField($this->getForeignKeyField())) {
+               $OR[] = [$this->getForeignKeyField() => $this->getID()];
+            }
+            $query['WHERE'][] = ['OR' => $OR];
 
             $input = ['entities_id' => $this->getEntityID()];
             if ($this->maybeRecursive()) {
@@ -3588,41 +3592,45 @@ class CommonDBTM extends CommonGLPI {
     * @see https://glpi-developer-documentation.rtfd.io/en/master/devapi/search.html
    **/
    public final function searchOptions() {
-      $options = [];
+      static $options;
 
-      foreach ($this->rawSearchOptions() as $opt) {
-         $missingFields = [];
-         if (!isset($opt['id'])) {
-            $missingFields[] = 'id';
-         }
-         if (!isset($opt['name'])) {
-            $missingFields[] = 'name';
-         }
-         if (count($missingFields) > 0) {
-            throw new \Exception(
-               vsprintf(
-                  'Invalid search option in "%1$s": missing "%2$s" field(s). %3$s',
-                  [
-                     get_called_class(),
-                     implode('", "', $missingFields),
-                     print_r($opt, true)
-                  ]
-               )
-            );
-         }
+      if (!isset($options)) {
+         $options = [];
 
-         $optid = $opt['id'];
-         unset($opt['id']);
+         foreach ($this->rawSearchOptions() as $opt) {
+            $missingFields = [];
+            if (!isset($opt['id'])) {
+               $missingFields[] = 'id';
+            }
+            if (!isset($opt['name'])) {
+               $missingFields[] = 'name';
+            }
+            if (count($missingFields) > 0) {
+               throw new \Exception(
+                  vsprintf(
+                     'Invalid search option in "%1$s": missing "%2$s" field(s). %3$s',
+                     [
+                        get_called_class(),
+                        implode('", "', $missingFields),
+                        print_r($opt, true)
+                     ]
+                  )
+               );
+            }
 
-         if (isset($options[$optid])) {
-            $message = "Duplicate key $optid ({$options[$optid]['name']}/{$opt['name']}) in ".
-                get_class($this) . " searchOptions!";
+            $optid = $opt['id'];
+            unset($opt['id']);
 
-            Toolbox::logError($message);
-         }
+            if (isset($options[$optid])) {
+               $message = "Duplicate key $optid ({$options[$optid]['name']}/{$opt['name']}) in ".
+                   get_class($this) . " searchOptions!";
 
-         foreach ($opt as $k => $v) {
-            $options[$optid][$k] = $v;
+               Toolbox::logError($message);
+            }
+
+            foreach ($opt as $k => $v) {
+               $options[$optid][$k] = $v;
+            }
          }
       }
 

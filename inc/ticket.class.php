@@ -1650,6 +1650,12 @@ class Ticket extends CommonITILObject {
           && ($rate > 0)
           && (mt_rand(1, 100) <= $rate)) {
 
+         // For reopened ticket
+         if ($inquest->getFromDB($this->fields['id'])) {
+            $resp = $inquest->fields;
+            $inquest->delete($resp);
+         }
+
          $inquest->add(
             [
                'tickets_id'    => $this->fields['id'],
@@ -2698,20 +2704,25 @@ class Ticket extends CommonITILObject {
                'used'         => $ma->items['Ticket'],
                'displaywith'  => ['id']
             ];
-            echo "<div><p>";
-            echo __('Ticket')."&nbsp;";
+            echo "<table class='center-h'><tr>";
+            echo "<td>".__('Ticket')."</td><td colspan='3'>";
             Ticket::dropdown($mergeparam);
-            echo "</p><p>".__('Merge Followups')."&nbsp;";
+            echo "</td></tr><tr><td>".__('Merge Followups')."</td><td>";
             Html::showCheckbox([
                'name'    => 'with_followups',
                'checked' => false
             ]);
-            echo "</p><p>";
+            echo "</td><td>".__('Merge Documents')."</td><td>";
+            Html::showCheckbox([
+               'name'    => 'with_documents',
+               'checked' => false
+            ]);
+            echo "</td></tr><tr><td colspan='4'>";
             echo Html::submit(_x('button', 'Merge'), [
                'name'      => 'merge',
                'confirm'   => __('Confirm the merge? This ticket will be deleted!')
             ]);
-            echo "</p></div>";
+            echo "</td></tr></table>";
             return true;
       }
       return parent::showMassiveActionsSubForm($ma);
@@ -2731,6 +2742,7 @@ class Ticket extends CommonITILObject {
                try {
                   $DB->beginTransaction();
                   $fup = new ITILFollowup();
+                  $document_item = new Document_Item();
                   $input2 = [];
 
                   foreach ($input as $key => $val) {
@@ -2746,9 +2758,11 @@ class Ticket extends CommonITILObject {
                      $input2 = [
                         'itemtype'        => 'Ticket',
                         'items_id'        => $input['_mergeticket'],
-                        'content'         => $item->fields['name']."\n\n".$item->fields['content'],
+                        'content'         => $DB->escape($item->fields['name']."\n\n".$item->fields['content']),
                         'users_id'        => $item->fields['users_id_recipient'],
                         'date_creation'   => $item->fields['date_creation'],
+                        'date_mod'        => $item->fields['date_mod'],
+                        'date'            => $item->fields['date_creation'],
                         'sourceitems_id'  => $item->getID()
                      ];
 
@@ -2766,11 +2780,33 @@ class Ticket extends CommonITILObject {
                         foreach ($tomerge as $key => $fup2) {
                            $fup2['items_id'] = $input['_mergeticket'];
                            $fup2['sourceitems_id'] = $item->getID();
-                           $fup2['date_creation'] = $item->fields['date_creation'];
-                           $fup2['date_mod'] = $item->fields['date_mod'];
+                           $fup2['content'] = $DB->escape($fup2['content']);
                            unset($fup2['id']);
                            if (!$fup->add($fup2)) {
                               //Cannot add followup. Abort/fail the merge
+                              throw new \RuntimeException(ERROR_ON_ACTION, MassiveAction::ACTION_KO);
+                           }
+                        }
+                     }
+
+                     if (isset($input['with_documents'])) {
+                        // Create new links for any Documents
+                        $tomerge = $document_item->find([
+                           'itemtype' => 'Ticket',
+                           'items_id' => $id
+                        ]);
+                        // Need to check for each item since new duplicates could be added during the merge process
+                        $existing_docs = $document_item->find([
+                           'itemtype' => 'Ticket',
+                           'items_id' => $input['_mergeticket']
+                        ]);
+                        $tomerge = array_diff($tomerge, $existing_docs);
+
+                        foreach ($tomerge as $key => $document_item2) {
+                           $document_item2['items_id'] = $input['_mergeticket'];
+                           unset($document_item2['id']);
+                           if (!$document_item->add($document_item2)) {
+                              //Cannot add document. Abort/fail the merge
                               throw new \RuntimeException(ERROR_ON_ACTION, MassiveAction::ACTION_KO);
                            }
                         }
@@ -2784,26 +2820,33 @@ class Ticket extends CommonITILObject {
                         'tickets_id_2' => $input['_mergeticket']
                      ];
 
+                     // Remove existing links
                      $tt->deleteByCriteria([
-                        'tickets_id_1' => $input['_mergeticket'],
-                        'tickets_id_2' => $id,
-                        'link' => Ticket_Ticket::SON_OF]);
+                        'OR' => [
+                           'AND' => [
+                              'tickets_id_1' => $input['_mergeticket'],
+                              'tickets_id_2' => $id
+                           ],
+                           'AND' => [
+                              'tickets_id_2' => $input['_mergeticket'],
+                              'tickets_id_1' => $id
+                           ]
+                        ]
+                     ]);
 
                      if (!$tt->add($linkparams)) {
                         //Cannot link tickets. Abort/fail the merge
                         throw new \RuntimeException(ERROR_ON_ACTION, MassiveAction::ACTION_KO);
                      }
 
-                     //Close then delete this ticket
-                     if (!$item->update(['id' => $id, 'status' => CommonITILObject::CLOSED]) ||
-                        !$item->delete(['id' => $id])) {
+                     if (!$item->delete(['id' => $id, '_disablenotif' => true])) {
                         throw new \RuntimeException(ERROR_ON_ACTION, MassiveAction::ACTION_KO);
                      }
 
                      $DB->commit();
                      $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_OK);
-                     Event::log($input['_mergeticket'], "ticket", 4, "tracking",
-                        sprintf(__('%s merges ticket %s into %s'), $_SESSION["glpiname"],
+                     Event::log($input['_mergeticket'], 'ticket', 4, 'tracking',
+                        sprintf(__('%s merges ticket %s into %s'), $_SESSION['glpiname'],
                         $id, $input['_mergeticket']));
                   } else {
                      throw new \RuntimeException(ERROR_RIGHT, MassiveAction::ACTION_NORIGHT);
@@ -2814,6 +2857,7 @@ class Ticket extends CommonITILObject {
                   $ma->addMessage($item->getErrorMessage($e->getMessage()));
                }
             }
+
             return;
       }
       parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
