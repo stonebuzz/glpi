@@ -774,6 +774,7 @@ CREATE TABLE `glpi_changetasks` (
   `date_creation` datetime DEFAULT NULL,
   `tasktemplates_id` int(11) NOT NULL DEFAULT '0',
   `timeline_position` tinyint(1) NOT NULL DEFAULT '0',
+  `is_private` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `changes_id` (`changes_id`),
   KEY `state` (`state`),
@@ -787,7 +788,8 @@ CREATE TABLE `glpi_changetasks` (
   KEY `begin` (`begin`),
   KEY `end` (`end`),
   KEY `taskcategories_id` (`taskcategories_id`),
-  KEY `tasktemplates_id` (`tasktemplates_id`)
+  KEY `tasktemplates_id` (`tasktemplates_id`),
+  KEY `is_private` (`is_private`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -1708,6 +1710,7 @@ INSERT INTO `glpi_crontasks` VALUES ('29','SavedSearch_Alert','savedsearchesaler
 INSERT INTO `glpi_crontasks` VALUES ('30','Telemetry','telemetry','2592000',NULL,'0','1','3','0','24','10',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO `glpi_crontasks` VALUES ('31','Certificate','certificate','86400',NULL,'0','1','3','0','24','10',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO `glpi_crontasks` VALUES ('32','OlaLevel_Ticket','olaticket','300',NULL,'1','1','3','0','24','30','2014-06-18 08:02:00',NULL,NULL,NULL,NULL);
+INSERT INTO `glpi_crontasks` VALUES ('33','PurgeLogs','PurgeLogs','604800',24,'1','2','3','0','24','30',NULL,NULL,NULL,NULL,NULL);
 
 ### Dump table glpi_devicecasemodels
 
@@ -6448,6 +6451,7 @@ CREATE TABLE `glpi_problemtasks` (
   `date_creation` datetime DEFAULT NULL,
   `tasktemplates_id` int(11) NOT NULL DEFAULT '0',
   `timeline_position` tinyint(1) NOT NULL DEFAULT '0',
+  `is_private` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `problems_id` (`problems_id`),
   KEY `users_id` (`users_id`),
@@ -6461,7 +6465,8 @@ CREATE TABLE `glpi_problemtasks` (
   KEY `end` (`end`),
   KEY `state` (`state`),
   KEY `taskcategories_id` (`taskcategories_id`),
-  KEY `tasktemplates_id` (`tasktemplates_id`)
+  KEY `tasktemplates_id` (`tasktemplates_id`),
+  KEY `is_private` (`is_private`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 

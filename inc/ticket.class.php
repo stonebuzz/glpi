@@ -1508,7 +1508,8 @@ class Ticket extends CommonITILObject {
 
    function pre_updateInDB() {
 
-      if (!$this->isAlreadyTakenIntoAccount() && $this->canTakeIntoAccount()) {
+      if (!$this->isTakeIntoAccountComputationBlocked($this->input)
+          && !$this->isAlreadyTakenIntoAccount() && $this->canTakeIntoAccount()) {
          $this->updates[]                            = "takeintoaccount_delay_stat";
          $this->fields['takeintoaccount_delay_stat'] = $this->computeTakeIntoAccountDelayStat();
       }
@@ -1835,14 +1836,18 @@ class Ticket extends CommonITILObject {
       $rules = new RuleTicketCollection($input['entities_id']);
 
       // Set unset variables with are needed
+      $tmprequester = 0;
       $user = new User();
-      if (isset($input["_users_id_requester"])
-          && !is_array($input["_users_id_requester"])
-          && $user->getFromDB($input["_users_id_requester"])) {
-         $input['users_locations'] = $user->fields['locations_id'];
-         $tmprequester = $input["_users_id_requester"];
-      } else {
-         $tmprequester = 0;
+      if (isset($input["_users_id_requester"])) {
+         if (!is_array($input["_users_id_requester"])
+             && $user->getFromDB($input["_users_id_requester"])) {
+            $input['users_locations'] = $user->fields['locations_id'];
+            $tmprequester = $input["_users_id_requester"];
+         } else if (is_array($input["_users_id_requester"]) && ($user_id = reset($input["_users_id_requester"])) !== false) {
+            if ($user->getFromDB($user_id)) {
+               $input['users_locations'] = $user->fields['locations_id'];
+            }
+         }
       }
 
       // Clean new lines before passing to rules
@@ -1952,6 +1957,7 @@ class Ticket extends CommonITILObject {
       }
 
       // Replay setting auto assign if set in rules engine or by auto_assign_mode
+      // Do not force status if status has been set by rules
       if (((isset($input["_users_id_assign"])
            && ((!is_array($input['_users_id_assign']) &&  $input["_users_id_assign"] > 0)
                || is_array($input['_users_id_assign']) && count($input['_users_id_assign']) > 0))
@@ -1961,8 +1967,8 @@ class Ticket extends CommonITILObject {
            || (isset($input["_suppliers_id_assign"])
            && ((!is_array($input['_suppliers_id_assign']) && $input["_suppliers_id_assign"] > 0)
                || is_array($input['_suppliers_id_assign']) && count($input['_suppliers_id_assign']) > 0)))
-          && (in_array($input['status'], $this->getNewStatusArray()))) {
-
+          && (in_array($input['status'], $this->getNewStatusArray()))
+          && !$this->isStatusComputationBlocked($input)) {
          $input["status"] = self::ASSIGNED;
       }
 
