@@ -376,7 +376,22 @@ class PlanningRecall extends CommonDBChild {
       $pr = new self();
       foreach ($DB->request($query) as $data) {
          if ($pr->getFromDB($data['id']) && $pr->getItem()) {
-            if (NotificationEvent::raiseEvent('planningrecall', $pr)) {
+
+            $options = [];
+            //retrieve entities id from parent linked item
+            //planningrecall linked to TicketTask  -> Ticket  which have entity notion
+            //               linked to ChangeTask  -> Change  which have entity notion
+            //               linked to ProblemTask -> Problem which have entity notion
+            $itemToNotify = $pr->getItem();
+            $classname = str_replace("Task",'',get_class($itemToNotify));
+            $linkedItem = new $classname();
+            if($linkedItem->getFromDB($itemToNotify->fields[strtolower($classname).'s_id'])){
+               if($linkedItem->isEntityAssign()){
+                  $options['entities_id'] = $linkedItem->getEntityID();
+               }
+            }
+
+            if (NotificationEvent::raiseEvent('planningrecall', $pr, $options)) {
 
                $cron_status         = 1;
                $task->addVolume(1);
