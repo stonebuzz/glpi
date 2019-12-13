@@ -224,6 +224,8 @@ class RuleTicket extends Rule {
                         $solution = new ITILSolution();
                         $solution->add([
                            "itemtype" => "Ticket",
+                           "solutiontemplates_id" => $action->fields["value"],
+                           "solutiontypes_id" => $template->getField("solutiontypes_id"),
                            "content" => Toolbox::addslashes_deep($template->getField('content')),
                            "status" => CommonITILValidation::WAITING,
                            "items_id" => $output['id']]);
