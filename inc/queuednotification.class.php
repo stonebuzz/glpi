@@ -145,6 +145,27 @@ class QueuedNotification extends CommonDBTM {
          $input['items_id'] = 0;
       }
 
+      //before droping existing mails in queue from the same event and item  and recipient
+      //check size of datas to store in DB
+      $serialized_data = serialize($input);
+      $len = strlen($serialized_data);
+      $size = ($len * 8);
+      $other = Toolbox::getSize(memory_get_usage($size));
+
+      Session::addMessageAfterRedirect("SIZE IS -> ".$other, true, ERROR);
+
+      /*if($size > $max_size){
+         //clean $input
+         unset($input['body_html']);
+         unset($input['body_text']);
+
+         $message = sprintf(__('Notification size (%d kB) exceeded (%d kB)'), $size, $max_size);
+         Toolbox::logInFile("mail-error",
+         sprintf($message." ".__('Notification informations: %s'), print_r($input, true)));
+         Session::addMessageAfterRedirect($message."<br/>".__('Please contact your GLPI administrator'), true, ERROR);
+         return false;
+      }*/
+
       // Drop existing mails in queue for the same event and item  and recipient
       if (isset($input['itemtype']) && !empty($input['itemtype'])
           && isset($input['entities_id']) && ($input['entities_id'] >= 0)
@@ -171,6 +192,12 @@ class QueuedNotification extends CommonDBTM {
 
       return $input;
    }
+
+   static function convert($size)
+{
+    $unit=array('b','kb','mb','gb','tb','pb');
+    return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+}
 
 
    function rawSearchOptions() {
