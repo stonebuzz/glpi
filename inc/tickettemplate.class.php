@@ -44,6 +44,7 @@ if (!defined('GLPI_ROOT')) {
  * since version 0.83
 **/
 class TicketTemplate extends CommonDropdown {
+   use Glpi\Features\Clonable;
 
    // From CommonDBTM
    public $dohistory                 = true;
@@ -67,6 +68,13 @@ class TicketTemplate extends CommonDropdown {
    /// Predefined fields
    public $predefined = array();
 
+   public function getCloneRelations() :array {
+      return [
+         TicketTemplateHiddenField::class,
+         TicketTemplateMandatoryField::class,
+         TicketTemplatePredefinedField::class,
+      ];
+   }
 
    /**
     * Retrieve an item from the database with additional datas
