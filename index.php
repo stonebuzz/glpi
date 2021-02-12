@@ -112,7 +112,6 @@ if (!file_exists(GLPI_CONFIG_DIR . "/config_db.php")) {
    echo "</div>";
 
    echo "<div id='boxlogin'>";
-   echo "<form action='".$CFG_GLPI["root_doc"]."/front/login.php' method='post'>";
 
    $_SESSION['namfield'] = $namfield = uniqid('fielda');
    $_SESSION['pwdfield'] = $pwdfield = uniqid('fieldb');
@@ -127,59 +126,13 @@ if (!file_exists(GLPI_CONFIG_DIR . "/config_db.php")) {
       Toolbox::manageRedirect($_GET["redirect"]);
       echo '<input type="hidden" name="redirect" value="'.Html::entities_deep($_GET['redirect']).'"/>';
    }
-   echo '<p class="login_input" id="login_input_name">
-         <label for="login_name" class="sr-only">'.__('Login').'</label>
-         <input type="text" name="'.$namfield.'" id="login_name" required="required"
-                placeholder="'.__('Login').'" autofocus="autofocus" />
-         </p>';
-   echo '<p class="login_input" id="login_input_password">
-         <label for="login_password" class="sr-only">'.__('Password').'</label>
-         <input type="password" name="'.$pwdfield.'" id="login_password" required="required"
-                placeholder="'.__('Password').'"  />
-         </p>';
 
-   if (GLPI_DEMO_MODE) {
-      //lang selector
-      echo '<p class="login_input" id="login_lang">';
-      Dropdown::showLanguages(
-         'language', [
-            'display_emptychoice'   => true,
-            'emptylabel'            => __('Default (from user profile)'),
-            'width'                 => '100%'
-         ]
-      );
-      echo '</p>';
-   }
 
    // Add dropdown for auth (local, LDAPxxx, LDAPyyy, imap...)
    if ($CFG_GLPI['display_login_source']) {
       Auth::dropdownLogin();
    }
 
-   if ($CFG_GLPI["login_remember_time"]) {
-      echo '<p class="login_input">
-            <label for="login_remember">
-                   <input type="checkbox" name="'.$rmbfield.'" id="login_remember"
-                   '.($CFG_GLPI['login_remember_default']?'checked="checked"':'').' />
-            '.__('Remember me').'</label>
-            </p>';
-   }
-   echo '<p class="login_input">
-         <input type="submit" name="submit" value="'._sx('button', 'Post').'" class="submit" />
-         </p>';
-
-   if ($CFG_GLPI["notifications_mailing"]
-      && countElementsInTable(
-         'glpi_notifications', [
-            'itemtype'  => 'User',
-            'event'     => 'passwordforget',
-            'is_active' => 1
-         ])
-      ) {
-      echo '<a id="forget" href="front/lostpassword.php?lostpassword=1">'.
-             __('Forgotten password?').'</a>';
-   }
-   Html::closeForm();
 
    $js = "$(function() {
       $('#login_name').focus();
