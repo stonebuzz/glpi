@@ -105,6 +105,25 @@ class Contract extends CommonDBTM {
       return $ong;
    }
 
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
+      return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), 0);
+   }
+
+
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
+
+      $params = ['as_map' => false, 'show_pager' => false, 'showmassiveactions' => false, 'list_limit' => 1000];
+      $params['criteria'][] = [
+         'link'         => 'AND',
+         'field'        => 80,
+         'searchtype'   => 'equals',
+         'value'        => $item->fields['entities_id']
+      ];
+
+      Search::showList('Contract',$params);
+      return true;
+   }
+
    /**
     * Duplicate all contracts from a item template to his clone
     *
