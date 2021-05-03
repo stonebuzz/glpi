@@ -947,7 +947,8 @@ class Dropdown {
                  'LineOperator' => null,
                  'DomainType' => null,
                  'DomainRelation' => null,
-                 'DomainRecordType' => null
+                 'DomainRecordType' => null,
+                 'NetworkPortBncType' => null
              ],
 
              __('Internet') => [
