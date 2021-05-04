@@ -948,7 +948,8 @@ class Dropdown {
                  'DomainType' => null,
                  'DomainRelation' => null,
                  'DomainRecordType' => null,
-                 'NetworkPortBncType' => null
+                 'NetworkPortBncType' => null,
+                 'NetworkPortFiberchannelType' => null
              ],
 
              __('Internet') => [
