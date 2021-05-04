@@ -4017,8 +4017,9 @@ CREATE TABLE `glpi_monitortypes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
-### Dump table glpi_netpoints
+### Dump table glpi_sockets
 
+<<<<<<< HEAD
 DROP TABLE IF EXISTS `glpi_netpoints`;
 CREATE TABLE `glpi_netpoints` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -4026,6 +4027,15 @@ CREATE TABLE `glpi_netpoints` (
   `locations_id` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `comment` text COLLATE utf8_unicode_ci,
+=======
+DROP TABLE IF EXISTS `glpi_sockets`;
+CREATE TABLE `glpi_sockets` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `entities_id` int NOT NULL DEFAULT '0',
+  `locations_id` int NOT NULL DEFAULT '0',
+  `name` varchar(255) DEFAULT NULL,
+  `comment` text,
+>>>>>>> 2e11d74a69... refactor(code): rename netpoint to socket
   `date_mod` timestamp NULL DEFAULT NULL,
   `date_creation` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -4242,23 +4252,23 @@ CREATE TABLE `glpi_networkportdialups` (
 
 DROP TABLE IF EXISTS `glpi_networkportethernets`;
 CREATE TABLE `glpi_networkportethernets` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `networkports_id` int(11) NOT NULL DEFAULT '0',
-  `items_devicenetworkcards_id` int(11) NOT NULL DEFAULT '0',
-  `netpoints_id` int(11) NOT NULL DEFAULT '0',
-  `type` varchar(10) COLLATE utf8_unicode_ci DEFAULT '' COMMENT 'T, LX, SX',
-  `speed` int(11) NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `networkports_id` int NOT NULL DEFAULT '0',
+  `items_devicenetworkcards_id` int NOT NULL DEFAULT '0',
+  `sockets_id` int NOT NULL DEFAULT '0',
+  `type` varchar(10) DEFAULT '' COMMENT 'T, LX, SX',
+  `speed` int NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
   `date_mod` timestamp NULL DEFAULT NULL,
   `date_creation` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `networkports_id` (`networkports_id`),
   KEY `card` (`items_devicenetworkcards_id`),
-  KEY `netpoint` (`netpoints_id`),
   KEY `type` (`type`),
   KEY `speed` (`speed`),
   KEY `date_mod` (`date_mod`),
-  KEY `date_creation` (`date_creation`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  KEY `date_creation` (`date_creation`),
+  KEY `socket` (`sockets_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 
 ### Dump table glpi_networkportbnctypes
@@ -4284,7 +4294,7 @@ CREATE TABLE `glpi_networkportbncs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `networkports_id` int NOT NULL DEFAULT '0',
   `items_devicenetworkcards_id` int NOT NULL DEFAULT '0',
-  `netpoints_id` int NOT NULL DEFAULT '0',
+  `sockets_id` int NOT NULL DEFAULT '0',
   `networkportbnctypes_id` int NOT NULL DEFAULT '0',
   `speed` int NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
   `date_mod` timestamp NULL DEFAULT NULL,
@@ -4292,11 +4302,11 @@ CREATE TABLE `glpi_networkportbncs` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `networkports_id` (`networkports_id`),
   KEY `card` (`items_devicenetworkcards_id`),
-  KEY `netpoint` (`netpoints_id`),
   KEY `type` (`networkportbnctypes_id`),
   KEY `speed` (`speed`),
   KEY `date_mod` (`date_mod`),
-  KEY `date_creation` (`date_creation`)
+  KEY `date_creation` (`date_creation`),
+  KEY `socket` (`sockets_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 
@@ -4323,7 +4333,7 @@ CREATE TABLE `glpi_networkportfiberchannels` (
   `id` int NOT NULL AUTO_INCREMENT,
   `networkports_id` int NOT NULL DEFAULT '0',
   `items_devicenetworkcards_id` int NOT NULL DEFAULT '0',
-  `netpoints_id` int NOT NULL DEFAULT '0',
+  `sockets_id` int NOT NULL DEFAULT '0',
   `networkportfiberchanneltypes_id` int NOT NULL DEFAULT '0',
   `wwn` varchar(16) DEFAULT '',
   `speed` int NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
@@ -4332,13 +4342,18 @@ CREATE TABLE `glpi_networkportfiberchannels` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `networkports_id` (`networkports_id`),
   KEY `card` (`items_devicenetworkcards_id`),
-  KEY `netpoint` (`netpoints_id`),
   KEY `type` (`networkportfiberchanneltypes_id`),
   KEY `wwn` (`wwn`),
   KEY `speed` (`speed`),
   KEY `date_mod` (`date_mod`),
+<<<<<<< HEAD
   KEY `date_creation` (`date_creation`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+=======
+  KEY `date_creation` (`date_creation`),
+  KEY `socket` (`sockets_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+>>>>>>> 2e11d74a69... refactor(code): rename netpoint to socket
 
 
 ### Dump table glpi_networkportlocals

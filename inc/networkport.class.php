@@ -1037,12 +1037,12 @@ class NetworkPort extends CommonDBChild {
          'massiveaction'      => false
       ];
 
-      if ($this->isField('netpoints_id')) {
+      if ($this->isField('sockets_id')) {
          $tab[] = [
             'id'                 => '9',
-            'table'              => 'glpi_netpoints',
+            'table'              => 'glpi_sockets',
             'field'              => 'name',
-            'name'               => _n('Network outlet', 'Network outlets', 1),
+            'name'               => Socket::getTypeName(1),
             'datatype'           => 'dropdown'
          ];
       }
