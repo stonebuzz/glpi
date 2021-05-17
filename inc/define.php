@@ -273,7 +273,8 @@ $CFG_GLPI["dictionnary_types"]            = ['ComputerModel', 'ComputerType', 'M
                                                   'Printer', 'PrinterModel', 'PrinterType',
                                                   'Software', 'OperatingSystemArchitecture',
                                                   'OperatingSystemKernel', 'OperatingSystemKernelVersion',
-                                                  'OperatingSystemEdition'];
+                                                  'OperatingSystemEdition', 'ImageResolution', 'ImageFormat',
+                                                  'DatabaseInstanceType', 'ConnectorModel'];
 
 $CFG_GLPI["helpdesk_visible_types"]       = ['Software', 'Appliance'];
 
