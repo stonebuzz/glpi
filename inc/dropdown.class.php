@@ -952,7 +952,8 @@ class Dropdown {
                  'DomainRelation' => null,
                  'DomainRecordType' => null,
                  'NetworkPortBncType' => null,
-                 'NetworkPortFiberchannelType' => null
+                 'NetworkPortFiberchannelType' => null,
+                 'ConnectorModel' => null,
              ],
 
              __('Internet') => [
@@ -3414,7 +3415,7 @@ class Dropdown {
                ]
             ]
          ],
-         'WHERE'     => [],
+         'WHERE'     => ['networkports_id' => ['=', 0]],
          'ORDERBY'   => [
             'glpi_locations.completename',
             'glpi_sockets.name'
