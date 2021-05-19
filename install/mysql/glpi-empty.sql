@@ -4019,15 +4019,6 @@ CREATE TABLE `glpi_monitortypes` (
 
 ### Dump table glpi_sockets
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `glpi_netpoints`;
-CREATE TABLE `glpi_netpoints` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `entities_id` int(11) NOT NULL DEFAULT '0',
-  `locations_id` int(11) NOT NULL DEFAULT '0',
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `comment` text COLLATE utf8_unicode_ci,
-=======
 DROP TABLE IF EXISTS `glpi_sockets`;
 CREATE TABLE `glpi_sockets` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -4040,7 +4031,6 @@ CREATE TABLE `glpi_sockets` (
   `items_id` int NOT NULL DEFAULT '0',
   `networkports_id` int NOT NULL DEFAULT '0',
   `comment` text,
->>>>>>> 2e11d74a69... refactor(code): rename netpoint to socket
   `date_mod` timestamp NULL DEFAULT NULL,
   `date_creation` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -4438,14 +4428,9 @@ CREATE TABLE `glpi_networkportfiberchannels` (
   KEY `wwn` (`wwn`),
   KEY `speed` (`speed`),
   KEY `date_mod` (`date_mod`),
-<<<<<<< HEAD
-  KEY `date_creation` (`date_creation`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-=======
   KEY `date_creation` (`date_creation`),
   KEY `socket` (`sockets_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
->>>>>>> 2e11d74a69... refactor(code): rename netpoint to socket
 
 
 ### Dump table glpi_networkportlocals
@@ -6492,33 +6477,35 @@ CREATE TABLE `glpi_ssovariables` (
 
 DROP TABLE IF EXISTS `glpi_states`;
 CREATE TABLE `glpi_states` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `entities_id` int(11) NOT NULL DEFAULT '0',
-  `is_recursive` tinyint(1) NOT NULL DEFAULT '0',
-  `comment` text COLLATE utf8_unicode_ci,
-  `states_id` int(11) NOT NULL DEFAULT '0',
-  `completename` text COLLATE utf8_unicode_ci,
-  `level` int(11) NOT NULL DEFAULT '0',
-  `ancestors_cache` longtext COLLATE utf8_unicode_ci,
-  `sons_cache` longtext COLLATE utf8_unicode_ci,
-  `is_visible_computer` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_monitor` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_networkequipment` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_peripheral` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_phone` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_printer` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_softwareversion` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_softwarelicense` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_line` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_certificate` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_rack` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_passivedcequipment` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_enclosure` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_pdu` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_cluster` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_contract` tinyint(1) NOT NULL DEFAULT '1',
-  `is_visible_appliance` tinyint(1) NOT NULL DEFAULT '1',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `entities_id` int NOT NULL DEFAULT '0',
+  `is_recursive` tinyint NOT NULL DEFAULT '0',
+  `comment` text,
+  `states_id` int NOT NULL DEFAULT '0',
+  `completename` text,
+  `level` int NOT NULL DEFAULT '0',
+  `ancestors_cache` longtext,
+  `sons_cache` longtext,
+  `is_visible_computer` tinyint NOT NULL DEFAULT '1',
+  `is_visible_monitor` tinyint NOT NULL DEFAULT '1',
+  `is_visible_networkequipment` tinyint NOT NULL DEFAULT '1',
+  `is_visible_peripheral` tinyint NOT NULL DEFAULT '1',
+  `is_visible_phone` tinyint NOT NULL DEFAULT '1',
+  `is_visible_printer` tinyint NOT NULL DEFAULT '1',
+  `is_visible_softwareversion` tinyint NOT NULL DEFAULT '1',
+  `is_visible_softwarelicense` tinyint NOT NULL DEFAULT '1',
+  `is_visible_line` tinyint NOT NULL DEFAULT '1',
+  `is_visible_certificate` tinyint NOT NULL DEFAULT '1',
+  `is_visible_rack` tinyint NOT NULL DEFAULT '1',
+  `is_visible_passivedcequipment` tinyint NOT NULL DEFAULT '1',
+  `is_visible_enclosure` tinyint NOT NULL DEFAULT '1',
+  `is_visible_pdu` tinyint NOT NULL DEFAULT '1',
+  `is_visible_cluster` tinyint NOT NULL DEFAULT '1',
+  `is_visible_contract` tinyint NOT NULL DEFAULT '1',
+  `is_visible_appliance` tinyint NOT NULL DEFAULT '1',
+  `is_visible_database` tinyint NOT NULL DEFAULT '1',
+  `is_visible_cable` tinyint NOT NULL DEFAULT '1',
   `date_mod` timestamp NULL DEFAULT NULL,
   `date_creation` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -6541,6 +6528,11 @@ CREATE TABLE `glpi_states` (
   KEY `is_visible_cluster` (`is_visible_cluster`),
   KEY `is_visible_contract` (`is_visible_contract`),
   KEY `is_visible_appliance` (`is_visible_appliance`),
+<<<<<<< HEAD
+=======
+  KEY `is_visible_database` (`is_visible_database`),
+  KEY `is_visible_cable` (`is_visible_cable`),
+>>>>>>> 0aadc8059a... feat(core): add php classes
   KEY `date_mod` (`date_mod`),
   KEY `date_creation` (`date_creation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
