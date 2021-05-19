@@ -4532,7 +4532,6 @@ CREATE TABLE `glpi_networkportethernets` (
   `id` int NOT NULL AUTO_INCREMENT,
   `networkports_id` int NOT NULL DEFAULT '0',
   `items_devicenetworkcards_id` int NOT NULL DEFAULT '0',
-  `sockets_id` int NOT NULL DEFAULT '0',
   `type` varchar(10) DEFAULT '' COMMENT 'T, LX, SX',
   `speed` int NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
   `date_mod` timestamp NULL DEFAULT NULL,
@@ -4543,8 +4542,7 @@ CREATE TABLE `glpi_networkportethernets` (
   KEY `type` (`type`),
   KEY `speed` (`speed`),
   KEY `date_mod` (`date_mod`),
-  KEY `date_creation` (`date_creation`),
-  KEY `socket` (`sockets_id`)
+  KEY `date_creation` (`date_creation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 
@@ -4571,7 +4569,6 @@ CREATE TABLE `glpi_networkportbncs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `networkports_id` int NOT NULL DEFAULT '0',
   `items_devicenetworkcards_id` int NOT NULL DEFAULT '0',
-  `sockets_id` int NOT NULL DEFAULT '0',
   `networkportbnctypes_id` int NOT NULL DEFAULT '0',
   `speed` int NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
   `date_mod` timestamp NULL DEFAULT NULL,
@@ -4582,8 +4579,7 @@ CREATE TABLE `glpi_networkportbncs` (
   KEY `type` (`networkportbnctypes_id`),
   KEY `speed` (`speed`),
   KEY `date_mod` (`date_mod`),
-  KEY `date_creation` (`date_creation`),
-  KEY `socket` (`sockets_id`)
+  KEY `date_creation` (`date_creation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 
@@ -4610,7 +4606,6 @@ CREATE TABLE `glpi_networkportfiberchannels` (
   `id` int NOT NULL AUTO_INCREMENT,
   `networkports_id` int NOT NULL DEFAULT '0',
   `items_devicenetworkcards_id` int NOT NULL DEFAULT '0',
-  `sockets_id` int NOT NULL DEFAULT '0',
   `networkportfiberchanneltypes_id` int NOT NULL DEFAULT '0',
   `wwn` varchar(16) DEFAULT '',
   `speed` int NOT NULL DEFAULT '10' COMMENT 'Mbit/s: 10, 100, 1000, 10000',
@@ -4623,8 +4618,7 @@ CREATE TABLE `glpi_networkportfiberchannels` (
   KEY `wwn` (`wwn`),
   KEY `speed` (`speed`),
   KEY `date_mod` (`date_mod`),
-  KEY `date_creation` (`date_creation`),
-  KEY `socket` (`sockets_id`)
+  KEY `date_creation` (`date_creation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 
