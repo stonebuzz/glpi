@@ -6734,6 +6734,7 @@ CREATE TABLE `glpi_states` (
   `is_visible_cluster` tinyint NOT NULL DEFAULT '1',
   `is_visible_contract` tinyint NOT NULL DEFAULT '1',
   `is_visible_appliance` tinyint NOT NULL DEFAULT '1',
+  `is_visible_cable` tinyint NOT NULL DEFAULT '1',
   `date_mod` timestamp NULL DEFAULT NULL,
   `date_creation` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -6758,6 +6759,7 @@ CREATE TABLE `glpi_states` (
   KEY `is_visible_cluster` (`is_visible_cluster`),
   KEY `is_visible_contract` (`is_visible_contract`),
   KEY `is_visible_appliance` (`is_visible_appliance`),
+  KEY `is_visible_cable` (`is_visible_cable`),
   KEY `date_mod` (`date_mod`),
   KEY `date_creation` (`date_creation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
