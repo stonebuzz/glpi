@@ -98,6 +98,11 @@ class Computer extends CommonDBTM {
          ->addStandardTab('Item_SoftwareVersion', $ong, $options)
          ->addStandardTab('Computer_Item', $ong, $options)
          ->addStandardTab('NetworkPort', $ong, $options)
+<<<<<<< HEAD
+=======
+         ->addStandardTab('Socket', $ong, $options)
+         ->addStandardTab('Item_RemoteManagement', $ong, $options)
+>>>>>>> 548df3ba09... feat(cable): add socket tab if needed
          ->addStandardTab('Infocom', $ong, $options)
          ->addStandardTab('Contract_Item', $ong, $options)
          ->addStandardTab('Document_Item', $ong, $options)

@@ -475,7 +475,7 @@ abstract class CommonDropdown extends CommonDBTM {
                return false;
 
             default:
-               $this->displaySpecificTypeField($ID, $field);
+               $this->displaySpecificTypeField($ID, $field, $options);
                break;
          }
          if (isset($field['unit'])) {
@@ -498,7 +498,7 @@ abstract class CommonDropdown extends CommonDBTM {
    }
 
 
-   function displaySpecificTypeField($ID, $field = []) {
+   function displaySpecificTypeField($ID, $field = [], $options = []) {
    }
 
 
