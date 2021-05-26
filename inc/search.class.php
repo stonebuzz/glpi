@@ -5507,6 +5507,7 @@ JAVASCRIPT;
             break;
 
          case "glpi_projectstates.color" :
+         case "glpi_cables.color" :
             $out = " style=\"background-color:".$data[$NAME][0]['name'].";\" ";
             break;
 
