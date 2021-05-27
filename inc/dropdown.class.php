@@ -943,7 +943,6 @@ class Dropdown {
 
              __('Networking') => [
                  'NetworkInterface' => null,
-                 'Socket' => null,
                  'Network' => null,
                  'NetworkPortType' => null,
                  'Vlan' => null,
@@ -953,10 +952,15 @@ class Dropdown {
                  'DomainRecordType' => null,
                  'NetworkPortBncType' => null,
                  'NetworkPortFiberchannelType' => null,
-                 'SocketModel' => null,
-                 'CableType' => null,
-                 'Cable' => null,
-                 'CableStrand' => null,
+
+             ],
+
+             __('Cable management') => [
+              'Cable' => null,
+               'CableType' => null,
+               'CableStrand' => null,
+               'Socket' => null,
+               'SocketModel' => null,
              ],
 
              __('Internet') => [
