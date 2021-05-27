@@ -608,6 +608,13 @@ class Cable extends CommonDBTM {
       echo "<td>".__('Position')."</td>";
       echo "<td>";
 
+      echo "<span id='show_rear_asset_breadcrumb'>";
+      if ($this->fields['rear_items_id']) {
+         $this->getDCBreadCrumb('rear');
+      }
+      echo "</span>";
+      
+
       $params = ['itemtype'  => '__VALUE0__',
                  'items_id'  => '__VALUE1__',
                  'action'    => 'getItemBreadCrumb'];
