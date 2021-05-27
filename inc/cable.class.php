@@ -659,6 +659,16 @@ class Cable extends CommonDBTM {
       return true;
    }
 
+   private function getDCBreadCrumb($side = 'front') {
+      if ($this->fields[$side.'_items_id']) {
+         $item = new $this->fields[$side.'_itemtype']();
+         $item->getFromDB($this->fields[$side.'_items_id']);
+         if (method_exists($item, 'showDcBreadcrumb')) {
+            $item->showDcBreadcrumb(true);
+         }
+      }
+   }
+
    static function getIcon() {
       return "fas fa-ethernet";
    }
