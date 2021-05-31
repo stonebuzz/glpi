@@ -64,6 +64,9 @@ class Socket extends CommonDropdown {
                'type'  => ' '],
                ['name'  => 'networkports_id',
                'label' => _n('Network port', 'Network ports', Session::getPluralNumber()),
+               'type'  => ' '],
+               ['name'  => '_virtual_datacenter_position',
+               'label' => __('Position'),
                'type'  => ' ']];
    }
 
@@ -74,6 +77,15 @@ class Socket extends CommonDropdown {
 
       if ($field['name'] == 'networkports_id') {
          self::showNetworkPortForm($this->fields['itemtype'], $this->fields['items_id'], $this->fields['networkports_id'], $options);
+      }
+
+      if ($field['name'] == '_virtual_datacenter_position') {
+         //DC position
+         if (!empty($this->fields['itemtype']) && !empty($this->fields['items_id'])) {
+            if (method_exists($this->fields['itemtype'], 'getDcBreadcrumbSpecificValueToDisplay')) {
+               echo $this->fields['itemtype']::getDcBreadcrumbSpecificValueToDisplay($this->fields['items_id']);
+            }
+         }
       }
    }
 
@@ -90,8 +102,7 @@ class Socket extends CommonDropdown {
          $items_id = $options['_add_fromitem']["_from_items_id"];
       }
 
-      $rand_itemtype = Dropdown::showFromArray('itemtype', self::getSocketLinkTypes(), ['value'                => $itemtype,
-                                                                                        'display_emptychoice'  => true]);
+      $rand_itemtype = Dropdown::showFromArray('itemtype', self::getSocketLinkTypes(), ['value'                => $itemtype]);
 
       $params = ['itemtype' => '__VALUE__',
                  'dom_name' => 'items_id',
@@ -105,7 +116,8 @@ class Socket extends CommonDropdown {
       if (!empty($itemtype)) {
          $rand_items_id =  $itemtype::dropdown(['name'                  => 'items_id',
                                                 'value'                 => $items_id,
-                                                'display_emptychoice'   => true]);
+                                                'display_emptychoice'   => true,
+                                                'display_dc_position'   => true]);
 
          $params = ['items_id'   => '__VALUE__',
                     'itemtype'   => $itemtype,
@@ -127,31 +139,6 @@ class Socket extends CommonDropdown {
                                                 "itemtype"  => $itemtype]]);
 
       echo "</span>";
-
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Position')."</td>";
-      echo "<td>";
-
-      echo "<span id='show_asset_breadcrumb'>";
-      if (!empty($itemtype) && !empty($items_id)) {
-         $item = new $itemtype();
-         $item->getFromDB($items_id);
-         if (method_exists($item, 'showDcBreadcrumb')) {
-            $item->showDcBreadcrumb(true);
-         }
-      }
-      echo "</span>";
-      $params = ['itemtype'  => '__VALUE0__',
-                 'items_id'  => '__VALUE1__',
-                 'action'    => 'getItemBreadCrumb'];
-
-      Ajax::updateItemOnSelectEvent(["dropdown_itemtype".$rand_itemtype,
-                                     "dropdown_items_id".$rand_items_id],
-                                     "show_asset_breadcrumb",
-                                     $CFG_GLPI["root_doc"]."/ajax/cable.php",
-                                     $params);
-      echo "</td></tr>";
-
    }
 
    /**
@@ -221,6 +208,11 @@ class Socket extends CommonDropdown {
 
       return $options;
    }
+
+   function post_getEmpty() {
+      $this->fields['itemtype'] = 'Computer';
+   }
+
 
 
    /**
