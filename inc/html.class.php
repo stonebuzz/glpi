@@ -1347,6 +1347,10 @@ class Html {
             echo Html::css('public/lib/photoswipe.css');
             Html::requireJs('photoswipe');
          }
+
+         if (in_array('cable', $jslibs)) {
+            Html::requireJs('cable');
+         }
       }
 
       if (Session::getCurrentInterface() == "helpdesk") {
@@ -6582,6 +6586,9 @@ JAVASCRIPT;
             break;
          case 'photoswipe':
             $_SESSION['glpi_js_toload'][$name][] = 'public/lib/photoswipe.js';
+            break;
+         case 'cable':
+            $_SESSION['glpi_js_toload'][$name][] = 'js/cable.js';
             break;
          default:
             $found = false;

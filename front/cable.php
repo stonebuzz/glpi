@@ -34,7 +34,7 @@ include ('../inc/includes.php');
 
 Session::checkRight("netpoint", READ);
 
-Html::header(Cable::getTypeName(1), $_SERVER['PHP_SELF'], "management", "cable");
+Html::header(Cable::getTypeName(1), $_SERVER['PHP_SELF'], "cable", "cable");
 
 Search::show('Cable');
 
