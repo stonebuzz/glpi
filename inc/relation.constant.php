@@ -556,6 +556,7 @@ $RELATION = [
       'glpi_users'                       => 'entities_id',
       'glpi_vlans'                       => 'entities_id',
       'glpi_wifinetworks'                => 'entities_id',
+      'glpi_sockets'                     => 'entities_id',
    ],
 
    'glpi_filesystems' => [
