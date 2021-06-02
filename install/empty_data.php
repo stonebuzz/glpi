@@ -1693,6 +1693,16 @@ $ADDTODISPLAYPREF['Cluster'] = [31, 19];
 $ADDTODISPLAYPREF['Domain'] = [3, 4, 2, 6, 7];
 $ADDTODISPLAYPREF['DomainRecord'] = [2, 3];
 $ADDTODISPLAYPREF['Appliance'] = [2, 3, 4, 5];
+$ADDTODISPLAYPREF['Lockedfield'] = [3, 13, 5];
+$ADDTODISPLAYPREF['Unmanaged'] = [2, 4, 3, 5, 7, 10, 18, 14, 15, 9];
+$ADDTODISPLAYPREF['NetworkPortType'] = [10, 11, 12];
+$ADDTODISPLAYPREF['NetworkPort'] = [3, 30, 31, 32, 33, 34, 35, 36, 38, 39, 40];
+$ADDTODISPLAYPREF['USBVendor'] = [10, 11];
+$ADDTODISPLAYPREF['PCIVendor'] = [10, 11];
+$ADDTODISPLAYPREF['Agent'] = [2, 4, 10, 8, 11, 6];
+$ADDTODISPLAYPREF['Database'] = [2, 3, 6, 9, 10];
+$ADDTODISPLAYPREF['Socket'] = [5, 8, 6, 7];
+$ADDTODISPLAYPREF['Cable'] = [4, 31, 6, 15, 24];
 
 foreach ($ADDTODISPLAYPREF as $type => $options) {
    $rank = 1;
