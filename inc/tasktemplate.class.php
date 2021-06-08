@@ -102,9 +102,100 @@ class TaskTemplate extends CommonDropdown {
          'datatype'           => 'dropdown'
       ];
 
+      $tab[] = [
+         'id'                 => '5',
+         'table'              => $this->getTable(),
+         'field'              => 'is_private',
+         'name'               => __('Private'),
+         'datatype'           => 'bool'
+      ];
+
+      $tab[] = [
+         'id'                 => '7',
+         'table'              => 'glpi_users',
+         'field'              => 'name',
+         'linkfield'          => 'users_id_tech',
+         'name'               => __('By'),
+         'datatype'           => 'dropdown',
+         'right'              => 'own_ticket'
+      ];
+
+      $tab[] = [
+         'id'                 => '8',
+         'table'              => 'glpi_groups',
+         'field'              => 'completename',
+         'linkfield'          => 'groups_id_tech',
+         'name'               => __('Group'),
+         'condition'          => ['is_assign' => 1],
+         'datatype'           => 'dropdown'
+      ];
+
+      $tab[] = [
+         'id'                 => '9',
+         'table'              => $this->getTable(),
+         'field'              => 'actiontime',
+         'name'               => __('Total duration'),
+         'datatype'           => 'actiontime',
+         'massiveaction'      => false
+      ];
+
+      $tab[] = [
+         'id'                 => '10',
+         'table'              => $this->getTable(),
+         'field'              => 'state',
+         'name'               => __('Status'),
+         'searchtype'         => 'equals',
+         'datatype'           => 'specific'
+      ];
+
       return $tab;
    }
 
+
+   /**
+   * @since 0.84
+   *
+   * @param $field
+   * @param $values
+   * @param $options   array
+   **/
+   static function getSpecificValueToDisplay($field, $values, array $options = []) {
+
+      if (!is_array($values)) {
+         $values = [$field => $values];
+      }
+
+      switch ($field) {
+         case 'state' :
+            return Planning::getState($values[$field]);
+      }
+      return parent::getSpecificValueToDisplay($field, $values, $options);
+   }
+
+
+   /**
+    * @since 0.84
+    *
+    * @param $field
+    * @param $name            (default '')
+    * @param $values          (default '')
+    * @param $options   array
+    *
+    * @return string
+   **/
+   static function getSpecificValueToSelect($field, $name = '', $values = '', array $options = []) {
+
+      if (!is_array($values)) {
+         $values = [$field => $values];
+      }
+      $options['display'] = false;
+
+      switch ($field) {
+         case 'state':
+            return Planning::dropdownState($name, $values[$field], false);
+      }
+      return parent::getSpecificValueToSelect($field, $name, $values, $options);
+   }
 
    /**
     * @see CommonDropdown::displaySpecificTypeField()
