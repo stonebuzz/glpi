@@ -3,6 +3,139 @@
 The present file will list all changes made to the project; according to the
 [Keep a Changelog](http://keepachangelog.com/) project.
 
+## [10.0.0] unreleased
+
+### Added
+- Added UUID to all other itemtypes that are related to Operating Systems (Phones, Printers, etc)
+
+### Changed
+- APCu and WinCache are not anymore use by GLPI, use `php bin/console cache:configure` command to configure cache system.
+- PDF export library has been changed from `TCPDF` to `mPDF`.
+
+### Deprecated
+- Usage of XML-RPC API is deprecated.
+- `Netpoint` replaced by `Socket` and table `glpi_netpoints` renamed to `glpi_sockets`
+
+
+### Removed
+- Usage of alternative DB connection encoding (`DB::$dbenc` property).
+
+### API changes
+
+#### Added
+- Added `DBMysql::setSavepoint` to create savepoints within a transaction.
+
+#### Changes
+- Format of `Message-Id` header sent in Tickets notifications changed to match format used by other items.
+- Added `DB::truncate()` to replace raw SQL queries
+- Impact context `positions` field type changed from `TEXT` to `MEDIUMTEXT`
+- Field `date` of KnowbaseItem has been renamed to `date_creation`.
+- Field `date_creation` of KnowbaseItem_Revision has been renamed to `date`.
+- Field `date_creation` of NetworkPortConnectionLog has been renamed to `date`.
+- Field `date_creation` of NetworkPortMetrics has been renamed to `date`.
+- Field `date` of Notepad has been renamed to `date_creation`.
+- Field `date_mod` of ObjectLock has been renamed to `date`.
+- Field `date_creation` of PrinterLog has been renamed to `date`.
+- Field `date` of ProjectTask has been renamed to `date_creation`.
+- `DBMysql::rollBack` supports a `name` parameter for rolling back to a savepoint.
+
+#### Deprecated
+- Usage of `GLPI_FORCE_EMPTY_SQL_MODE` constant
+- Usage of `CommonDBTM::notificationqueueonaction` property
+- Usage of `NotificationTarget::html_tags` property
+- `DBmysql::getTableSchema()`
+- `Calendar::duplicate()`
+- `CommonDBTM::clone()`
+- `CommonDBTM::prepareInputForClone()`
+- `CommonDBTM::post_clone()`
+- `Config::getCache()`
+- `Html::clean()`
+- `Html::setSimpleTextContent()`
+- `Html::setRichTextContent()`
+- `Html::weblink_extract()`
+- `RuleImportComputer` class
+- `RuleImportComputerCollection` class
+- `Toolbox::clean_cross_side_scripting_deep()`
+- `Toolbox::doubleEncodeEmails()`
+- `Toolbox::getHtmlToDisplay()`
+- `Toolbox::useCache()`
+- `Toolbox::unclean_cross_side_scripting_deep()`
+- `Toolbox::unclean_html_cross_side_scripting_deep()`
+- `Toolbox::sanitize()`
+
+#### Removed
+- `Update::declareOldItems()`
+
+- Usage of `$order` parameter in `getAllDataFromTable()` (`DbUtils::getAllDataFromTable()`)
+- `$LOADED_PLUGINS` global variable
+- `Computer_SoftwareLicense` class
+- `Computer_SoftwareVersion` class
+- `getAllDatasFromTable()`
+- `getRealQueryForTreeItem()`
+- `DBMysql::affected_rows()`
+- `DBMysql::data_seek()`
+- `DBMysql::fetch_array()`
+- `DBMysql::fetch_assoc()`
+- `DBMysql::fetch_object()`
+- `DBMysql::fetch_row()`
+- `DBMysql::field_name()`
+- `DBMysql::free_result()`
+- `DBMysql::insert_id()`
+- `DBMysql::isMySQLStrictMode()`
+- `DBMysql::list_fields()`
+- `DBMysql::num_fields()`
+- `DbUtils::getRealQueryForTreeItem()`
+- `Calendar_Holiday::cloneCalendar()`
+- `CalendarSegment::cloneCalendar()`
+- `Change::getCommonLeftJoin()`
+- `Change::getCommonSelect()`
+- `CommonDBTM::getRawName()`
+- `Computer_Item::cloneComputer()`
+- `Computer_Item::cloneItem()`
+- `ComputerAntivirus::cloneComputer()`
+- `Config::checkWriteAccessToDirs()`
+- `Config::displayCheckExtensions()`
+- `Contract::cloneItem()`
+- `ContractCost::cloneContract()`
+- `Contract_Item::cloneItem()`
+- `Document_Item::cloneItem()`
+- `Html::jsDisable()`
+- `Html::jsEnable()`
+- `Infocom::cloneItem()`
+- `Itil_Project::cloneItilProject()`
+- `Item_Devices::cloneItem()`
+- `Item_Disk::cloneItem()`
+- `Item_OperatingSystem::cloneItem()`
+- `Item_SoftwareLicense::cloneComputer()`
+- `Item_SoftwareLicense::cloneItem()`
+- `Item_SoftwareVersion::cloneComputer()`
+- `Item_SoftwareVersion::cloneItem()`
+- `Item_SoftwareVersion::showForComputer()`
+- `Item_SoftwareVersion::updateDatasForComputer()`
+- `KnowbaseItem_Item::cloneItem()`
+- `NetworkPort::cloneItem()`
+- `Notepad::cloneItem()`
+- `Plugin::setLoaded()`
+- `Plugin::setUnloaded()`
+- `Plugin::setUnloadedByName()`
+- `Problem::getCommonLeftJoin()`
+- `Problem::getCommonSelect()`
+- `ProjectCost::cloneProject()`
+- `ProjectTeam::cloneProjectTask()`
+- `ProjectTask::cloneProjectTeam()`
+- `Ticket::getCommonLeftJoin()`
+- `Ticket::getCommonSelect()`
+- `Ticket::getTicketTemplateToUse()`
+- `TicketTemplate::getFromDBWithDatas()`
+- `Toolbox::canUseImapPop()`
+- `Toolbox::checkSELinux()`
+- `Toolbox::userErrorHandlerDebug()`
+- `Toolbox::userErrorHandlerNormal()`
+- `Transfer::transferComputerSoftwares()`
+
+- `Reservation::displayReservationDay()`
+- `Reservation::displayReservationsForAnItem()`
+
 ## [9.5.6] unreleased
 
 ### Changed
