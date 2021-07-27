@@ -3332,11 +3332,16 @@ class Transfer extends CommonDBTM {
                      if ($nn->getFromDBForNetworkPort($data['id'])) {
                         $nn->delete($data);
                      }
-                     if ($data['sockets_id']) {
-                        $socketID  = $this->transferDropdownSocket($data['sockets_id']);
-                        $input['id']           = $data['id'];
-                        $input['sockets_id'] = $socketID;
-                        $np->update($input);
+
+                     //find socket attached to NetworkPortEthernet and transfer it
+                     $socket = new Socket();
+                     if ($socket->getFromDBByCrit(["networkports_id" => $data['id']])) {
+                        if ($socket->getID()) {
+                           $socketID  = $this->transferDropdownSocket($socket->getID());
+                           $input['id']           = $data['id'];
+                           $input['sockets_id'] = $socketID;
+                           $np->update($input);
+                        }
                      }
                   }
                } else { // Copy -> copy netports
