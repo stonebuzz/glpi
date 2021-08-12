@@ -37,6 +37,7 @@ use Computer_Item;
 use Glpi\Inventory\Conf;
 use Html;
 use Plugin;
+use QueryExpression;
 use RefusedEquipment;
 use Toolbox;
 
@@ -53,23 +54,25 @@ trait Inventoriable {
    }
 
 
-   public function getInventoryFileName() {
+   public function getInventoryFileName(bool $prepend_dir_path = true): ?string {
       if (!$this->isDynamic()) {
-         return;
+         return null;
       }
+
+      $inventory_dir_path = GLPI_INVENTORY_DIR . '/';
 
       $conf = new Conf();
       //most files will be XML for now
-      $download_file = $conf->buildInventoryFileName(static::getType(), $this->fields['id'], 'xml');
-      if (!file_exists($download_file)) {
-         $download_file = $conf->buildInventoryFileName(static::getType(), $this->fields['id'], 'json');
-         if (!file_exists($download_file)) {
-            Toolbox::logWarning('Inventory file missing: ' . $download_file);
-            $download_file = null;
+      $filename = $conf->buildInventoryFileName(static::getType(), $this->fields['id'], 'xml');
+      if (!file_exists($inventory_dir_path . $filename)) {
+         $filename = $conf->buildInventoryFileName(static::getType(), $this->fields['id'], 'json');
+         if (!file_exists($inventory_dir_path . $filename)) {
+            Toolbox::logWarning('Inventory file missing: ' . $filename);
+            return null;
          }
       }
 
-      return $download_file;
+      return ($prepend_dir_path ? $inventory_dir_path : '') . $filename;
    }
 
    /**
@@ -78,7 +81,7 @@ trait Inventoriable {
     * @return void
     */
    protected function showInventoryInfo() {
-      global $CFG_GLPI;
+      global $CFG_GLPI, $DB;
 
       if (!$this->isDynamic()) {
          return;
@@ -87,7 +90,7 @@ trait Inventoriable {
       echo '<tr>';
       echo '<th colspan="4">'.__('Inventory information');
 
-      $download_file = $this->getInventoryFileName();
+      $download_file = $this->getInventoryFileName(false);
       if ($download_file !== null) {
           $href = sprintf(
              "%s/front/document.send.php?file=_inventory/%s",
@@ -125,10 +128,19 @@ trait Inventoriable {
       echo '</tr>';
 
       $agent = new Agent();
-      $has_agent = $agent->getFromDBByCrit([
-         'itemtype' => $this->getType(),
-         'items_id' => $this->fields['id']
+      $iterator = $DB->request(Agent::getTable(), [
+         'WHERE'     => [
+            'itemtype' => $this->getType(),
+            'items_id' => $this->fields['id']
+         ],
+         'ORDERBY'    => ['last_contact DESC'],
       ]);
+
+      $has_agent = false;
+      if (count($iterator)) {
+         $has_agent = true;
+         $agent->getFromDB($iterator->next()['id']);
+      }
 
       //if no agent has been found, check if there is a linked item, and find its agent
       if (!$has_agent && $this->getType() == 'Computer') {

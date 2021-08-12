@@ -56,7 +56,7 @@ abstract class AbstractRequest
    const SNMP_QUERY   = 'SNMP';
    const OLD_SNMP_QUERY   = 'SNMPQUERY';
 
-   //GLPI AGENT
+   //GLPI AGENT ACTION
    const CONTACT_ACTION = 'contact';
    const REGISTER_ACTION = 'register';
    const CONFIG_ACTION = 'configuration';
@@ -67,6 +67,10 @@ abstract class AbstractRequest
    const COLLECT_ACTION = 'collect';
    const DEPLOY_ACTION = 'deploy';
    const WOL_ACTION = 'wakeonlan';
+   const GET_PARAMS = 'get_params';
+
+   //GLPI AGENT TASK
+   const INVENT_TASK = 'inventory';
 
    const COMPRESS_NONE = 0;
    const COMPRESS_ZLIB = 1;
@@ -208,6 +212,15 @@ abstract class AbstractRequest
    abstract protected function handleAction($action, $content = null) :bool;
 
    /**
+   * Handle Task
+   *
+   * @param string $task  Task (one of self::*_tASK)
+   *
+   * @return array
+   */
+   abstract protected function handleTask($task) :array;
+
+   /**
     * Handle XML request
     *
     * @param string $data Sent XML
@@ -305,9 +318,7 @@ abstract class AbstractRequest
             $this->addNode($root, $name, $content);
          }
       } else {
-         foreach ($entries as $name => $content) {
-             $this->addEntry($this->response, $name, $content);
-         }
+         $this->response = $entries;
       }
    }
 
@@ -340,28 +351,8 @@ abstract class AbstractRequest
       }
    }
 
+
    /**
-    * Add node to response for JSON_MODE
-    *
-    * @param array             $parent  Parent element
-    * @param string            $name    Element name to create
-    * @param string|array|null $content Element contents, if any
-    *
-    * @return void
-    */
-   private function addEntry(array &$parent, $name, $content) {
-      if (is_array($content)) {
-          $node = $parent[$name];
-         foreach ($content as $sname => $scontent) {
-            $this->addNode($node, $sname, $scontent);
-         }
-      } else {
-          $parent[$name] = $content;
-      }
-   }
-
-
-    /**
      * Get content-type
      *
      * @return string

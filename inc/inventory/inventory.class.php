@@ -345,6 +345,17 @@ class Inventory
       return $items;
    }
 
+
+   /**
+    * Get rawdata
+    *
+    * @return array
+    */
+    public function getRawData(): Object {
+      return $this->raw_data;
+   }
+
+
    /**
     * Handle inventory file
     *
@@ -363,7 +374,11 @@ class Inventory
          }
          $id = $item->fields['id'];
 
-         $filename = $this->conf->buildInventoryFileName($itemtype, $id, $ext);
+         $filename = GLPI_INVENTORY_DIR . '/' . $this->conf->buildInventoryFileName($itemtype, $id, $ext);
+         $subdir = dirname($filename);
+         if (!is_dir($subdir)) {
+            mkdir($subdir, 0755, true);
+         }
          copy($tmpfile, $filename);
       }
 

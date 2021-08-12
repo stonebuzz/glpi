@@ -8332,6 +8332,9 @@ CREATE TABLE `glpi_agents` (
    `useragent` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
    `tag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
    `port` varchar(6) DEFAULT NULL,
+   `ip_version` tinyint DEFAULT '0',
+   `ip_binary` varbinary(16) NOT NULL DEFAULT '0',
+   `ip_protocol` varchar(5) DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY `name` (`name`),
     KEY `entities_id` (`entities_id`),
@@ -8339,6 +8342,9 @@ CREATE TABLE `glpi_agents` (
     KEY `item` (`itemtype`,`items_id`),
     UNIQUE KEY `deviceid` (`deviceid`),
     KEY `agenttypes_id` (`agenttypes_id`),
+    KEY `ip_version` (`ip_version`),
+    KEY `ip_binary` (`ip_binary`),
+    KEY `ip_protocol` (`ip_protocol`),
     CONSTRAINT `agenttypes_id` FOREIGN KEY (`agenttypes_id`) REFERENCES `glpi_agenttypes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
