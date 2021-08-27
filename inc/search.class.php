@@ -5058,7 +5058,7 @@ JAVASCRIPT;
             $condition = $joinparams['condition'];
             if (is_array($condition)) {
                $it = new DBmysqlIterator(null);
-               $condition = $it->analyseCrit($condition);
+               $condition = ' AND ' . $it->analyseCrit($condition);
             }
             $from         = ["`REFTABLE`", "REFTABLE", "`NEWTABLE`", "NEWTABLE"];
             $to           = ["`$rt`", "`$rt`", "`$nt`", "`$nt`"];
