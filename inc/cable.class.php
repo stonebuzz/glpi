@@ -632,16 +632,20 @@ class Cable extends CommonDBTM {
 
       //Listener to update breacrumb / socket
       echo Html::scriptBlock("
-         $(document).on('change', '.input_front_listener', function(e) {
-            //wait a little to be sure that dropdown_items_id DOM is effectively refresh
-            //due to Ajax::updateItemOnSelectEvent
-            setTimeout(function(){
-               items_id = $('#dropdown_front_items_id".$rand_items_id_front."').find(':selected').val();
-               itemtype = $('#dropdown_front_itemtype".$rand_itemtype_front."').find(':selected').val();
-               socketmodels_id = $('#dropdown_front_socketmodels_id".$rand_socket_model_front."').find(':selected').val();
-               refreshAssetBreadcrumb(itemtype, items_id, 'show_front_asset_breadcrumb');
-               refreshSocketModelDropdown(itemtype, items_id, socketmodels_id, ".$this->fields["entities_id"].", 'front_sockets_id', 'show_front_sockets_field');
-            }, 40);
+         //listener to remove socket selector and breadcrumb
+         $(document).on('change', '#dropdown_itemtype_endpoint_b".$rand_itemtype_endpoint_b."', function(e) {
+            $('#show_front_asset_breadcrumb').empty();
+            $('#show_front_sockets_field').empty();
+         });
+
+         //listener to refresh socket selector and breadcrumb
+         $(document).on('change', '#dropdown_items_id_endpoint_b".$rand_items_id_endpoint_b."', function(e) {
+            var items_id = $('#dropdown_items_id_endpoint_b".$rand_items_id_endpoint_b."').find(':selected').val();
+            var itemtype = $('#dropdown_itemtype_endpoint_b".$rand_itemtype_endpoint_b."').find(':selected').val();
+            var socketmodels_id = $('#dropdown_socketmodels_id_endpoint_b".$rand_socket_model_front."').find(':selected').val();
+            refreshAssetBreadcrumb(itemtype, items_id, 'show_front_asset_breadcrumb');
+            refreshSocketDropdown(itemtype, items_id, socketmodels_id, 'sockets_id_endpoint_b', 'show_front_sockets_field');
+
          });
       ");
       echo "</td></tr>";
