@@ -126,7 +126,7 @@ class Cable extends CommonDBTM {
          'field'              => 'rear_itemtype',
          'name'               => sprintf(__('%s (%s)'), _n('Associated item type', 'Associated item types', 1), __('Rear')),
          'datatype'           => 'itemtypename',
-         'itemtype_list'      => 'socket_link_types',
+         'itemtype_list'      => 'socket_types',
          'forcegroupby'       => true,
          'massiveaction'      => false
       ];
@@ -148,7 +148,7 @@ class Cable extends CommonDBTM {
          'field'              => 'front_itemtype',
          'name'               => _n('Associated item type', 'Associated item types', Session::getPluralNumber())." ".__('Front'),
          'datatype'           => 'itemtypename',
-         'itemtype_list'      => 'socket_link_types',
+         'itemtype_list'      => 'socket_types',
          'forcegroupby'       => true,
          'massiveaction'      => false
       ];
