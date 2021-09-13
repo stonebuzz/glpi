@@ -630,7 +630,7 @@ class Cable extends CommonDBTM {
       }
       echo "</span>";
 
-      //Listener to update breacrumb / networkport
+      //Listener to update breacrumb / socket
       echo Html::scriptBlock("
          $(document).on('change', '.input_front_listener', function(e) {
             //wait a little to be sure that dropdown_items_id DOM is effectively refresh
