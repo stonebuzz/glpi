@@ -512,6 +512,7 @@ $CFG_GLPI['javascript'] = [
          'dcroom' => ['gridstack', 'rack']
       ],
       'cable' => ['cable'],
+      'socket' => ['cable'],
    ],
    'config' => [
       'commondropdown'  => [
@@ -519,7 +520,6 @@ $CFG_GLPI['javascript'] = [
          'ProjectTaskTemplate'   => ['tinymce'],
          'SolutionTemplate'      => ['tinymce'],
          'TaskTemplate'          => ['tinymce'],
-         'Socket'                => ['cable'],
       ],
       'notification' => [
          'notificationtemplate' => ['tinymce']

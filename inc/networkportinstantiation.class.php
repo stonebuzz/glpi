@@ -114,31 +114,21 @@ class NetworkPortInstantiation extends CommonDBChild {
    }
 
    function manageSocket() {
-
-      //remove link between old socket and networkport
-      if (isset($this->oldvalues['sockets_id']) && $this->oldvalues['sockets_id'] > 0) {
-         $socket = new Socket();
-         $socket->getFromDB($this->oldvalues['sockets_id']);
-         $socket->update([
-            "id" => $socket->getID(),
-            "itemtype" => '',
-            "items_id" => 0,
-            "networkports_id" => 0
-         ]);
-      }
-
+      //add link to define
       if (isset($this->input['sockets_id']) && $this->input['sockets_id'] > 0) {
          $networkport = new NetworkPort();
-         $networkport->getFromDB($this->fields['networkports_id']);
-
-         $socket = new Socket();
-         $socket->getFromDB($this->input['sockets_id']);
-         $socket->update([
-            "id" => $socket->getID(),
-            "itemtype" => $networkport->fields['itemtype'],
-            "items_id" => $networkport->fields['items_id'],
-            "networkports_id" => $this->fields['networkports_id'],
-         ]);
+         if ($networkport->getFromDB($this->fields['networkports_id'])) {
+            $socket = new Socket();
+            $socket->getFromDB($this->input['sockets_id']);
+            $socket->update([
+               "id"              => $socket->getID(),
+               "itemtype"        => $networkport->fields['itemtype'],
+               "name"            => $socket->fields['name'],
+               "position"        => $networkport->fields['logical_number'],
+               "items_id"        => $networkport->fields['items_id'],
+               "networkports_id" => $this->fields['networkports_id'],
+            ]);
+         }
       }
    }
 
@@ -628,13 +618,14 @@ class NetworkPortInstantiation extends CommonDBChild {
          //find socket attached to NetworkPortEthernet
          $socket = new Socket();
          $value = 0;
-         if ($socket->getFromDBByCrit(["networkports_id" => $this->fields['networkports_id']])) {
+         if ($netport->getID() && $socket->getFromDBByCrit(["networkports_id" => $netport->getID()])) {
             $value = $socket->getID();
          }
 
-         Socket::dropdownSocket("sockets_id", $value,
-                                    $lastItem->fields['locations_id'], 1, $lastItem->getEntityID(),
-                                    $netport->fields["itemtype"]);
+         Socket::dropdown(['name'      => 'sockets_id',
+                           'value'     => $value,
+                           'entity'    => $lastItem->getEntityID(),
+                           ]);
       } else {
          echo __('item not linked to an object');
       }
