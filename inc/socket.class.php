@@ -46,7 +46,7 @@ class Socket extends CommonDBChild {
    static public $itemtype = 'itemtype';
    static public $items_id = 'items_id';
    static public $checkParentRights  = self::DONT_CHECK_ITEM_RIGHTS;
-   
+
    // From CommonDBTM
    public $dohistory          = true;
    static $rightname          = 'cable_management';
@@ -77,7 +77,6 @@ class Socket extends CommonDBChild {
    static function showNetworkPortForm($itemtype, $items_id, $networkports_id = 0, $options = []) {
 
       global $CFG_GLPI;
-
 
       //if form is called from an item, retrive itemtype and items
       if (isset($options['_add_fromitem'])) {
@@ -119,7 +118,6 @@ class Socket extends CommonDBChild {
                              'condition'           => ['items_id' => $items_id,
                                                        'itemtype' => $itemtype]]);
       echo "</span>";
-
 
       //Listener to update breacrumb / socket
       echo Html::scriptBlock("
@@ -584,15 +582,13 @@ class Socket extends CommonDBChild {
          'FROM'   => getTableForItemType(Socket::getType()),
          'WHERE'  => [
            'networkports_id' => $this->fields['networkports_id'],
-           'id' => ['<>', $this->fields['id']]
-        ]]);
+           'id' => ['<>', $this->fields['id']]]]);
 
          foreach (Socket::getFromIter($iter) as $socket) {
             $socket->fields['networkports_id'] = 0;
             $socket->update($socket->fields);
          }
       }
-
    }
 
    }
@@ -837,9 +833,8 @@ class Socket extends CommonDBChild {
          Socket::dropdownWiringSide("wiring_side", []);
          echo "</td>";
          echo "<td>".__('Itemtype')."</td><td>";
-         Dropdown::showFromArray('itemtype', self::getSocketLinkTypes(),[]);
+         Dropdown::showFromArray('itemtype', self::getSocketLinkTypes(), []);
          echo "</td>";
-
 
          echo "<input type='hidden' name='entities_id' value='".$_SESSION['glpiactive_entity']."'>";
          echo "<input type='hidden' name='locations_id' value='$ID'><td>";
@@ -872,7 +867,7 @@ class Socket extends CommonDBChild {
          Socket::dropdownWiringSide("wiring_side", []);
          echo "</td>";
          echo "<td>".__('Itemtype')."</td><td>";
-         Dropdown::showFromArray('itemtype', self::getSocketLinkTypes(),[]);
+         Dropdown::showFromArray('itemtype', self::getSocketLinkTypes(), []);
          echo "</td>";
 
          echo "<td>";
