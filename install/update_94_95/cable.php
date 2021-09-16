@@ -136,9 +136,8 @@ if (!$DB->tableExists('glpi_networkportbnctypes')) {
       KEY `name` (`name`),
       KEY `date_mod` (`date_mod`),
       KEY `date_creation` (`date_creation`)
-      ) ENGINE = InnoDB DEFAULT CHARSET = {$default_charset} COLLATE = {$default_collation} ROW_FORMAT=DYNAMIC;";
-   $DB->queryOrDie($query, "10.0 add table glpi_networkportbnctypes");
-}
+    ) ENGINE=InnoDB DEFAULT CHARSET = {$default_charset} COLLATE = {$default_collation} ROW_FORMAT=DYNAMIC;";
+   $DB->queryOrDie($query, "10.0 add table glpi_sockets");
 
 if (!$DB->tableExists('glpi_networkportbncs')) {
    $query = "CREATE TABLE `glpi_networkportbncs` (
