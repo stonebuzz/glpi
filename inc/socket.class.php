@@ -703,10 +703,17 @@ class Socket extends CommonDropdown {
          echo "</td>";
          echo "<td>".__('Wiring side')."</td><td>";
          Socket::dropdownWiringSide("wiring_side", []);
+         echo "</td>";
+         echo "<td>".__('Itemtype')."</td><td>";
+         Dropdown::showFromArray('itemtype', self::getSocketLinkTypes(), []);
+         echo "</td>";
+
+         echo "<td>";
          echo "<input type='hidden' name='entities_id' value='".$_SESSION['glpiactive_entity']."'>";
-         echo "<input type='hidden' name='locations_id' value='$ID'></td>";
-         echo "<td><input type='submit' name='add' value=\""._sx('button', 'Add')."\" class='submit'>";
-         echo "</td></tr>\n";
+         echo "<input type='hidden' name='locations_id' value='$ID'>";
+         echo "<input type='submit' name='execute_single' value=\""._sx('button', 'Add')."\" class='submit'>";
+         echo "</td>";
+         echo "</tr>\n";
          echo "</table>\n";
          Html::closeForm();
 
@@ -733,12 +740,12 @@ class Socket extends CommonDropdown {
          echo "<td>".__('Wiring side')."</td><td>";
          Socket::dropdownWiringSide("wiring_side", []);
 
+         echo "<td>";
          echo "<input type='hidden' name='entities_id' value='".$_SESSION['glpiactive_entity']."'>";
          echo "<input type='hidden' name='locations_id' value='$ID'>";
-         echo "<input type='hidden' name='_method' value='AddMulti'></td>";
-         echo "<td><input type='submit' name='execute' value=\""._sx('button', 'Add')."\"
-                    class='submit'>";
-         echo "</td></tr>\n";
+         echo "<input type='submit' name='execute_multi' value=\""._sx('button', 'Add')."\"class='submit'>";
+         echo "</td>";
+         echo "</tr>\n";
          echo "</table>\n";
          Html::closeForm();
          echo "</div>";
