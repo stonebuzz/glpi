@@ -33,7 +33,10 @@
 namespace Glpi\Features;
 
 use Agent;
+use CommonDBTM;
+use Computer;
 use Computer_Item;
+use DatabaseInstance;
 use Glpi\Inventory\Conf;
 use Html;
 use Plugin;
@@ -42,6 +45,8 @@ use RefusedEquipment;
 use Toolbox;
 
 trait Inventoriable {
+   /** @var CommonDBTM|null */
+   protected ?CommonDBTM $agent = null;
 
    public function pre_purgeInventory() {
       $file_name = $this->getInventoryFileName();
@@ -60,12 +65,14 @@ trait Inventoriable {
       }
 
       $inventory_dir_path = GLPI_INVENTORY_DIR . '/';
+      $itemtype = $this->agent->fields['itemtype'] ?? $this->getType();
+      $items_id = $this->agent->fields['items_id'] ?? $this->fields['id'];
 
       $conf = new Conf();
       //most files will be XML for now
-      $filename = $conf->buildInventoryFileName(static::getType(), $this->fields['id'], 'xml');
+      $filename = $conf->buildInventoryFileName($itemtype, $items_id, 'xml');
       if (!file_exists($inventory_dir_path . $filename)) {
-         $filename = $conf->buildInventoryFileName(static::getType(), $this->fields['id'], 'json');
+         $filename = $conf->buildInventoryFileName($itemtype, $items_id, 'json');
          if (!file_exists($inventory_dir_path . $filename)) {
             Toolbox::logWarning('Inventory file missing: ' . $filename);
             return null;
@@ -89,6 +96,8 @@ trait Inventoriable {
 
       echo '<tr>';
       echo '<th colspan="4">'.__('Inventory information');
+
+      $agent = $this->getInventoryAgent();
 
       $download_file = $this->getInventoryFileName(false);
       if ($download_file !== null) {
@@ -127,56 +136,42 @@ trait Inventoriable {
       echo '</th>';
       echo '</tr>';
 
-      $agent = new Agent();
-      $iterator = $DB->request(Agent::getTable(), [
-         'WHERE'     => [
-            'itemtype' => $this->getType(),
-            'items_id' => $this->fields['id']
-         ],
-         'ORDERBY'    => ['last_contact DESC'],
-      ]);
-
-      $has_agent = false;
-      if (count($iterator)) {
-         $has_agent = true;
-         $agent->getFromDB($iterator->next()['id']);
-      }
-
-      //if no agent has been found, check if there is a linked item, and find its agent
-      if (!$has_agent && $this->getType() == 'Computer') {
-         $citem = new Computer_Item;
-         $has_relation = $citem->getFromDBByCrit([
-            'itemtype' => $this->getType(),
-            'items_id' => $this->fields['id']
-         ]);
-         if ($has_relation) {
-            $has_agent = $agent->getFromDBByCrit([
-               'itemtype' => \Computer::getType(),
-               'items_id' => $citem->fields['computers_id']
-            ]);
-         }
-      }
-
-      if (!$has_agent) {
+      if ($agent === null) {
          echo '<tr class="tab_bg_1">';
          echo '<td colspan="4">'.__('No agent has been linked.').'</td>';
          echo "</tr>";
-         return;
+      } else {
+         $this->displayAgentInformation();
       }
+
+      // Display auto inventory information
+      if (!empty($this->fields['id'])
+          && $this->fields["is_dynamic"]) {
+         echo "<tr class='tab_bg_1'><td colspan='4'>";
+         Plugin::doHook("autoinventory_information", $this);
+         echo "</td></tr>";
+      }
+   }
+
+   /**
+    * Display agent information
+    */
+   protected function displayAgentInformation() {
+      global $CFG_GLPI;
 
       echo '<tr class="tab_bg_1">';
       echo '<td>'.Agent::getTypeName(1).'</td>';
-      echo '<td>'.$agent->getLink().'</td>';
+      echo '<td>'.$this->agent->getLink().'</td>';
 
       echo '<td>'.__('Useragent').'</td>';
-      echo '<td>'.$agent->fields['useragent'].'</td>';
+      echo '<td>'.$this->agent->fields['useragent'].'</td>';
       echo '</tr>';
 
       echo '<tr class="tab_bg_1">';
       echo '<td>'.__('Inventory tag').'</td>';
-      echo '<td>'.$agent->fields['tag'].'</td>';
+      echo '<td>'.$this->agent->fields['tag'].'</td>';
       echo '<td>' . __('Last inventory') . '</td>';
-      echo '<td>' . Html::convDateTime($agent->fields['last_contact']) . '</td>';
+      echo '<td>' . Html::convDateTime($this->agent->fields['last_contact']) . '</td>';
       echo '</tr>';
 
       echo '<tr class="tab_bg_1">';
@@ -199,8 +194,7 @@ trait Inventoriable {
                   type: 'GET',
                   url: '{$CFG_GLPI['root_doc']}/ajax/agent.php',
                   timeout: 3000, //3 seconds timeout
-                  dataType: 'json',
-                  data: {'action': '{$status}', 'id': '{$agent->fields['id']}'},
+                  data: {'action': '{$status}', 'id': '{$this->agent->fields['id']}'},
                   success: function(json) {
                      $('#agent_status').html(json.answer);
                   }
@@ -212,8 +206,7 @@ trait Inventoriable {
                   type: 'GET',
                   url: '{$CFG_GLPI['root_doc']}/ajax/agent.php',
                   timeout: 3000, //3 seconds timeout
-                  dataType: 'json',
-                  data: {'action': '{$inventory}', 'id': '{$agent->fields['id']}'},
+                  data: {'action': '{$inventory}', 'id': '{$this->agent->fields['id']}'},
                   success: function(json) {
                      $('#inventory_status').html(json.answer);
                   }
@@ -223,13 +216,57 @@ trait Inventoriable {
          });
 JAVASCRIPT;
       echo Html::scriptBlock($js);
+   }
 
-      // Display auto inventory informations
-      if (!empty($this->fields['id'])
-          && $this->fields["is_dynamic"]) {
-         echo "<tr class='tab_bg_1'><td colspan='4'>";
-         Plugin::doHook("autoinventory_information", $this);
-         echo "</td></tr>";
+   public function getInventoryAgent(): ?Agent {
+      global $DB;
+
+      $agent = new Agent();
+      $iterator = $DB->request([
+         'SELECT'    => ['id'],
+         'FROM'      => Agent::getTable(),
+         'WHERE'     => [
+            'itemtype' => $this->getType(),
+            'items_id' => $this->fields['id']
+         ],
+         'ORDERBY'   => ['last_contact DESC'],
+         'LIMIT'     => 1
+      ]);
+
+      $has_agent = false;
+      if (count($iterator)) {
+         $has_agent = true;
+         $agent->getFromDB($iterator->next()['id']);
       }
+
+      //if no agent has been found, check if there is a linked item for databases
+      if (!$has_agent && $this instanceof DatabaseInstance) {
+         if (!empty($this->fields['itemtype'] && !empty($this->fields['items_id']))) {
+            $has_agent = $agent->getFromDBByCrit([
+               'itemtype' => $this->fields['itemtype'],
+               'items_id' => $this->fields['items_id']
+            ]);
+         }
+      }
+
+      //if no agent has been found, check if there is a linked item, and find its agent
+      if (!$has_agent && $this instanceof Computer) {
+         $citem = new Computer_Item();
+         $has_relation = $citem->getFromDBByCrit([
+            'itemtype' => $this->getType(),
+            'items_id' => $this->fields['id']
+         ]);
+         if ($has_relation) {
+            $has_agent = $agent->getFromDBByCrit([
+               'itemtype' => Computer::getType(),
+               'items_id' => $citem->fields['computers_id']
+            ]);
+         }
+      }
+
+      if ($has_agent) {
+         $this->agent = $agent;
+      }
+      return $this->agent;
    }
 }

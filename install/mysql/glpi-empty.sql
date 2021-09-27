@@ -8624,11 +8624,13 @@ CREATE TABLE `glpi_databaseinstances` (
   `users_id_tech` int NOT NULL DEFAULT '0',
   `groups_id_tech` int NOT NULL DEFAULT '0',
   `states_id` int NOT NULL DEFAULT '0',
-  `is_onbackup` tinyint(1) NOT NULL DEFAULT '0',
-  `is_active` tinyint(1) NOT NULL DEFAULT '0',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
-  `is_helpdesk_visible` tinyint(1) NOT NULL DEFAULT '1',
-  `is_dynamic` tinyint(1) NOT NULL DEFAULT '0',
+  `itemtype` varchar(100) NOT NULL DEFAULT '',
+  `items_id` int NOT NULL DEFAULT '0',
+  `is_onbackup` tinyint NOT NULL DEFAULT '0',
+  `is_active` tinyint NOT NULL DEFAULT '0',
+  `is_deleted` tinyint NOT NULL DEFAULT '0',
+  `is_helpdesk_visible` tinyint NOT NULL DEFAULT '1',
+  `is_dynamic` tinyint NOT NULL DEFAULT '0',
   `date_creation` timestamp NULL DEFAULT NULL,
   `date_mod` timestamp NULL DEFAULT NULL,
   `date_lastboot` timestamp NULL DEFAULT NULL,
@@ -8645,23 +8647,13 @@ CREATE TABLE `glpi_databaseinstances` (
   KEY `users_id_tech` (`users_id_tech`),
   KEY `groups_id_tech` (`groups_id_tech`),
   KEY `states_id` (`states_id`),
+  KEY `item` (`itemtype`,`items_id`),
   KEY `is_active` (`is_active`),
   KEY `is_deleted` (`is_deleted`),
   KEY `date_creation` (`date_creation`),
   KEY `date_mod` (`date_mod`),
   KEY `is_helpdesk_visible` (`is_helpdesk_visible`),
   KEY `is_dynamic` (`is_dynamic`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-DROP TABLE IF EXISTS `glpi_databaseinstances_items`;
-CREATE TABLE `glpi_databaseinstances_items` (
- `id` int NOT NULL AUTO_INCREMENT,
- `databaseinstances_id` int NOT NULL DEFAULT '0',
- `items_id` int NOT NULL DEFAULT '0',
- `itemtype` varchar(100) NOT NULL DEFAULT '',
- PRIMARY KEY (`id`),
- UNIQUE KEY `unicity` (`databaseinstances_id`,`items_id`,`itemtype`),
- KEY `item` (`itemtype`,`items_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `glpi_databases`;
