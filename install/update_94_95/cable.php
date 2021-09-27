@@ -187,12 +187,30 @@ if (!$DB->tableExists('glpi_sockets') && $DB->tableExists('glpi_netpoints')) {
    $classes = [NetworkPortEthernet::getType(), NetworkPortFiberchannel::getType()];
    foreach ($classes as $itemtype) {
 
-      $item = new $itemtype();
-      $datas = $item->find(['networkports_id'   => ['<>', 0],
-                            'netpoints_id'      => ['<>', 0]]);
+      $criteria = [
+         'SELECT' => [
+            $itemtype:: getTable().".networkports_id",
+            $itemtype:: getTable() . ".netpoints_id,
+            //load NetPoint infos from SQL because Netpoint PHP class no longer exist (rename To Socket)
+            glpi_netpoints.locations_id AS netpoint_locations_id,
+            glpi_netpoints.name AS netpoint_name,
+            glpi_netpoints.entites_id AS netpoint_entites_id"],
+         'FROM'      => $itemtype::getTable(),
+         'LEFT JOIN' => [
+            'glpi_netpoints' => [
+               'FKEY' => [
+                  'glpi_netpoints'        => 'id',
+                  $itemtype::getTable()   => 'netpoints_id',
+               ]
+            ]
+         ],
+         'WHERE' => ['networkports_id'   => ['<>', 0],
+         'netpoints_id'      => ['<>', 0]]
+      ];
 
-      foreach ($datas as $id => $values) {
+      $iterator = $DB->request($criteria);
 
+      while ($data = $iterator->next()) {
          //Load NetworkPort to get associated item
          $networkport = new NetworkPort();
          if ($networkport->getFromDB($values['networkports_id'])) {
