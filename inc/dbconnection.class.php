@@ -47,6 +47,39 @@ class DBConnection extends CommonDBTM {
       return _n('SQL replica', 'SQL replicas', $nb);
    }
 
+   /**
+    * Return default charset to use.
+    *
+    * @return string
+    *
+    * @since 10.0.0
+    */
+    public static function getDefaultCharset(): string {
+      global $DB;
+
+      if ($DB instanceof DBmysql && !$DB->use_utf8mb4) {
+         return 'utf8';
+      }
+
+      return 'utf8mb4';
+   }
+
+      /**
+    * Return default collation to use.
+    *
+    * @return string
+    *
+    * @since 10.0.0
+    */
+    public static function getDefaultCollation(): string {
+      global $DB;
+
+      if ($DB instanceof DBmysql && !$DB->use_utf8mb4) {
+         return 'utf8_unicode_ci';
+      }
+
+      return 'utf8mb4_unicode_ci';
+   }
 
    /**
     * Create GLPI main configuration file

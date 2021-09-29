@@ -985,6 +985,10 @@ class Profile extends CommonDBTM {
                       ['itemtype'  => 'Appliance',
                             'label'     => Appliance::getTypeName(Session::getPluralNumber()),
                             'field'     => 'appliance'],
+                      ['itemtype'  => 'Cable',
+                            'label'     => __('Cable management'),
+                            'field'     => 'cable_management'
+                      ],
                   ];
       $matrix_options['title'] = __('Management');
       $this->displayRightsChoiceMatrix($rights, $matrix_options);

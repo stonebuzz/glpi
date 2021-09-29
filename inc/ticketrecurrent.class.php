@@ -172,7 +172,7 @@ class TicketRecurrent extends CommonDropdown {
     *
     * @see CommonDropdown::displaySpecificTypeField()
    **/
-   function displaySpecificTypeField($ID, $field = []) {
+   function displaySpecificTypeField($ID, $field = [], $option = []) {
 
       switch ($field['name']) {
          case 'periodicity' :

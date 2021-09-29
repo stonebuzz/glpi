@@ -658,7 +658,6 @@ $RELATION = [
       'glpi_networkportethernets'     => 'items_devicenetworkcards_id',
       'glpi_networkportfiberchannels' => 'items_devicenetworkcards_id',
       'glpi_networkportwifis'         => 'items_devicenetworkcards_id',
-      'glpi_networkportbncs'          => 'items_devicenetworkcards_id',
    ],
 
    'glpi_itilcategories' => [
@@ -807,7 +806,6 @@ $RELATION = [
    'glpi_sockets' => [
       'glpi_networkportethernets'     => 'sockets_id',
       'glpi_networkportfiberchannels' => 'sockets_id',
-      'glpi_networkportbncs'          => 'sockets_id',
    ],
 
    'glpi_networkequipmentmodels' => [

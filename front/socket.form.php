@@ -139,19 +139,6 @@ if (isset($_POST["add"])) {
       && isset($_REQUEST['_from_items_id'])) {
 
       $options['_add_fromitem'] = [
-<<<<<<< HEAD
-         '_from_itemtype' => $_REQUEST['_from_itemtype'] ,
-         '_from_items_id' => $_REQUEST['_from_items_id'] ,
-      ];
-
-}
-
-include (GLPI_ROOT . "/front/dropdown.common.form.php");
-
-
-
-
-=======
          '_from_itemtype' => $_REQUEST['_from_itemtype'],
          '_from_items_id' => $_REQUEST['_from_items_id'],
       ];
@@ -162,5 +149,4 @@ include (GLPI_ROOT . "/front/dropdown.common.form.php");
    Html::footer();
 }
 
->>>>>>> 8d2ef91231... feat(socket): extend CommonDBChild instead of CommonDropdown
 

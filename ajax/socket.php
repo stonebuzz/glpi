@@ -30,18 +30,29 @@
  * ---------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')) {
-   die("Sorry. You can't access this file directly");
-}
+include ('../inc/includes.php');
 
-/// Class ComputerType
-class NetworkPortBncType extends CommonDropdown {
+// Send UTF8 Headers
+header("Content-Type: text/html; charset=UTF-8");
+Html::header_nocache();
 
-   static function getTypeName($nb = 0) {
-      return _n('BNC type', 'BNC types', $nb);
-   }
+Session::checkLoginUser();
 
-   static function getFieldLabel() {
-      return _n('Type', 'Types', 1);
-   }
+switch ($_POST['action']) {
+
+   case 'getItemsFromItemtype':
+      if ($_POST['itemtype'] && class_exists($_POST['itemtype'])) {
+         $_POST['itemtype']::dropdown(['name'                => $_POST['dom_name'],
+                                       'display_emptychoice' => true,
+                                       'rand' => $_POST['dom_rand']]);
+
+      }
+      break;
+
+   case 'getNetworkPortFromItem':
+      NetworkPort::dropdown(['name'                => 'networkports_id',
+                             'display_emptychoice' => true,
+                             'condition'           => ["items_id" => $_POST['items_id'],
+                                                       "itemtype" => $_POST['itemtype']]]);
+      break;
 }

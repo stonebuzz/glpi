@@ -30,8 +30,6 @@
  * ---------------------------------------------------------------------
  */
 
-use Glpi\Event;
-
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
@@ -262,7 +260,7 @@ class Socket extends CommonDBChild {
 
 
    /**
-    * Get sides
+    * Get possible itemtype
     * @return array Array of types
    **/
    static function getSocketLinkTypes() {
@@ -271,8 +269,6 @@ class Socket extends CommonDBChild {
       foreach ($CFG_GLPI["socket_types"] as $itemtype) {
          if ($item = getItemForItemtype($itemtype)) {
             $values[$itemtype] = $item->getTypeName();
-         } else {
-            unset($CFG_GLPI["socket_link_types"][$key]);
          }
       }
       return $values;
@@ -309,20 +305,17 @@ class Socket extends CommonDBChild {
     * @return array Array of types
    **/
    static function getSides() {
-
-      $options = [
-         self::REAR   => __('Rear'),
-         self::FRONT  => __('Front'),
+      return [
+         self::REAR   => __('Endpoint A'),
+         self::FRONT  => __('Endpoint B'),
       ];
-
-      return $options;
    }
 
 
    function post_getEmpty() {
       $this->fields['itemtype'] = 'Computer';
+      $this->fields['position'] = -1;
    }
-
 
 
    /**
@@ -333,7 +326,6 @@ class Socket extends CommonDBChild {
     * @param integer $value     status ID
    **/
    static function getWiringSideName($value) {
-
       $tab  = static::getSides();
       // Return $value if not defined
       return (isset($tab[$value]) ? $tab[$value] : $value);
@@ -350,6 +342,14 @@ class Socket extends CommonDBChild {
 
       $tab[] = [
          'id'                 => '5',
+         'table'              => Socket::getTable(),
+         'field'              => 'position',
+         'name'               => __('Position'),
+         'datatype'           => 'text'
+      ];
+
+      $tab[] = [
+         'id'                 => '6',
          'table'              => SocketModel::getTable(),
          'field'              => 'name',
          'name'               => SocketModel::getTypeName(1),
@@ -357,7 +357,7 @@ class Socket extends CommonDBChild {
       ];
 
       $tab[] = [
-         'id'                 => '6',
+         'id'                 => '7',
          'table'              => Socket::getTable(),
          'field'              => 'itemtype',
          'name'               => _n('Associated item type', 'Associated item types', Session::getPluralNumber()),
@@ -372,7 +372,7 @@ class Socket extends CommonDBChild {
       ];
 
       $tab[] = [
-         'id'                 => '7',
+         'id'                 => '8',
          'table'              => $this->getTable(),
          'field'              => 'items_id',
          'name'               => __('Associated item ID'),
@@ -383,7 +383,7 @@ class Socket extends CommonDBChild {
       ];
 
       $tab[] = [
-         'id'                 => '8',
+         'id'                 => '9',
          'table'              => Socket::getTable(),
          'field'              => 'wiring_side',
          'name'               => __('Wiring side'),
@@ -458,9 +458,6 @@ class Socket extends CommonDBChild {
       return $tab;
    }
 
-
-
-
    /**
     * @since 0.84
     *
@@ -525,8 +522,6 @@ class Socket extends CommonDBChild {
    }
 
 
-
-
    /**
     * check if a socket already exists (before import)
     *
@@ -558,7 +553,6 @@ class Socket extends CommonDBChild {
 
 
    function post_addItem() {
-
       $parent = $this->fields['locations_id'];
       if ($parent) {
          $changes[0] = '0';
@@ -591,10 +585,8 @@ class Socket extends CommonDBChild {
       }
    }
 
-   }
 
    function post_deleteFromDB() {
-
       $parent = $this->fields['locations_id'];
       if ($parent) {
          $changes[0] = '0';
@@ -621,11 +613,10 @@ class Socket extends CommonDBChild {
                   if ($_SESSION['glpishow_count_on_tabs']) {
                      $nb =  countElementsInTable($this->getTable(),
                                                  ['itemtype' => $item->getType(),
-                                                   'items_id' => $item->getID()]);
+                                                  'items_id' => $item->getID()]);
                   }
                   return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);
                }
-
          }
       }
       return '';
@@ -633,7 +624,6 @@ class Socket extends CommonDBChild {
 
 
    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
-
       global $CFG_GLPI;
       if ($item->getType() == 'Location') {
          self::showForLocation($item);
@@ -643,7 +633,8 @@ class Socket extends CommonDBChild {
       return true;
    }
 
-      /**
+
+   /**
     * Print the HTML array of the Socket associated to a Location
     *
     * @param $item Location
@@ -665,7 +656,7 @@ class Socket extends CommonDBChild {
          return false;
       }
 
-      // Link to open a new change
+      // Link to open a new socket
       if ($item->getID() && self::canCreate()) {
          echo "<div class='firstbloc'>";
          Html::showSimpleForm(
@@ -714,6 +705,7 @@ class Socket extends CommonDBChild {
          $header_end    .= "</th>";
       }
       $header_end .= "<th>" . __('Name') . "</th>";
+      $header_end .= "<th>" . __('Position') . "</th>";
       $header_end .= "<th>" . SocketModel::getTypeName(0) . "</th>";
       $header_end .= "<th>" . __('Wiring side') . "</th>";
       $header_end .= "<th>" .  _n('Network port', 'Network ports', Session::getPluralNumber()) . "</th>";
@@ -744,13 +736,20 @@ class Socket extends CommonDBChild {
             echo "<td>" . $socket->fields["name"] . "</td>";
          }
 
+         echo "<td>" . $socket->fields["position"] . "</td>";
          echo "<td>" . Dropdown::getDropdownName(SocketModel::getTable(), $socket->fields["socketmodels_id"]) . "</td>";
          echo "<td>" . self::getWiringSideName($socket->fields["wiring_side"]) . "</td>";
-         echo "<td>" . Dropdown::getDropdownName(NetworkPort::getTable(), $socket->fields["networkports_id"]) . "</td>";
+
+         $networkport = new NetworkPort();
+         if ($networkport->getFromDB($socket->fields["networkports_id"])) {
+            echo "<td><a href='" . $networkport->getLinkURL(). "'>".$networkport->fields['name']."</a></td>";
+         } else {
+            echo "<td></td>";
+         }
 
          $cable = new Cable();
-         if ($cable->getFromDBByCrit(['OR' => ['rear_sockets_id' => $socket->fields["id"],
-                                               'front_sockets_id' => $socket->fields["id"]
+         if ($cable->getFromDBByCrit(['OR' => ['sockets_id_endpoint_a' => $socket->fields["id"],
+                                               'sockets_id_endpoint_b' => $socket->fields["id"]
                                               ]])) {
             echo "<td><a href='" . $cable->getLinkURL(). "'>".$cable->getName()."</a></td>";
          } else {
@@ -767,30 +766,6 @@ class Socket extends CommonDBChild {
          Html::showMassiveActions($massiveactionparams);
          Html::closeForm();
       }
-   }
-
-   /**
-    * @param integer $output_type Output type
-    * @param string  $mass_id     id of the form to check all
-    */
-   static function commonListHeader($output_type = Search::HTML_OUTPUT, $mass_id = '') {
-
-      // New Line for Header Items Line
-      echo Search::showNewLine($output_type);
-      // $show_sort if
-      $header_num                      = 1;
-
-      $items                           = [];
-      $items[(empty($mass_id)?'&nbsp':Html::getCheckAllAsCheckbox($mass_id))] = '';
-      $items[__('Name')]             = "name";
-
-      foreach (array_keys($items) as $key) {
-         $link   = "";
-         echo Search::showHeaderItem($output_type, $key, $header_num, $link);
-      }
-
-      // End Line for column headers
-      echo Search::showEndLine($output_type);
    }
 
 
