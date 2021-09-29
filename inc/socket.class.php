@@ -991,27 +991,4 @@ class Socket extends CommonDBChild {
 
    }
 
-
-   /**
-    * @since 0.84
-    *
-    * @param $row             HTMLTableRow object (default NULL)
-    * @param $item            CommonDBTM object (default NULL)
-    * @param $father          HTMLTableCell object (default NULL)
-    * @param $options   array
-   **/
-   static function getHTMLTableCellsForItem(HTMLTableRow $row = null, CommonDBTM $item = null,
-                                            HTMLTableCell $father = null, $options = []) {
-
-      $column_name = __CLASS__;
-
-      if (isset($options['dont_display'][$column_name])) {
-         return;
-      }
-
-      $row->addCell($row->getHeaderByName($column_name),
-                    Dropdown::getDropdownName("glpi_sockets", $item->fields["sockets_id"]),
-                    $father);
-   }
-
 }
