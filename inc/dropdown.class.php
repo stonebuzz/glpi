@@ -954,20 +954,25 @@ class Dropdown {
              ],
 
              __('Networking') => [
-                 'NetworkInterface' => null,
-                 'Socket' => null,
-                 'Network' => null,
-                 'Vlan' => null,
-                 'LineOperator' => null,
-                 'DomainType' => null,
-                 'DomainRelation' => null,
-                 'DomainRecordType' => null,
-                 'NetworkPortFiberchannelType' => null,
-                 'SocketModel' => null,
-                 'CableType' => null,
-                 'Cable' => null,
-                 'CableStrand' => null,
-             ],
+               'NetworkInterface' => null,
+               'Network' => null,
+               'NetworkPortType' => null,
+               'Vlan' => null,
+               'LineOperator' => null,
+               'DomainType' => null,
+               'DomainRelation' => null,
+               'DomainRecordType' => null,
+               'NetworkPortFiberchannelType' => null,
+
+           ],
+
+           __('Cable management') => [
+            'Cable' => null,
+             'CableType' => null,
+             'CableStrand' => null,
+             'Socket' => null,
+             'SocketModel' => null,
+           ],
 
              __('Internet') => [
                  'IPNetwork' => null,
