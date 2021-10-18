@@ -29,6 +29,7 @@
  * along with GLPI. If not, see <http://www.gnu.org/licenses/>.
  * ---------------------------------------------------------------------
  */
+use Glpi\Socket;
 
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");

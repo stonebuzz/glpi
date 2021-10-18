@@ -70,6 +70,7 @@ class MassiveAction {
 
       if (!empty($POST)) {
 
+         $POST = Toolbox::stripslashes_deep($POST);
          if (!isset($POST['is_deleted'])) {
             $POST['is_deleted'] = 0;
          }

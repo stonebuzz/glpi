@@ -30,6 +30,7 @@
  * ---------------------------------------------------------------------
 */
 
+
 // Current version of GLPI
 define('GLPI_VERSION', '9.5.6');
 if (substr(GLPI_VERSION, -4) === '-dev') {
@@ -248,7 +249,7 @@ $CFG_GLPI["linkgroup_tech_types"]         = ['Computer', 'ConsumableItem', 'Moni
                                                   'SoftwareLicense', 'Certificate', 'Appliance'];
 
 $CFG_GLPI["location_types"]               = ['Budget', 'CartridgeItem', 'ConsumableItem',
-                                                  'Computer', 'Monitor', 'Socket',
+                                                  'Computer', 'Monitor', "Glpi\\Socket",
                                                   'NetworkEquipment', 'Peripheral', 'Phone',
                                                   'Printer', 'Software', 'SoftwareLicense',
                                                   'Ticket', 'User', 'Certificate', 'Item_DeviceSimcard'];
