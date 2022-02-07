@@ -278,14 +278,14 @@ class RuleTicket extends Rule
                             = $action->fields["value"];
                         }
 
+                        $output[$actions[$action->fields["field"]]["appendto"]][] = $value;
+
                      // special case of appliance
                         if ($action->fields["field"] === "assign_appliance") {
                             if (!array_key_exists("items_id", $output) || $output['items_id'] == '0') {
                                 $output["items_id"] = [];
                             }
                             $output["items_id"][Appliance::getType()][] = $value;
-                        } else {
-                            $output[$actions[$action->fields["field"]]["appendto"]][] = $value;
                         }
 
                   // Special case of users_id_requester
