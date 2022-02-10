@@ -62,7 +62,7 @@ class Config extends CommonDBTM {
    static $rightname              = 'config';
 
    static $undisclosedFields      = ['proxy_passwd', 'smtp_passwd', 'glpinetwork_registration_key'];
-   static $saferUndisclosedFields = ['admin_email', 'admin_reply'];
+   static $saferUndisclosedFields = ['admin_email', 'replyto_email'];
 
    static function getTypeName($nb = 0) {
       return __('Setup');
@@ -3877,5 +3877,165 @@ class Config extends CommonDBTM {
       $uuid = Toolbox::getRandomString(40);
       self::setConfigurationValues('core', [$type . '_uuid' => $uuid]);
       return $uuid;
+   }
+
+
+    /**
+     * Try to find a valid sender email from the GLPI configuration
+     *
+     * @param int|null $entities_id  Entity configuration to be used, default to
+     *                               global configuration
+     * @param bool     $no_reply     Should the configured "noreply" address be
+     *                               used (default: false)
+     *
+     * @return array [email => sender address, name => sender name]
+     */
+    public static function getEmailSender(
+      ?int $entities_id = null,
+      bool $no_reply = false
+  ): array {
+      // Try to use the configured noreply address if no response is expected
+      // for this notification
+      if ($no_reply) {
+          $sender = Config::getNoReplyEmailSender($entities_id);
+          if ($sender['email'] !== null) {
+              return $sender;
+          } else {
+              trigger_error('No-Reply address is not defined in configuration.', E_USER_WARNING);
+          }
+      }
+
+      // Try to use the configured "from" email address
+      $sender = Config::getFromEmailSender($entities_id);
+      if ($sender['email'] !== null) {
+          return $sender;
+      }
+
+      // Try to use the configured "admin" email address
+      $sender = Config::getAdminEmailSender($entities_id);
+      if ($sender['email'] !== null) {
+          return $sender;
+      }
+
+      // No valid email was found
+      trigger_error(
+          'No email address is not defined in configuration.',
+          E_USER_WARNING
+      );
+
+      // No values found
+      return [
+          'email' => null,
+          'name'  => null,
+      ];
+  }
+
+  /**
+   * Try to find a valid "from" email from the GLPI configuration
+   *
+   * TODO: Add an entity configuration to be consistent with the behavior of
+   * getAdminEmailSender() and getReplyToEmailSender()
+   *
+   * @param int|null $entities_id  Entity configuration to be used, default to
+   *                               global configuration
+   *
+   * @return array [email => sender address, name => sender name]
+   */
+   public static function getFromEmailSender(?int $entities_id = null): array
+   {
+      return self::getEmailSenderFromEntityOrConfig('from_email', $entities_id);
+   }
+
+  /**
+   * Try to find a valid "admin_email" email from the GLPI configuration
+   *
+   * @param int|null $entities_id  Entity configuration to be used, default to
+   *                               global configuration
+   *
+   * @return array [email => sender address, name => sender name]
+   */
+   public static function getAdminEmailSender(?int $entities_id = null): array
+   {
+      return self::getEmailSenderFromEntityOrConfig('admin_email', $entities_id);
+   }
+
+  /**
+   * Try to find a valid noreply email from the GLPI configuration
+   *
+   * TODO: Add an entity configuration to be consistent with the behavior of
+   * getAdminEmailSender() and getReplyToEmailSender()
+   *
+   * @param int|null $entities_id  Entity configuration to be used, default to
+   *                               global configuration
+   *
+   * @return array [email => noreply address, name => noreply name]
+   */
+   public static function getNoReplyEmailSender(?int $entities_id = null): array
+   {
+      return self::getEmailSenderFromEntityOrConfig('noreply_email', $entities_id);
+   }
+
+  /**
+   * Try to find a valid replyto email from the GLPI configuration
+   *
+   * @param int|null $entities_id  Entity configuration to be used, default to
+   *                               global configuration
+   *
+   * @return array [email => replyto address, name => replyto name]
+   */
+  public static function getReplyToEmailSender(?int $entities_id = null): array
+  {
+      return self::getEmailSenderFromEntityOrConfig('replyto_email', $entities_id);
+  }
+
+   /**
+    * Try to find a valid email from the GLPI configuration
+    *
+    * @param string   $config_name  Configuration name
+    * @param int|null $entities_id  Entity configuration to be used, default to
+    *                               global configuration
+    *
+    * @return array [email => address, name => name]
+    */
+   private static function getEmailSenderFromEntityOrConfig(string $config_name, ?int $entities_id = null): array
+   {
+      global $CFG_GLPI;
+
+      $email_config_name = $config_name;
+      $name_config_name  = $config_name . '_name';
+
+      // Check admin email in specified entity
+      if (!is_null($entities_id)) {
+            $entity_sender_email = trim(
+               Entity::getUsedConfig($email_config_name, $entities_id, '', '')
+            );
+            $entity_sender_name = trim(
+               Entity::getUsedConfig($name_config_name, $entities_id, '', '')
+            );
+
+            if (NotificationMailing::isUserAddressValid($entity_sender_email)) {
+               return [
+                  'email' => $entity_sender_email,
+                  'name'  => $entity_sender_name,
+               ];
+            }
+      }
+
+      // Fallback to global configuration
+      $global_sender_email = $CFG_GLPI[$email_config_name] ?? "";
+      $global_sender_name  = $CFG_GLPI[$name_config_name]  ?? "";
+
+      if (NotificationMailing::isUserAddressValid($global_sender_email)) {
+            return [
+               'email' => $global_sender_email,
+               'name'  => $global_sender_name,
+            ];
+      }
+
+      // No valid values found
+      return [
+            'email' => null,
+            'name'  => null,
+      ];
    }
 }

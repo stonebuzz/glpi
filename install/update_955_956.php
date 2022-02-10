@@ -82,6 +82,23 @@ function update955to956() {
    }
    /* /Add `date` to glpi_documents_items */
 
+
+   $migration->addConfig([
+      'from_email'         => '',
+      'from_email_name'    => '',
+      'noreply_email'      => '',
+      'noreply_email_name' => '',
+      'replyto_email'      => '',
+      'replyto_email_name' => '',
+  ]);
+
+   $migration->changeField('glpi_entities', 'admin_reply', 'replyto_email', 'string');
+   $migration->changeField('glpi_entities', 'admin_reply_name', 'replyto_email_name', 'string');
+   $migration->addField('glpi_entities', 'from_email', 'string', ['update' => '', 'condition' => 'WHERE `id` = 0']);
+   $migration->addField('glpi_entities', 'from_email_name', 'string', ['update' => '', 'condition' => 'WHERE `id` = 0']);
+   $migration->addField('glpi_entities', 'noreply_email', 'string', ['update' => '', 'condition' => 'WHERE `id` = 0']);
+   $migration->addField('glpi_entities', 'noreply_email_name', 'string', ['update' => '', 'condition' => 'WHERE `id` = 0']);
+
    // ************ Keep it at the end **************
    $migration->executeMigration();
 

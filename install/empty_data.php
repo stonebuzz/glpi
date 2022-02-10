@@ -104,8 +104,12 @@ $default_prefs = [
    'notifications_mailing'                   => '0',
    'admin_email'                             => 'admsys@localhost',
    'admin_email_name'                        => '',
-   'admin_reply'                             => '',
-   'admin_reply_name'                        => '',
+   'from_email'                              => '',
+   'from_email_name'                         => '',
+   'noreply_email'                           => '',
+   'noreply_email_name'                      => '',
+   'replyto_email'                           => '',
+   'replyto_email_name'                      => '',
    'mailing_signature'                       => 'SIGNATURE',
    'use_anonymous_helpdesk'                  => '0',
    'use_anonymous_followups'                 => '0',
@@ -303,8 +307,6 @@ $default_prefs = [
    'default_dashboard_assets'                => 'assets',
    'default_dashboard_helpdesk'              => 'assistance',
    'default_dashboard_mini_ticket'           => 'mini_tickets',
-   'admin_email_noreply'                     => '',
-   'admin_email_noreply_name'                => '',
    Impact::CONF_ENABLED                      => exportArrayToDB(Impact::getDefaultItemtypes())
 ];
 
