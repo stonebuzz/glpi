@@ -142,6 +142,129 @@ class Database extends CommonDBChild {
    }
 
 
+   public function rawSearchOptions()
+   {
+
+       $tab = [];
+
+       $tab[] = [
+           'id'                 => 'common',
+           'name'               => $this->getTypeName(1)
+       ];
+
+       $tab[] = [
+           'id'                 => '1',
+           'table'              => $this->getTable(),
+           'field'              => 'name',
+           'name'               => __('Name'),
+           'datatype'           => 'itemlink',
+           'massiveaction'      => false,
+       ];
+
+       $tab[] = [
+           'id'                 => '3',
+           'table'              => $this->getTable(),
+           'field'              => 'is_active',
+           'name'               => __('Active'),
+           'datatype'           => 'bool'
+       ];
+
+       $tab[] = [
+           'id'                 => '4',
+           'table'              => $this->getTable(),
+           'field'              => 'date_mod',
+           'name'               => __('Last update'),
+           'datatype'           => 'datetime',
+           'massiveaction'      => false
+       ];
+
+       $tab[] = [
+           'id'                 => '5',
+           'table'              => $this->getTable(),
+           'field'              => 'date_creation',
+           'name'               => __('Creation date'),
+           'datatype'           => 'datetime',
+           'massiveaction'      => false
+       ];
+
+       $tab[] = [
+           'id'                 => '6',
+           'table'              => $this->getTable(),
+           'field'              => 'size',
+           'unit'               => 'auto',
+           'name'               => __('Global size'),
+           'datatype'           => 'number',
+           'width'              => 1000,
+           'massiveaction'      => false,
+       ];
+
+       $tab[] = [
+           'id'                 => '7',
+           'table'              => 'glpi_entities',
+           'field'              => 'completename',
+           'name'               => Entity::getTypeName(1),
+           'massiveaction'      => false,
+           'datatype'           => 'dropdown'
+       ];
+
+       $tab[] = [
+           'id'                 => '8',
+           'table'              => $this->getTable(),
+           'field'              => 'is_recursive',
+           'name'               => __('Child entities'),
+           'datatype'           => 'bool'
+       ];
+
+       $tab[] = [
+           'id'                 => '9',
+           'table'              => $this->getTable(),
+           'field'              => 'is_onbackup',
+           'name'               => __('Is on backup'),
+           'datatype'           => 'bool'
+       ];
+
+       $tab[] = [
+           'id'                 => '10',
+           'table'              => $this->getTable(),
+           'field'              => 'date_lastbackup',
+           'name'               => __('Last backup date'),
+           'datatype'           => 'date'
+       ];
+
+       $tab[] = [
+           'id'                 => '11',
+           'table'              => DatabaseInstance::getTable(),
+           'field'              => 'name',
+           'linkfield'          => '',
+           'name'               => DatabaseInstance::getTypeName(1),
+           'datatype'           => 'itemlink'
+       ];
+
+       $tab[] = [
+         'id'                 => '12',
+         'table'              => Computer::getTable(),
+         'field'              => 'name',
+         'datatype'           => 'itemlink',
+         'linkfield'          => 'items_id',
+         'name'               => Computer::getTypeName(0),
+         'forcegroupby'       => true,
+         'usehaving'          => true,
+         'massiveaction'      => false,
+         'joinparams'         => [
+            'beforejoin'         => [
+               'table'              => DatabaseInstance::getTable(),
+               'joinparams'         => [
+                  'jointype'           => 'item_itemtype',
+                  'specific_itemtype'  => 'Computer'
+               ]
+            ]
+         ]
+      ];
+
+       return $tab;
+   }
+
+
    static public function rawSearchOptionsToAdd() {
       $tab = [];
       $name = self::getTypeName(Session::getPluralNumber());
