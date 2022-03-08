@@ -58,9 +58,6 @@ class Database extends CommonDBChild {
       $this->addImpactTab($ong, $options);
       $this->addStandardTab('Infocom', $ong, $options);
       $this->addStandardTab('Document_Item', $ong, $options);
-      if ($this->hasImpactTab()) {
-         $this->addStandardTab('Impact', $ong, $options);
-      }
       $this->addStandardTab('KnowbaseItem_Item', $ong, $options);
       $this->addStandardTab('Ticket', $ong, $options);
       $this->addStandardTab('Item_Problem', $ong, $options);
@@ -73,20 +70,6 @@ class Database extends CommonDBChild {
       return $ong;
    }
 
-   /**
-    * Should impact tab be displayed? Check if there is a valid linked item
-    *
-    * @return boolean
-    */
-   protected function hasImpactTab() {
-      foreach ($this->getLinkedItems() as $itemtype => $items) {
-         $class = $itemtype;
-         if (Impact::isEnabled($class) && Session::getCurrentInterface() === "central") {
-            return true;
-         }
-      }
-      return false;
-   }
 
    function showForm($ID, $options = []) {
       $rand = mt_rand();

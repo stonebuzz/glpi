@@ -569,7 +569,6 @@ $CFG_GLPI["default_impact_asset_types"] = [
    Rack::getType()               => "pics/impact/rack.png",
    Software::getType()           => "pics/impact/software.png",
    Database::getType()           => "pics/impact/database.png",
-   DatabaseInstance::getType()   => "pics/impact/database.png",
 ];
 
 /**
@@ -596,6 +595,5 @@ $CFG_GLPI["impact_asset_types"] = $CFG_GLPI["default_impact_asset_types"] + [
    SoftwareLicense::getType()    => "pics/impact/softwarelicense.png",
    Supplier::getType()           => "pics/impact/supplier.png",
    User::getType()               => "pics/impact/user.png",
-   Database::getType()           => "pics/impact/database.png",
    DatabaseInstance::getType()   => "pics/impact/databaseinstance.png",
 ];

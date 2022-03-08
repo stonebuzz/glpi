@@ -75,9 +75,6 @@ class DatabaseInstance extends CommonDBTM {
       $this->addStandardTab('Infocom', $ong, $options);
       $this->addStandardTab('Contract_Item', $ong, $options);
       $this->addStandardTab('Document_Item', $ong, $options);
-      if ($this->hasImpactTab()) {
-         $this->addStandardTab('Impact', $ong, $options);
-      }
       $this->addStandardTab('KnowbaseItem_Item', $ong, $options);
       $this->addStandardTab('Ticket', $ong, $options);
       $this->addStandardTab('Item_Problem', $ong, $options);
@@ -89,21 +86,6 @@ class DatabaseInstance extends CommonDBTM {
       $this->addStandardTab('Lock', $ong, $options);
       $this->addStandardTab('Log', $ong, $options);
       return $ong;
-   }
-
-      /**
-    * Should impact tab be displayed? Check if there is a valid linked item
-    *
-    * @return boolean
-    */
-    protected function hasImpactTab() {
-      foreach ($this->getLinkedItems() as $itemtype => $items) {
-         $class = $itemtype;
-         if (Impact::isEnabled($class) && Session::getCurrentInterface() === "central") {
-            return true;
-         }
-      }
-      return false;
    }
 
    public function getDatabases(): array {
