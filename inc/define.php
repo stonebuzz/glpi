@@ -481,7 +481,7 @@ $CFG_GLPI['domain_types']        = ['Computer', 'Monitor', 'NetworkEquipment', '
                                        'Phone', 'Printer', 'Software', 'Appliance', 'Certificate', 'DatabaseInstance', 'Database'];
 
 $CFG_GLPI['appliance_types']     = ['Computer', 'Monitor', 'NetworkEquipment', 'Peripheral', 'Phone',
-                                       'Printer', 'Software', 'Cluster', 'DatabaseInstance'];
+                                       'Printer', 'Software', 'Cluster', 'DatabaseInstance', 'Database'];
 
 $CFG_GLPI['appliance_relation_types'] = ['Location', 'Network', 'Domain'];
 
@@ -595,4 +595,6 @@ $CFG_GLPI["impact_asset_types"] = $CFG_GLPI["default_impact_asset_types"] + [
    SoftwareLicense::getType()    => "pics/impact/softwarelicense.png",
    Supplier::getType()           => "pics/impact/supplier.png",
    User::getType()               => "pics/impact/user.png",
+   Database::getType()           => "pics/impact/database.png",
+   DatabaseInstance::getType()   => "pics/impact/databaseinstance.png",
 ];

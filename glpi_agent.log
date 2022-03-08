@@ -1,0 +1,25 @@
+[Tue Mar  8 12:11:04 2022][info] target server0: server http://127.0.0.1/GLPI/master/front/inventory.php
+[Tue Mar  8 12:11:04 2022][debug] [http client] Using Compress::Zlib for compression
+[Tue Mar  8 12:11:04 2022][info] sending prolog request to server0
+[Tue Mar  8 12:11:04 2022][debug2] [http client] sending message:
+<?xml version="1.0" encoding="UTF-8" ?>
+<REQUEST>
+  <DEVICEID>Desktop-2021-08-11-10-33-03</DEVICEID>
+  <QUERY>PROLOG</QUERY>
+  <TOKEN>12345678</TOKEN>
+</REQUEST>
+[Tue Mar  8 12:11:05 2022][debug2] format: Zlib
+[Tue Mar  8 12:11:05 2022][debug2] [http client] receiving message:
+{"expiration":24,"status":"ok"}
+[Tue Mar  8 12:11:05 2022][info] server0 answer shows it supports GLPI Agent protocol
+[Tue Mar  8 12:11:05 2022][debug] forking process 45626 to handle child job
+[Tue Mar  8 12:11:05 2022][debug2] child[45626]: forked
+[Tue Mar  8 12:11:05 2022][debug] forking process 45626 to handle task RemoteInventory
+[Tue Mar  8 12:11:05 2022][debug] Remote inventory task execution disabled: no remote set
+[Tue Mar  8 12:11:06 2022][debug] forking process 45634 to handle child job
+[Tue Mar  8 12:11:06 2022][debug2] child[45634]: forked
+[Tue Mar  8 12:11:06 2022][debug] forking process 45634 to handle task WakeOnLan
+[Tue Mar  8 12:11:06 2022][debug2] child[45626] finished
+[Tue Mar  8 12:11:06 2022][error] Can't locate object method "getOptionsInfoByName" via package "GLPI::Agent::Protocol::Contact" at /usr/share/glpi-agent/lib/GLPI/Agent/Task/WakeOnLan.pm line 29.
+[Tue Mar  8 12:11:06 2022][error] fork failed: Inappropriate ioctl for device
+[Tue Mar  8 12:11:06 2022][debug2] server target scheduled: Wed Mar  9 11:38:35 2022

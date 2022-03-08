@@ -68,23 +68,41 @@ class DatabaseInstance extends CommonDBTM {
 
    function defineTabs($options = []) {
       $ong = [];
-      $this->addDefaultFormTab($ong)
-         ->addImpactTab($ong, $options)
-         ->addStandardTab('DatabaseInstance', $ong, $options)
-         ->addStandardTab('Database', $ong, $options)
-         ->addStandardTab('Infocom', $ong, $options)
-         ->addStandardTab('Contract_Item', $ong, $options)
-         ->addStandardTab('Document_Item', $ong, $options)
-         ->addStandardTab('KnowbaseItem_Item', $ong, $options)
-         ->addStandardTab('Ticket', $ong, $options)
-         ->addStandardTab('Item_Problem', $ong, $options)
-         ->addStandardTab('Change_Item', $ong, $options)
-         ->addStandardTab('Certificate_Item', $ong, $options)
-         ->addStandardTab('Notepad', $ong, $options)
-         ->addStandardTab('Domain_Item', $ong, $options)
-         ->addStandardTab('Appliance_Item', $ong, $options)
-         ->addStandardTab('Log', $ong, $options);
+      $this->addDefaultFormTab($ong);
+      $this->addImpactTab($ong, $options);
+      $this->addStandardTab('DatabaseInstance', $ong, $options);
+      $this->addStandardTab('Database', $ong, $options);
+      $this->addStandardTab('Infocom', $ong, $options);
+      $this->addStandardTab('Contract_Item', $ong, $options);
+      $this->addStandardTab('Document_Item', $ong, $options);
+      if ($this->hasImpactTab()) {
+         $this->addStandardTab('Impact', $ong, $options);
+      }
+      $this->addStandardTab('KnowbaseItem_Item', $ong, $options);
+      $this->addStandardTab('Ticket', $ong, $options);
+      $this->addStandardTab('Item_Problem', $ong, $options);
+      $this->addStandardTab('Change_Item', $ong, $options);
+      $this->addStandardTab('Certificate_Item', $ong, $options);
+      $this->addStandardTab('Notepad', $ong, $options);
+      $this->addStandardTab('Domain_Item', $ong, $options);
+      $this->addStandardTab('Appliance_Item', $ong, $options);
+      $this->addStandardTab('Log', $ong, $options);
       return $ong;
+   }
+
+      /**
+    * Should impact tab be displayed? Check if there is a valid linked item
+    *
+    * @return boolean
+    */
+    protected function hasImpactTab() {
+      foreach ($this->getLinkedItems() as $itemtype => $items) {
+         $class = $itemtype;
+         if (Impact::isEnabled($class) && Session::getCurrentInterface() === "central") {
+            return true;
+         }
+      }
+      return false;
    }
 
    public function getDatabases(): array {
