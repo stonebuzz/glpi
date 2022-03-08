@@ -2659,11 +2659,11 @@ class Toolbox {
           || (($url['host'] != $_SERVER['SERVER_NAME'])
             && (!isset($_SERVER['HTTP_X_FORWARDED_SERVER'])
                || ($url['host'] != $_SERVER['HTTP_X_FORWARDED_SERVER'])))) {
-         if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+         /*if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
             Html::displayErrorAndDie(__("None or Invalid host in HTTP_REFERER. Reload previous page before doing action again."),
                                   true);
             $isvalidReferer = false;
-         }
+         }*/
       }
 
       if (!isset($url['path'])

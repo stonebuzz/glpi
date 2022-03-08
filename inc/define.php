@@ -451,7 +451,7 @@ $CFG_GLPI['inventory_types'] = [
 
 $CFG_GLPI['inventory_lockable_objects'] = ['Computer_Item',  'Item_SoftwareLicense',
                                            'Item_SoftwareVersion', 'Item_Disk', 'ComputerVirtualMachine',
-                                           'NetworkPort', 'NetworkName', 'IPAddress'];
+                                           'NetworkPort', 'NetworkName', 'IPAddress', 'Database', 'DatabaseInstance'];
 
 $CFG_GLPI["kb_types"]              = ['Budget', 'Change', 'Computer',
                                            'Contract', 'Entity',
@@ -568,7 +568,8 @@ $CFG_GLPI["default_impact_asset_types"] = [
    Printer::getType()            => "pics/impact/printer.png",
    Rack::getType()               => "pics/impact/rack.png",
    Software::getType()           => "pics/impact/software.png",
-   DatabaseInstance::getType()           => "pics/impact/database.png",
+   Database::getType()           => "pics/impact/database.png",
+   DatabaseInstance::getType()   => "pics/impact/database.png",
 ];
 
 /**

@@ -86,6 +86,7 @@ class DatabaseInstance extends CommonDBTM {
       $this->addStandardTab('Notepad', $ong, $options);
       $this->addStandardTab('Domain_Item', $ong, $options);
       $this->addStandardTab('Appliance_Item', $ong, $options);
+      $this->addStandardTab('Lock', $ong, $options);
       $this->addStandardTab('Log', $ong, $options);
       return $ong;
    }
