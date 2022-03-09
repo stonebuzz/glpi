@@ -264,7 +264,15 @@ class Database extends CommonDBChild {
          ]
       ];
 
-       return $tab;
+      $tab[] = [
+         'id'                 => '13',
+         'table'              => $this->getTable(),
+         'field'              => 'is_dynamic',
+         'name'               => __('Dynamic'),
+         'datatype'           => 'bool'
+      ];
+
+      return $tab;
    }
 
 
@@ -346,6 +354,21 @@ class Database extends CommonDBChild {
          ]
       ];
 
+      $tab[] = [
+         'id'                 => '174',
+         'table'              => self::getTable(),
+         'field'              => 'is_dynamic',
+         'linkfield'          => '',
+         'name'               => __('Dynamic'),
+         'datatype'           => 'bool',
+         'joinparams'         => [
+             'jointype'           => 'child'
+         ],
+         'massiveaction'      => false,
+         'forcegroupby'       => true,
+         'searchtype'         => ['equals']
+      ];
+
       return $tab;
    }
 
@@ -422,6 +445,7 @@ class Database extends CommonDBChild {
          $header .= "<th>".sprintf(__('%1$s (%2$s)'), __('Size'), __('Mio'))."</th>";
          $header .= "<th>".__('Is active')."</th>";
          $header .= "<th>".__('Has backup')."</th>";
+         $header .= "<th>" . __('Is dynamic') . "</th>";
          $header .= "</tr>";
          echo $header;
 
@@ -433,6 +457,7 @@ class Database extends CommonDBChild {
             echo "<td>".$row['size']."</td>";
             echo "<td>".Dropdown::getYesNo($db->fields['is_active'])."</td>";
             echo "<td>".Dropdown::getYesNo($db->fields['is_onbackup'])."</td>";
+            echo "<td>".Dropdown::getYesNo($db->fields['is_dynamic']) . "</td>";
             echo "</tr>";
             Session::addToNavigateListItems('DatabaseInstance', $row['id']);
 

@@ -23,3 +23,60 @@
 [Tue Mar  8 12:11:06 2022][error] Can't locate object method "getOptionsInfoByName" via package "GLPI::Agent::Protocol::Contact" at /usr/share/glpi-agent/lib/GLPI/Agent/Task/WakeOnLan.pm line 29.
 [Tue Mar  8 12:11:06 2022][error] fork failed: Inappropriate ioctl for device
 [Tue Mar  8 12:11:06 2022][debug2] server target scheduled: Wed Mar  9 11:38:35 2022
+[Tue Mar  8 17:14:18 2022][debug] [http server] HTTPD service stopped
+[Tue Mar  8 17:14:18 2022][info] GLPI Agent exiting (1345)
+[Wed Mar  9 08:26:33 2022][debug] Logger backend File initialized
+[Wed Mar  9 08:26:33 2022][debug] GLPI Agent (1.1-git8608d957)
+[Wed Mar  9 08:26:33 2022][debug] Configuration directory: /etc/glpi-agent
+[Wed Mar  9 08:26:33 2022][debug] Data directory: /usr/share/glpi-agent
+[Wed Mar  9 08:26:33 2022][debug] Storage directory: /var/lib/glpi-agent
+[Wed Mar  9 08:26:33 2022][debug] Lib directory: /usr/share/glpi-agent/lib
+[Wed Mar  9 08:26:34 2022][debug] [target server0] Next server contact planned for Wed Mar  9 11:38:35 2022
+[Wed Mar  9 08:26:35 2022][debug2] getAvailableTasks() : add of task Inventory version 1.10
+[Wed Mar  9 08:26:35 2022][debug2] getAvailableTasks() : add of task RemoteInventory version 0.9
+[Wed Mar  9 08:26:35 2022][debug2] getAvailableTasks() : add of task WakeOnLan version 2.2
+[Wed Mar  9 08:26:35 2022][debug] Available tasks:
+[Wed Mar  9 08:26:35 2022][debug] - Inventory: 1.10
+[Wed Mar  9 08:26:35 2022][debug] - RemoteInventory: 0.9
+[Wed Mar  9 08:26:35 2022][debug] - WakeOnLan: 2.2
+[Wed Mar  9 08:26:35 2022][debug] target server0: server http://127.0.0.1/GLPI/master/front/inventory.php
+[Wed Mar  9 08:26:35 2022][debug] Planned tasks for server0: WakeOnLan,Inventory,RemoteInventory
+[Wed Mar  9 08:26:35 2022][debug] Built by Debian
+[Wed Mar  9 08:26:35 2022][debug] Source time: 2022-01-25 02:11
+[Wed Mar  9 08:26:35 2022][info] GLPI Agent starting
+[Wed Mar  9 08:26:35 2022][debug] Skipping running daemon control based on PID file checking
+[Wed Mar  9 08:26:35 2022][debug] GLPI Agent started in foreground
+[Wed Mar  9 08:26:43 2022][debug] Trusted target ip: 127.0.0.1/32, ::ffff:7f00:1/128, ::1/128
+[Wed Mar  9 08:26:44 2022][debug] Trusted client ip: 127.0.0.1/32, ::ffff:7f00:1/128, ::1/128
+[Wed Mar  9 08:26:44 2022][debug] Trusted client ip: 192.168.1.24/32, ::ffff:c0a8:118/128
+[Wed Mar  9 08:26:44 2022][debug] [http server] Trying to load Inventory Server plugin
+[Wed Mar  9 08:26:47 2022][debug] [inventory server plugin] Initializing Inventory v1.1 Server plugin...
+[Wed Mar  9 08:26:47 2022][debug] [inventory server plugin] Loading Inventory Server plugin configuration from /etc/glpi-agent/inventory-server-plugin.cfg
+[Wed Mar  9 08:26:47 2022][debug] [target listener] Next server contact planned for Wed Mar  9 09:22:15 2022
+[Wed Mar  9 08:26:47 2022][debug] [http server] HTTPD Inventory Server plugin loaded but disabled
+[Wed Mar  9 08:26:47 2022][debug] [http server] Trying to load Proxy Server plugin
+[Wed Mar  9 08:26:57 2022][debug] [proxy server plugin] Initializing Proxy v2.1 Server plugin...
+[Wed Mar  9 08:26:57 2022][debug] [proxy server plugin] Loading Proxy Server plugin configuration from /etc/glpi-agent/proxy-server-plugin.cfg
+[Wed Mar  9 08:26:57 2022][debug] [http server] HTTPD Proxy Server plugin loaded but disabled
+[Wed Mar  9 08:26:57 2022][debug] [http server] Trying to load SecondaryProxy Server plugin
+[Wed Mar  9 08:26:57 2022][debug] [proxy2 server plugin] Initializing SecondaryProxy v1.1 Server plugin...
+[Wed Mar  9 08:26:57 2022][debug] [proxy2 server plugin] Loading SecondaryProxy Server plugin configuration from /etc/glpi-agent/proxy2-server-plugin.cfg
+[Wed Mar  9 08:26:57 2022][debug] [http server] HTTPD SecondaryProxy Server plugin loaded but disabled
+[Wed Mar  9 08:26:57 2022][debug] [http server] Trying to load SSL Server plugin
+[Wed Mar  9 08:26:57 2022][debug] [ssl server plugin] Initializing SSL v1.0 Server plugin...
+[Wed Mar  9 08:26:57 2022][debug] [ssl server plugin] Loading SSL Server plugin configuration from /etc/glpi-agent/ssl-server-plugin.cfg
+[Wed Mar  9 08:26:57 2022][debug] [http server] HTTPD SSL Server plugin loaded but disabled
+[Wed Mar  9 08:26:57 2022][debug] [http server] Trying to load Test Server plugin
+[Wed Mar  9 08:26:57 2022][debug] [server test plugin] Initializing Test v1.1-git8608d957 Server plugin...
+[Wed Mar  9 08:26:57 2022][debug] [server test plugin] Loading Test Server plugin configuration from /etc/glpi-agent/server-test-plugin.cfg
+[Wed Mar  9 08:26:57 2022][debug] [http server] HTTPD Test Server plugin loaded but disabled
+[Wed Mar  9 08:26:57 2022][debug] [http server] Trying to load ToolBox Server plugin
+[Wed Mar  9 08:26:57 2022][debug] [toolbox plugin] Initializing ToolBox v1.0 Server plugin...
+[Wed Mar  9 08:26:57 2022][debug] [toolbox plugin] Loading ToolBox Server plugin configuration from /etc/glpi-agent/toolbox-plugin.cfg
+[Wed Mar  9 08:26:57 2022][debug] [http server] HTTPD ToolBox Server plugin loaded but disabled
+[Wed Mar  9 08:26:57 2022][info] [http server] HTTPD service started on port 62354
+[Wed Mar  9 08:26:58 2022][debug2] Waiting in mainloop
+[Wed Mar  9 08:26:58 2022][debug2] server target next run: Wed Mar  9 11:38:35 2022 - http://127.0.0.1/GLPI/master/front/inventory.php
+[Wed Mar  9 08:27:08 2022][debug] target server0: init event for WakeOnLan task
+[Wed Mar  9 08:27:10 2022][debug] target server0: init event for Inventory task
+[Wed Mar  9 08:27:11 2022][debug] target server0: init event for RemoteInventory task
