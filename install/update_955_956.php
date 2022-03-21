@@ -135,6 +135,8 @@ function update955to956() {
          `name` varchar(255) DEFAULT NULL,
          `entities_id` int NOT NULL DEFAULT '0',
          `is_recursive` tinyint NOT NULL DEFAULT '0',
+         `is_template` tinyint(1) NOT NULL DEFAULT '0',
+         `template_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
          `itemtype_endpoint_a` varchar(255) DEFAULT NULL,
          `itemtype_endpoint_b` varchar(255) DEFAULT NULL,
          `items_id_endpoint_a` int NOT NULL DEFAULT '0',
@@ -166,22 +168,38 @@ function update955to956() {
          KEY `states_id` (`states_id`),
          KEY `complete` (`entities_id`,`name`),
          KEY `is_recursive` (`is_recursive`),
+         KEY `is_template` (`is_template`),
          KEY `users_id_tech` (`users_id_tech`),
          KEY `cabletypes_id` (`cabletypes_id`),
          KEY `date_mod` (`date_mod`),
          KEY `date_creation` (`date_creation`)
          ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->queryOrDie($query, "10.0 add table glpi_cables");
-   
+
+
+
       $migration->addField('glpi_states', 'is_visible_cable', 'bool', [
          'value' => 1,
          'after' => 'is_visible_appliance'
       ]);
       $migration->addKey('glpi_states', 'is_visible_cable');
    }
-   
+
+   if (!$DB->fieldExists("glpi_cables", "is_template", false)) {
+      $query = "ALTER TABLE `glpi_cables`
+               ADD `is_template` tinyint(1) NOT NULL DEFAULT '0' AFTER `is_recursive` ";
+      $DB->queryOrDie($query, "4203");
+      $migration->addKey('glpi_cables', 'is_template');
+   }
+
+
+   if (!$DB->fieldExists("glpi_cables", "template_name", false)) {
+      $query = "ALTER TABLE `glpi_cables`
+               ADD `template_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL AFTER `is_template` ";
+      $DB->queryOrDie($query, "4203");
+   }
+
    if (!$DB->tableExists('glpi_sockets')) {
-   
       //create socket table
       $query = "CREATE TABLE `glpi_sockets` (
          `id` int NOT NULL AUTO_INCREMENT,
