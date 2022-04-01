@@ -1974,16 +1974,16 @@
         },
         {
             "name": "paragonie/sodium_compat",
-            "version": "v1.16.1",
+            "version": "v1.17.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/sodium_compat.git",
-                "reference": "2e856afe80bfc968b47da1f4a7e1ea8f03d06b38"
+                "reference": "ac994053faac18d386328c91c7900f930acadf1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/2e856afe80bfc968b47da1f4a7e1ea8f03d06b38",
-                "reference": "2e856afe80bfc968b47da1f4a7e1ea8f03d06b38",
+                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/ac994053faac18d386328c91c7900f930acadf1e",
+                "reference": "ac994053faac18d386328c91c7900f930acadf1e",
                 "shasum": ""
             },
             "require": {
@@ -2054,9 +2054,9 @@
             ],
             "support": {
                 "issues": "https://github.com/paragonie/sodium_compat/issues",
-                "source": "https://github.com/paragonie/sodium_compat/tree/v1.16.1"
+                "source": "https://github.com/paragonie/sodium_compat/tree/v1.17.1"
             },
-            "time": "2021-05-25T12:58:14+00:00"
+            "time": "2022-03-23T19:32:04+00:00"
         },
         {
             "name": "phplang/scope-exit",
@@ -6591,5 +6591,5 @@
     "platform-overrides": {
         "php": "7.3.0"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
