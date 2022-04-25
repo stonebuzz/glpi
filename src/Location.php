@@ -184,7 +184,7 @@ class Location extends CommonTreeDropdown
             'field'              => 'building',
             'name'               => __('Building number'),
             'massiveaction'      => false,
-            'datatype'           => 'string'
+            'datatype'           => 'text'
         ];
 
         $tab[] = [
@@ -193,7 +193,7 @@ class Location extends CommonTreeDropdown
             'field'              => 'room',
             'name'               => __('Room number'),
             'massiveaction'      => false,
-            'datatype'           => 'string'
+            'datatype'           => 'text'
         ];
 
         $tab[] = [
