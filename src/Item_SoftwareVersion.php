@@ -50,7 +50,7 @@ class Item_SoftwareVersion extends CommonDBRelation
 
     public function useDeletedToLockIfDynamic()
     {
-        return false;
+        return true;
     }
 
     public static function getTypeName($nb = 0)

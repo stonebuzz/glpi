@@ -45,6 +45,10 @@ class Item_SoftwareLicense extends CommonDBRelation
     public static $itemtype_2 = 'SoftwareLicense';
     public static $items_id_2 = 'softwarelicenses_id';
 
+    public function useDeletedToLockIfDynamic()
+    {
+        return true;
+    }
 
     public function post_addItem()
     {
