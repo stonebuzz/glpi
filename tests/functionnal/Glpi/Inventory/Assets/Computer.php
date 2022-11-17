@@ -774,7 +774,11 @@ class Computer extends AbstractInventoryAsset
         )->isTrue();
         $this->logout();
 
+<<<<<<< HEAD
         //second step : run same inventory and check that entities_id not change
+=======
+        //inventory again
+>>>>>>> 969832adcc (feat(inventory): add option to defined default entity)
         $inventory = $this->doInventory($xml_source, true);
 
         $computers_id = $inventory->getItem()->fields['id'];
@@ -784,7 +788,11 @@ class Computer extends AbstractInventoryAsset
         $computer->getFromDB($computers_id);
         $this->integer($computer->fields['entities_id'])->isEqualTo(0);
 
+<<<<<<< HEAD
         //third step : run new inventory and check that entities_id is 1
+=======
+        //inventory new computer
+>>>>>>> 969832adcc (feat(inventory): add option to defined default entity)
         $xml_source = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>
         <REQUEST>
         <CONTENT>
