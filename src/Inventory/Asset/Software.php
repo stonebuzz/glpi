@@ -147,20 +147,6 @@ class Software extends InventoryAsset
                 //If the software categorie has been modified or set by the rules engine
                 if (isset($res_rule["softwarecategories_id"])) {
                     $val->softwarecategories_id = $res_rule["softwarecategories_id"];
-                } else if (
-                    property_exists($val, '_system_category')
-                    && $val->_system_category != ''
-                    && $val->_system_category != '0'
-                ) {
-                    if (!isset($mids[$val->_system_category])) {
-                        $new_value = Dropdown::importExternal(
-                            'SoftwareCategory',
-                            addslashes($val->_system_category),
-                            $this->entities_id
-                        );
-                        $mids[$val->_system_category] = $new_value;
-                    }
-                    $val->softwarecategories_id = $mids[$val->_system_category];
                 } else {
                     $val->softwarecategories_id = 0;
                 }
