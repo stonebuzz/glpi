@@ -107,6 +107,9 @@ class RuleLocation extends Rule
             'serial' => [
                 'name'            => __("Serial number"),
             ],
+            'otherserial' => [
+                'name'            => __('Inventory number'),
+            ],
             'oscomment' => [
                 'name'            => sprintf('%s > %s', OperatingSystem::getTypeName(1), __('Comments')),
             ],

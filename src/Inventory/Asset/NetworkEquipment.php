@@ -80,6 +80,7 @@ class NetworkEquipment extends MainAsset
                 'model'        => $model_field,
                 'type'         => $types_field,
                 'manufacturer' => 'manufacturers_id',
+                'assettag'     => 'otherserial',
                 'credentials'  => 'snmpcredentials_id'
             ];
 

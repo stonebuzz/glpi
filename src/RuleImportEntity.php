@@ -123,6 +123,10 @@ class RuleImportEntity extends Rule
                 'field' => 'name',
                 'name' => __('Serial number')
             ],
+            'otherserial' => [
+                'field' => 'name',
+                'name' => __('Inventory number')
+            ],
             'itemtype' => [
                 'field' => 'itemtype',
                 'name' => __('Itemtype')
