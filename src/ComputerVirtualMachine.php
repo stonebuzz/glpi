@@ -387,8 +387,24 @@ class ComputerVirtualMachine extends CommonDBChild
        //On unix is flips first block of uuid and on windows flips 3 first blocks...
         $in      = [strtolower($uuid)];
         $regexes = [
-            "/([\w]{2})([\w]{2})([\w]{2})([\w]{2})(.*)/"                                        => "$4$3$2$1$5",
-            "/([\w]{2})([\w]{2})([\w]{2})([\w]{2})-([\w]{2})([\w]{2})-([\w]{2})([\w]{2})(.*)/"  => "$4$3$2$1-$6$5-$8$7$9"
+            //VMWare flips third first block see https://kb.vmware.com/s/article/53609
+            //FE040942-926A-E895-13F9-A37FC3607C14
+            //420904FE-6A92-95E8-13F9-A37FC3607C14
+
+            //RedHat flips third first block see https://access.redhat.com/solutions/4497111
+            //SMBIOS < 2.6
+            // 42    25    0e    e6    f5    eb    85    76    46    f1     f1     f5     c1     9c     bf     2a
+            //p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12], p[13], p[14], p[15]
+            //42250EE6-F5EB-8576-46F1-F1F5C19CBF2A
+            //SMBIOS >= 2.6
+            // e6    0e    25    42    eb    f5    76    85    46    f1     f1     f5     c1     9c     bf     2a
+            //p[3], p[2], p[1], p[0], p[5], p[4], p[7], p[6], p[8], p[9], p[10], p[11], p[12], p[13], p[14], p[15]
+             //E60E2542-EBF5-7685-46F1-F1F5C19CBF2A
+            "/([\w]{2})([\w]{2})([\w]{2})([\w]{2})-([\w]{2})([\w]{2})-([\w]{2})([\w]{2})-(.*)/"     => "$4$3$2$1-$6$5-$8$7-$9",
+            //Some dmidecode < 2.10 is buggy On unix is flips first block of uuid
+            "/([\w]{2})([\w]{2})([\w]{2})([\w]{2})(.*)/"                                            => "$4$3$2$1$5",
+            //Some dmidecode < 2.10 is buggy On windows flips 3 first blocks
+            "/([\w]{2})([\w]{2})([\w]{2})([\w]{2})-([\w]{2})([\w]{2})-([\w]{2})([\w]{2})(.*)/"      => "$4$3$2$1-$6$5-$8$7$9"
         ];
         foreach ($regexes as $pattern => $replace) {
             $reverse_uuid = preg_replace($pattern, $replace, $uuid);
