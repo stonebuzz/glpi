@@ -19,7 +19,7 @@
         "@fullcalendar/list": "^4.4.2",
         "@fullcalendar/resource-common": "^4.4.2",
         "@fullcalendar/resource-timeline": "^4.4.2",
-        "@fullcalendar/rrule": "^4.4.2",
+        "@fullcalendar/rrule": "^5.11.4",
         "@fullcalendar/timegrid": "^4.4.2",
         "@fullcalendar/timeline": "^4.4.3",
         "@tabler/core": "^1.0.0-beta13",
