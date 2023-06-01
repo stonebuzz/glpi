@@ -12,7 +12,7 @@
         "@codemirror/lang-css": "^6.0.2",
         "@fontsource/inter": "^4.5.15",
         "@fortawesome/fontawesome-free": "^6.3.0",
-        "@fullcalendar/bootstrap": "^4.4.2",
+        "@fullcalendar/bootstrap": "^5.11.5",
         "@fullcalendar/core": "^4.4.2",
         "@fullcalendar/daygrid": "^4.4.2",
         "@fullcalendar/interaction": "^4.4.2",
