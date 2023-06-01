@@ -28,7 +28,7 @@
         "egulias/email-validator": "^4.0",
         "elvanto/litemoji": "^4.1",
         "glpi-project/inventory_format": "^1.1",
-        "guzzlehttp/guzzle": "^7.5",
+        "guzzlehttp/guzzle": "^7.7",
         "guzzlehttp/psr7": "^2.4",
         "html2text/html2text": "^4.3",
         "htmlawed/htmlawed": "^1.2",
