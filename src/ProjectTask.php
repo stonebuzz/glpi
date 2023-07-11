@@ -727,7 +727,6 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
             'field'              => 'name',
             'name'               => __('Name'),
             'datatype'           => 'itemlink',
-            'massiveaction'      => false,
         ];
 
         $tab[] = [
@@ -735,7 +734,6 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
             'table'              => 'glpi_projects',
             'field'              => 'name',
             'name'               => Project::getTypeName(1),
-            'massiveaction'      => false,
             'datatype'           => 'dropdown'
         ];
 
@@ -745,7 +743,7 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
             'field'              => 'name',
             'name'               => __('Father'),
             'datatype'           => 'dropdown',
-            'massiveaction'      => false,
+            'massiveaction'      => true,
          // Add virtual condition to relink table
             'joinparams'         => [
                 'condition'          => 'AND 1=1'
@@ -757,7 +755,6 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
             'table'              => $this->getTable(),
             'field'              => 'content',
             'name'               => __('Description'),
-            'massiveaction'      => false,
             'datatype'           => 'text',
             'htmltext'           => true,
         ];
@@ -1033,11 +1030,11 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
             echo "</div>";
         }
 
+        $rand = mt_rand();
         if (
             ($item->getType() == 'ProjectTask')
             && $item->can($ID, UPDATE)
         ) {
-            $rand = mt_rand();
             echo "<div class='firstbloc'>";
             echo "<form name='projecttask_form$rand' id='projecttask_form$rand' method='post'
                 action='" . Toolbox::getItemTypeFormURL('ProjectTask') . "'>";
@@ -1094,9 +1091,29 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
 
         $iterator = $DB->request($criteria);
         if (count($criteria)) {
+            $massive_action_form_id = 'mass' . str_replace('\\', '', static::class) . $rand;
+            if ($canedit) {
+                Html::openMassiveActionsForm($massive_action_form_id);
+                $massiveactionparams
+                = ['num_displayed'
+                            => min($_SESSION['glpilist_limit'], count($criteria)),
+                    'specific_actions'
+                            => ['update' => _x('button', 'Update'),
+                                'clone' => _x('button', 'Clone'),
+                                'purge'  => _x('button', 'Delete permanently')
+                            ]
+                ];
+                Html::showMassiveActions($massiveactionparams);
+            }
+
             echo "<table class='tab_cadre_fixehov'>";
 
             $header = '<tr>';
+            if ($canedit) {
+                $header  .= "<th width='10'>";
+                $header    .= Html::getCheckAllAsCheckbox($massive_action_form_id);
+                $header    .= "</th>";
+            }
             foreach ($columns as $key => $val) {
                 // Non order column
                 if ($key[0] == '_') {
@@ -1114,6 +1131,17 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
                 Session::addToNavigateListItems('ProjectTask', $data['id']);
                 $rand = mt_rand();
                 echo "<tr class='tab_bg_2'>";
+
+                if ($canedit) {
+                    echo "<td width='10'>";
+                    Html::showMassiveActionCheckBox(__CLASS__, $data['id']);
+                    echo "</td>";
+                    echo "<td><a href='" . ProjectTask::getFormURLWithID($data['id'])
+                                    . "&amp;onglet=1'>" . $data["name"] . "</a></td>";
+                } else {
+                    echo "<td></td>";
+                }
+
                 echo "<td>";
                 $link = "<a id='ProjectTask" . $data["id"] . $rand . "' href='" .
                         ProjectTask::getFormURLWithID($data['id']) . "'>" . $data['name'] .
@@ -1156,6 +1184,13 @@ class ProjectTask extends CommonDBChild implements CalDAVCompatibleItemInterface
             }
             echo $header;
             echo "</table>\n";
+
+            if ($canedit) {
+                $massiveactionparams['ontop'] = false;
+                Html::showMassiveActions($massiveactionparams);
+                Html::closeForm();
+            }
+
         } else {
             echo "<table class='tab_cadre_fixe'>";
             echo "<tr><th>" . __('No item found') . "</th></tr>";
