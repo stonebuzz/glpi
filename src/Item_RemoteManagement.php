@@ -278,20 +278,21 @@ class Item_RemoteManagement extends CommonDBChild
         ];
 
         $tab[] = [
-            'id'                 => '180',
+            'id'                 => '280',
             'table'              => self::getTable(),
             'field'              => 'remoteid',
-            'name'               => __('ID'),
+            'name'               => __('Remote ID'),
             'forcegroupby'       => true,
             'massiveaction'      => false,
-            'datatype'           => 'dropdown',
+            'datatype'           => 'specific',
+            'additionalfields'   => ['id'],
             'joinparams'         => [
                 'jointype'           => 'itemtype_item'
             ]
         ];
 
         $tab[] = [
-            'id'                 => '181',
+            'id'                 => '281',
             'table'              => self::getTable(),
             'field'              => 'type',
             'name'               => _n('Type', 'Types', 1),
@@ -305,6 +306,24 @@ class Item_RemoteManagement extends CommonDBChild
         ];
 
         return $tab;
+    }
+
+
+    public static function getSpecificValueToDisplay($field, $values, array $options = [])
+    {
+
+        if (!is_array($values)) {
+            $values = [$field => $values];
+        }
+        switch ($field) {
+            case 'remoteid':
+                //getRemoteLink
+                $remote = new self();
+                $remote->getFromDB($values['id']);
+                return $remote->getRemoteLink();
+                break;
+        }
+        return parent::getSpecificValueToDisplay($field, $values, $options);
     }
 
 
