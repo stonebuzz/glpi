@@ -428,9 +428,9 @@ abstract class InventoryAsset
         $input = [];
         $locks = [];
 
-        if ($item !== null) {
+        if ($item !== null && $item->fields['id']) {
             $lockeds = new \Lockedfield();
-            $locks = $lockeds->getLockedNames($item->getType(), $item->fields['id'] ?? 0);
+            $locks = $lockeds->getLockedNames($item->getType(), $item->fields['id']);
         }
 
         foreach ($value as $key => $val) {
