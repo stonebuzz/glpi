@@ -702,6 +702,17 @@ abstract class MainAsset extends InventoryAsset
             $this->setNew();
         }
 
+        foreach ($this->item->fields as $onadd_key => $onadd_value) {
+            if (property_exists($val, $onadd_key)) {
+                //var_dump($onadd_key . " - " . $onadd_value);
+                $val->$onadd_key = $onadd_value;
+                //update known_list
+                $known_key = md5($onadd_key . $val->$onadd_key);
+                $this->known_links[$known_key] = $onadd_value;
+                $this->raw_links[$known_key] = $onadd_value;
+            }
+        }
+
         $val->id = $this->item->fields['id'];
 
         if ($entities_id == -1) {
