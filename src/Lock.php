@@ -845,6 +845,55 @@ class Lock extends CommonGLPI
             echo "</tr>\n";
         }
 
+
+        // Show deleted OperatingSystem
+        $data = $DB->request([
+            'SELECT' => 'id',
+            'FROM' => Item_OperatingSystem::getTable(),
+            'WHERE' => [
+                Item_OperatingSystem::getTableField('is_dynamic') => 1,
+                Item_OperatingSystem::getTableField('is_deleted') => 1,
+                Item_OperatingSystem::getTableField('items_id')   =>  $ID,
+                Item_OperatingSystem::getTableField('itemtype')   => $itemtype,
+            ]
+        ]);
+        if (count($data)) {
+            // Print header
+            echo "<tr>";
+            echo "<th width='10'></th>";
+            echo "<th>" . OperatingSystem::getTypeName(Session::getPluralNumber()) . "</th>";
+            echo "<th>" . _n('Version', 'Versions', 1) . "</th>";
+            echo "<th>" . __('Automatic inventory') . "</th>";
+            echo "</tr>";
+        }
+
+        foreach ($data as $row) {
+            $item_os = Item_OperatingSystem::getById($row['id']);
+            echo "<tr class='tab_bg_1'>";
+            echo "<td class='center' width='10'>";
+            if ($item_os->can($row['id'], UPDATE) || $item_os->can($row['id'], PURGE)) {
+                $header = true;
+                echo "<input type='checkbox' name='Item_OperatingSystem[" . $row['id'] . "]'>";
+            }
+            $os_version = new OperatingSystemVersion();
+            $os_version->getFromDB($item_os->fields['operatingsystemversions_id']);
+
+            $os = new OperatingSystem();
+            $os->getFromDB($item_os->fields['operatingsystems_id']);
+            $linkname = $os->fields['name'];
+            if ($_SESSION["glpiis_ids_visible"]) {
+                $linkname = sprintf(__('%1$s (%2$s)'), $linkname, $row["id"]);
+            }
+            $link = Toolbox::getItemTypeFormURL(Item_OperatingSystem::getType());
+            $name = "<a href=\"" . $link . "?id=" . $row['id'] . "\">" . $linkname . "</a>";
+
+            echo "</td>";
+            echo "<td class='left'>" . $name . "</td>";
+            echo "<td class='left'>" . $os_version->getName() . "</td>";
+            echo "<td class='left'>" . Dropdown::getYesNo($item_os->fields['is_dynamic']) . "</td>";
+            echo "</tr>\n";
+        }
+
         // Show deleted Domain_Item
         $data = $DB->request([
             'SELECT' => '*',

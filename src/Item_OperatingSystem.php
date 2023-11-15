@@ -93,6 +93,16 @@ class Item_OperatingSystem extends CommonDBRelation
             $order = 'ASC';
         }
 
+        $deleted_criteria = [
+            'OR'  => [
+                'AND' => [
+                    "is_deleted" => 0,
+                    "is_dynamic" => 1
+                ],
+                "is_dynamic" => 0
+            ]
+        ];
+
         $iterator = $DB->request([
             'SELECT'    => [
                 'glpi_items_operatingsystems.id AS assocID',
@@ -131,9 +141,10 @@ class Item_OperatingSystem extends CommonDBRelation
             'WHERE'     => [
                 'glpi_items_operatingsystems.itemtype' => $item->getType(),
                 'glpi_items_operatingsystems.items_id' => $item->getID()
-            ],
+            ] + $deleted_criteria,
             'ORDERBY'   => "$sort $order"
         ]);
+
         return $iterator;
     }
 
