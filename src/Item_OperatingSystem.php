@@ -51,6 +51,12 @@ class Item_OperatingSystem extends CommonDBRelation
         return _n('Item operating system', 'Item operating systems', $nb);
     }
 
+    public function useDeletedToLockIfDynamic()
+    {
+        return false;
+    }
+
+
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {

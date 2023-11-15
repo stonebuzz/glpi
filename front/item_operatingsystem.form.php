@@ -61,6 +61,13 @@ if (isset($_POST['update'])) {
     $item = getItemForItemtype($_POST['itemtype']);
     $url = $item->getFormURLWithID($_POST['items_id']);
     Html::redirect($url);
+} else if (isset($_POST["delete"])) {
+    $ios->check($_POST['id'], DELETE);
+    $ios->delete($_POST, 0);
+    if ($item = getItemForItemtype($ios->fields['itemtype'])) {
+        Html::redirect($item->getFormURLWithID($ios->fields['items_id']));
+    }
+    Html::redirect($url);
 }
 
 if (!isset($_GET['itemtype']) && !isset($_GET['items_id']) && !isset($_GET['id'])) {
