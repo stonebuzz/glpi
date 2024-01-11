@@ -263,6 +263,7 @@ class NotificationEventMailing extends NotificationEventAbstract
                     }
                 } else {
                     $inline_docs = [];
+                    $current->fields['body_html'] = html_entity_decode($current->fields['body_html']);
                     foreach ($documents_ids as $document_id) {
                         $doc = new Document();
                         if ($doc->getFromDB($document_id) === false) {
