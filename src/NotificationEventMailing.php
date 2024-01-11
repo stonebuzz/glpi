@@ -263,7 +263,6 @@ class NotificationEventMailing extends NotificationEventAbstract
                     }
                 } else {
                     $inline_docs = [];
-                    $current->fields['body_html'] = html_entity_decode($current->fields['body_html']);
                     foreach ($documents_ids as $document_id) {
                         $doc = new Document();
                         if ($doc->getFromDB($document_id) === false) {
@@ -299,7 +298,7 @@ class NotificationEventMailing extends NotificationEventAbstract
                     $matches = [];
                     if (
                         preg_match_all(
-                            "/<img[^>]*src=(\"|')[^\"']*document\.send\.php\?docid=([0-9]+)[^\"']*(\"|')[^<]*>/",
+                            "/<img[^>]*src=(\"|')[^\"']*document\.send\.php\?docid(?:=|&#61;)([0-9]+)[^\"']*(\"|')[^<]*>/",
                             $current->fields['body_html'],
                             $matches
                         )
@@ -326,11 +325,11 @@ class NotificationEventMailing extends NotificationEventAbstract
 
                                 //find width
                                 $custom_width = null;
-                                if (preg_match("/width=[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $wmatches)) {
+                                if (preg_match("/width(?:=|&#61;)[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $wmatches)) {
                                     $custom_width = intval($wmatches[1]);
                                 }
                                 $custom_height = null;
-                                if (preg_match("/height=[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $hmatches)) {
+                                if (preg_match("/height(?:=|&#61;)[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $hmatches)) {
                                     $custom_height = intval($hmatches[1]);
                                 }
 
@@ -376,8 +375,8 @@ class NotificationEventMailing extends NotificationEventAbstract
                     foreach ($inline_docs as $docID => $filename) {
                         $current->fields['body_html'] = preg_replace(
                             [
-                                '/src=["\'][^"\']*document\.send\.php\?docid=' . $docID . '(&[^"\']+)?["\']/',
-                                '/href=["\'][^"\']*document\.send\.php\?docid=' . $docID . '(&[^"\']+)?["\']/',
+                                '/src=["\'][^"\']*document\.send\.php\?docid(?:=|&#61;)' . $docID . '(&[^"\']+)?["\']/',
+                                '/href=["\'][^"\']*document\.send\.php\?docid(?:=|&#61;)' . $docID . '(&[^"\']+)?["\']/',
                             ],
                             [
                                 // 'cid' must be identical as second arg used in `embedFromPath` method
