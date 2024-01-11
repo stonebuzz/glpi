@@ -325,11 +325,11 @@ class NotificationEventMailing extends NotificationEventAbstract
 
                                 //find width
                                 $custom_width = null;
-                                if (preg_match("/width(?:=|&#61;)[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $wmatches)) {
+                                if (preg_match("/width=[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $wmatches)) {
                                     $custom_width = intval($wmatches[1]);
                                 }
                                 $custom_height = null;
-                                if (preg_match("/height(?:=|&#61;)[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $hmatches)) {
+                                if (preg_match("/height=[\"|'](\d+)(\.\d+)?[\"|']/", $matches[0][$pos], $hmatches)) {
                                     $custom_height = intval($hmatches[1]);
                                 }
 
