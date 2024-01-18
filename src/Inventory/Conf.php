@@ -917,8 +917,11 @@ class Conf extends CommonGLPI
                 ]
             );
             echo "</td><td>";
+            echo "</tr>";
+
+            echo "<tr class='tab_bg_1'><td>";
             echo \Agent::createTabEntry(_n('Action', 'Actions', 1), 0, \Agent::getType());
-            echo "</><td width='20%'>";
+            echo "</td><td width='20%'>";
             //action
             $action = self::getDefaults()['stale_agents_action'];
             if (isset($config['stale_agents_action'])) {
@@ -935,39 +938,61 @@ class Conf extends CommonGLPI
             );
             //if action == action_status => show blocation else hide blocaction
             echo Html::scriptBlock("
-            function changestatus() {
-                if ($('#dropdown_stale_agents_action$rand').val() != 0) {
-                $('#blocaction1').show();
-                $('#blocaction2').show();
-                } else {
-                $('#blocaction1').hide();
-                $('#blocaction2').hide();
+                function changestatus() {
+                    if ($('#dropdown_stale_agents_action$rand').val() == " . self::STALE_AGENT_ACTION_STATUS . ") {
+                        $('#bloc_action1').show();
+                    } else {
+                        $('#bloc_action1').hide();
+                    }
                 }
-            }
-            changestatus();
-
-        ");
-            echo "</td>";
+                changestatus();
+            ");
+            echo "</td><td>";
             echo "</tr>";
-            //blocaction with status
-            echo "<tr class='tab_bg_1'><td colspan=2></td>";
-            echo "<td>";
-            echo "<span id='blocaction1' style='display:none'>";
+
+
+
+
+            echo "<tr id='bloc_action1' style='display:none' class='tab_bg_1'><td>";
             echo \State::createTabEntry(__('Change the status'), 0, \State::getType());
-            echo "</span>";
-            echo "</td>";
-            echo "<td width='20%'>";
-            echo "<span id='blocaction2' style='display:none'>";
-            State::dropdown(
-                [
-                    'name'   => 'stale_agents_status',
-                    'value'  => $config['stale_agents_status'] ?? -1,
-                    'entity' => $_SESSION['glpiactive_entity'],
-                    'toadd'  => [-1 => __('No change')]
-                ]
-            );
-            echo "</span>";
-            echo "</td>";
+            echo "</td><td width='20%'>";
+            $state = new State();
+            $states = $state->find(['is_visible_computer' => 1]);
+
+            if (isset($config['stale_agents_status'])) {
+                $action = $config['stale_agents_status'];
+            }
+            $mapping_status = importArrayFromDB($action);
+
+            echo '<table class="table">';
+            echo '<tbody>';
+            foreach ($states as $state_id => $state_data) {
+                $state->getFromDB($state_id);
+                echo "<tr>";
+                echo '<td>';
+                echo $state->getLink();
+                echo '</td>';
+                echo '<td>';
+                echo "&nbsp;=>&nbsp;";
+                echo '</td>';
+                echo '<td>';
+                State::dropdown(
+                    [
+                        'name'                  => "stale_agents_status_$state_id",
+                        'value'                 => $mapping_status["stale_agents_status_$state_id"] ?? -1,
+                        'entity'                => $_SESSION['glpiactive_entity'],
+                        'toadd'                 => [-1 => __('No change')],
+                        'display_emptychoice'   => false,
+                        'condition'             => ['is_visible_computer' => 1],
+                    ]
+                );
+                echo '</td>';
+                echo "</tr>";
+            }
+            echo "</tbody>";
+            echo "</table>";
+
+            echo "</td><td>";
             echo "</tr>";
 
             $plugin_actions = $PLUGIN_HOOKS[Hooks::STALE_AGENT_CONFIG] ?? [];
@@ -1039,6 +1064,15 @@ class Conf extends CommonGLPI
             return false;
         }
 
+        $stale_agents_status = [];
+        foreach ($values as $key => $value) {
+            if (str_starts_with($key, 'stale_agents_status_')) {
+                $stale_agents_status[$key] = $value;
+                unset($values[$key]);
+            }
+        }
+        $values['stale_agents_status'] = $stale_agents_status;
+
         $defaults = self::getDefaults();
         unset($values['_glpi_csrf_token']);
 
@@ -1062,7 +1096,7 @@ class Conf extends CommonGLPI
         $to_process = [];
         foreach ($defaults as $prop => $default_value) {
             $to_process[$prop] = $values[$prop] ?? $default_value;
-            if ($prop == 'stale_agents_action') {
+            if ($prop == 'stale_agents_action' || 'stale_agents_status') {
                 $to_process[$prop] = exportArrayToDB($to_process[$prop]);
             }
         }
@@ -1178,7 +1212,7 @@ class Conf extends CommonGLPI
             'import_peripheral'              => 1,
             'stale_agents_delay'             => 0,
             'stale_agents_action'            => exportArrayToDB([0]),
-            'stale_agents_status'            => 0,
+            'stale_agents_status'            => exportArrayToDB([0]),
             'import_env'                     => 0,
         ];
     }
