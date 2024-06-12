@@ -42,6 +42,7 @@ use Glpi\Console\Application;
 use Glpi\Dashboard\Grid;
 use Glpi\Debug\Profile as DebugProfile;
 use Glpi\Debug\Profiler;
+use Glpi\Discover\Discover;
 use Glpi\Error\ErrorHandler;
 use Glpi\Exception\RedirectException;
 use Glpi\Form\Form;
@@ -1327,6 +1328,8 @@ TWIG,
         }
 
         $tpl_vars['js_files'][] = ['path' => 'js/misc.js'];
+
+        Discover::loadDiscover();
 
         $tpl_vars['debug_info'] = null;
 

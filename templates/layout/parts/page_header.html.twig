@@ -32,6 +32,7 @@
 
 {% set anonymous = session('glpiactiveprofile') is null %}
 
+{% set is_super_admin = has_profile_right('config', constant('UPDATE')) %}
 {% set is_vertical = not anonymous and get_page_layout() == 'vertical' %}
 {% set is_horizontal = not is_vertical %}
 {% set is_helpdesk = anonymous or get_current_interface() == 'helpdesk' %}
