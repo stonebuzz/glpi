@@ -7778,6 +7778,24 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/src/Glpi/Form/Clone/FormCloneHelper.php',
 ];
 $ignoreErrors[] = [
+	// identifier: booleanAnd.alwaysFalse
+	'message' => '#^Result of && is always false\\.$#',
+	'count' => 2,
+	'path' => __DIR__ . '/src/Glpi/Discover/Discover.php',
+];
+$ignoreErrors[] = [
+	// identifier: identical.alwaysFalse
+	'message' => '#^Strict comparison using \\=\\=\\= between null and \'testing\' will always evaluate to false\\.$#',
+	'count' => 1,
+	'path' => __DIR__ . '/src/Glpi/Discover/Discover.php',
+];
+$ignoreErrors[] = [
+	// identifier: method.nonObject
+	'message' => '#^Cannot call method getItem\\(\\) on CommonDBTM\\|false\\.$#',
+	'count' => 1,
+	'path' => __DIR__ . '/src/Glpi/Form/Comment.php',
+];
+$ignoreErrors[] = [
 	'message' => '#^Cannot access property \\$fields on Glpi\\\\Form\\\\Section\\|false\\.$#',
 	'identifier' => 'property.nonObject',
 	'count' => 1,
