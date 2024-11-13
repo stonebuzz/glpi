@@ -3289,7 +3289,7 @@ HTML;
            __("Plugins") . "</td><td>";
         self::showLogsInterval('purge_plugins', $CFG_GLPI["purge_plugins"]);
         echo "</td>";
-        echo "<td class='center'>" . RefusedEquipment::getTypeName(Session::getPluralNumber()) . "</td><td>";
+        echo "<td class='tab_bg_1'>" . RefusedEquipment::getTypeName(Session::getPluralNumber()) . "</td><td>";
         self::showLogsInterval('purge_refusedequipment', $CFG_GLPI["purge_refusedequipment"]);
         echo "</td></tr>";
 

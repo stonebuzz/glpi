@@ -280,4 +280,10 @@ class RefusedEquipment extends CommonDBTM
             return $redirect_url;
         }
     }
+
+    public function post_deleteFromDB()
+    {
+        //remove related inventory file
+        //$this->fields
+    }
 }
