@@ -4799,7 +4799,9 @@ JAVASCRIPT;
                     $SEARCH = self::makeTextSearch($val, $nott);
                 }
                 break;
-
+            case "notequals":
+                $nott = !$nott;
+                //negated, use equals case
             case "equals":
                 if ($should_use_subquery) {
                     // Subquery will be needed to get accurate results
@@ -4817,24 +4819,9 @@ JAVASCRIPT;
                 }
                 break;
 
-            case "notequals":
-                if ($should_use_subquery) {
-                    // Subquery will be needed to get accurate results
-                    $use_subquery_on_id_search = true;
-
-                    // Potential negation will be handled by the subquery operator
-                    $SEARCH = " = " . DBmysql::quoteValue($val);
-                    $subquery_operator = $nott ? "IN" : "NOT IN";
-                } else {
-                    if ($nott) {
-                        $SEARCH = " = " . DBmysql::quoteValue($val);
-                    } else {
-                        $SEARCH = " <> " . DBmysql::quoteValue($val);
-                    }
-                }
-
-                break;
-
+            case "notunder":
+                $nott = !$nott;
+                //negated, use under case
             case "under":
                 // Sometimes $val is not numeric (mygroups)
                 // In this case we must set an invalid value and let the related
@@ -4852,27 +4839,6 @@ JAVASCRIPT;
                         $SEARCH = " NOT IN ('$sons')";
                     } else {
                         $SEARCH = " IN ('$sons')";
-                    }
-                }
-                break;
-
-            case "notunder":
-                // Sometimes $val is not numeric (mygroups)
-                // In this case we must set an invalid value and let the related
-                // specific code handle in later on
-                $sons = is_numeric($val) ? implode("','", getSonsOf($inittable, $val)) : 'not yet set';
-                if ($should_use_subquery) {
-                    // Subquery will be needed to get accurate results
-                    $use_subquery_on_id_search = true;
-
-                    // Potential negation will be handled by the subquery operator
-                    $SEARCH = " IN ('$sons')";
-                    $subquery_operator = $nott ? "IN" : "NOT IN";
-                } else {
-                    if ($nott) {
-                        $SEARCH = " IN ('$sons')";
-                    } else {
-                        $SEARCH = " NOT IN ('$sons')";
                     }
                 }
                 break;
@@ -4927,10 +4893,6 @@ JAVASCRIPT;
                 if ($itemtype == 'User') { // glpi_users case / not link table
                     if (in_array($searchtype, ['equals', 'notequals'])) {
                         $search_str = "`$table`.`id`" . $SEARCH;
-
-                        if ($searchtype == 'notequals') {
-                            $nott = !$nott;
-                        }
 
                         // Add NULL if $val = 0 and not negative search
                         // Or negative search on real value
@@ -5276,11 +5238,8 @@ JAVASCRIPT;
                     if ($searchopt[$ID]["datatype"] == 'datetime') {
                        // Specific search for datetime
                         if (in_array($searchtype, ['equals', 'notequals'])) {
-                             $val = preg_replace("/:00$/", '', $val);
-                             $val = '^' . $val;
-                            if ($searchtype == 'notequals') {
-                                $nott = !$nott;
-                            }
+                            $val = preg_replace("/:00$/", '', $val);
+                            $val = '^' . $val;
                             return self::makeTextCriteria("`$table`.`$field`", $val, $nott, $link);
                         }
                     }
@@ -5324,9 +5283,6 @@ JAVASCRIPT;
                     if (preg_match("/^\s*([<>])(=?)(.+)$/", $val, $regs)) {
                         $numeric_matches = [];
                         if (preg_match('/^\s*(-?)\s*([0-9]+(.[0-9]+)?)\s*$/', $regs[3], $numeric_matches)) {
-                            if ($searchtype === "notcontains") {
-                                $nott = !$nott;
-                            }
                             if ($nott) {
                                 if ($regs[1] == '<') {
                                     $regs[1] = '>';
@@ -5365,9 +5321,6 @@ JAVASCRIPT;
                     return '';
 
                 case "right":
-                    if ($searchtype == 'notequals') {
-                        $nott = !$nott;
-                    }
                     return $link . ($nott ? ' NOT' : '') . " ($tocompute & '$val') ";
 
                 case "bool":
@@ -5391,9 +5344,6 @@ JAVASCRIPT;
                     $val = Sanitizer::decodeHtmlSpecialChars($val); // Decode "<" and ">" operators
 
                     if (preg_match("/([<>])(=?)[[:space:]]*(-?)[[:space:]]*([0-9]+(.[0-9]+)?)/", $val, $regs)) {
-                        if (in_array($searchtype, ["notequals", "notcontains"])) {
-                            $nott = !$nott;
-                        }
                         if ($nott) {
                             if ($regs[1] == '<') {
                                 $regs[1] = '>';
@@ -5407,10 +5357,6 @@ JAVASCRIPT;
 
                     if (is_numeric($val) && !$decimal_contains) {
                         $numeric_val = floatval($val);
-
-                        if (in_array($searchtype, ["notequals", "notcontains"])) {
-                            $nott = !$nott;
-                        }
 
                         if (isset($searchopt[$ID]["width"])) {
                             $ADD = "";
@@ -5538,9 +5484,6 @@ JAVASCRIPT;
                 $out = " $link (`$table`.`id`" . $SEARCH;
             } else {
                 $out = " $link (`$table`.`$field`" . $SEARCH;
-            }
-            if ($searchtype == 'notequals') {
-                $nott = !$nott;
             }
            // Add NULL if $val = 0 and not negative search
            // Or negative search on real value
