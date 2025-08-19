@@ -2831,7 +2831,7 @@ final class SQLProvider implements SearchProviderInterface
                     if (is_callable($hook_function)) {
                         return $hook_function($itemtype, $ref_table, $new_table, $linkfield, $already_link_tables);
                     }
-                    return [];
+                    return '';
                 };
                 $specific_leftjoin_criteria = self::parseJoinString(Plugin::doOneHook($plugin_name, $hook_closure));
             }
