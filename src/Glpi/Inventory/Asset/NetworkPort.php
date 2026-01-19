@@ -286,69 +286,111 @@ class NetworkPort extends InventoryAsset
 
     private function handleLLDPConnection(stdClass $port, int $netports_id): void
     {
+        global $DB;
+
         if (!property_exists($port, 'logical_number') || !isset($this->connections[$port->logical_number])) {
             return;
         }
 
-        //reset, will be populated from rulepassed
-        $this->connection_ports = [];
         $this->current_port = $port;
-
         $connections = $this->connections[$port->logical_number];
-        foreach ($connections as $connections_id => $connection) {
+        foreach ($connections as $connection) {
             $this->current_connection = $connection;
-            $input = ['entities_id' => $this->entities_id];
-            $props = [
-                'ifdescr',
-                /*'sysdescr',*/
-                'ifnumber',
-                'mac',
-                'model',
-                'ip',
-            ];
+            $connection_id = null;
 
-            foreach ($props as $prop) {
-                if (property_exists($connection, $prop)) {
-                    $input[$prop] = $connection->$prop;
-                }
-            }
+            // Try direct method: find the remote equipment using sysname (device name)
+            if (property_exists($connection, 'name') && !empty($connection->name)) {
+                $criteria = [
+                    'FROM'   => 'glpi_networkequipments',
+                    'WHERE'  => [
+                        'name' => $connection->name,
+                    ],
+                ];
+                $iterator = $DB->request($criteria);
+                if (count($iterator) > 0) {
+                    $equipment = $iterator->current();
+                    $equipment_id = $equipment['id'];
 
-            $rule = new RuleImportAssetCollection();
-            $rule->getCollectionPart();
-            $rule->processAllRules($input, [], ['class' => $this]);
+                    // Try to find the port on the remote equipment using port description or number
+                    $port_criteria = [
+                        'FROM'   => GlobalNetworkPort::getTable(),
+                        'WHERE'  => [
+                            'itemtype' => 'NetworkEquipment',
+                            'items_id' => $equipment_id,
+                        ],
+                    ];
 
-            // Info: phpstan report dead code here (see baseline).
-            // Indeed, $this->connection_ports is initialized as an empty array above,
-            // and we never add anything into it.
-            // Thus, this condition is always true and the code after is never executed.
-            // TODO: Investigate to see if the dead code should be removed or
-            // if this is a real bug and this condition should not always be true (most likely the case).
-            if (count($this->connection_ports) != 1) {
-                continue;
-            }
+                    // Add port matching criteria if available
+                    if (property_exists($connection, 'logical_number') && !empty($connection->logical_number)) {
+                        $port_criteria['WHERE']['logical_number'] = $connection->logical_number;
+                    } elseif (property_exists($connection, 'ifdescr') && !empty($connection->ifdescr)) {
+                        $port_criteria['WHERE']['name'] = $connection->ifdescr;
+                    }
 
-            // Note: phpstan doens't understand that $this->connection_ports is not empty here.
-            // To be fair, the code is very messy with $this being passed inside an array
-            // when calling `$rule->processAllRules`, which then end up modifying `connection_ports`.
-            // This forces us to ignore 3 "argument.type" errors below.
-            // TODO: rewrite this in a better way
-
-            $connection_ports = current($this->connection_ports);
-            if (count($connection_ports) == 1) { // single NetworkPort @phpstan-ignore argument.type
-                $connections_id = current($connection_ports); // @phpstan-ignore argument.type
-            } else { // multiple NetworkPorts
-                $networkPort = new GlobalNetworkPort();
-                foreach (array_keys($connection_ports) as $k) { // @phpstan-ignore argument.type
-                    $networkPort->getFromDB($k);
-                    if ($networkPort->fields['logical_number'] > 0) {
-                        $connections_id = $k;
-                        break;
+                    $port_iterator = $DB->request($port_criteria);
+                    if (count($port_iterator) > 0) {
+                        $port_row = $port_iterator->current();
+                        $connection_id = $port_row['id'];
                     }
                 }
             }
 
-            if ($connections_id) {
-                $this->addPortsWiring($netports_id, $connections_id);
+            // Fallback: Try to find using MAC address if name didn't work
+            if (!$connection_id && property_exists($connection, 'mac') && !empty($connection->mac)) {
+                $criteria = [
+                    'FROM'   => GlobalNetworkPort::getTable(),
+                    'WHERE'  => [
+                        'mac' => $connection->mac,
+                    ],
+                ];
+                $iterator = $DB->request($criteria);
+                if (count($iterator) > 0) {
+                    $port_row = $iterator->current();
+                    $connection_id = $port_row['id'];
+                }
+            }
+
+            // Final fallback: Use rule engine if direct methods didn't work
+            if (!$connection_id) {
+                $this->connection_ports = [];
+                $input = ['entities_id' => $this->entities_id];
+                $props = [
+                    'ifdescr',
+                    'ifnumber',
+                    'mac',
+                    'model',
+                    'ip',
+                ];
+
+                foreach ($props as $prop) {
+                    if (property_exists($connection, $prop)) {
+                        $input[$prop] = $connection->$prop;
+                    }
+                }
+
+                $rule = new RuleImportAssetCollection();
+                $rule->getCollectionPart();
+                $rule->processAllRules($input, [], ['class' => $this]);
+
+                if (count($this->connection_ports) > 0) {
+                    $connection_ports = current($this->connection_ports);
+                    if (count($connection_ports) == 1) {
+                        $connection_id = current($connection_ports);
+                    } else {
+                        $networkPort = new GlobalNetworkPort();
+                        foreach (array_keys($connection_ports) as $k) {
+                            $networkPort->getFromDB($k);
+                            if ($networkPort->fields['logical_number'] > 0) {
+                                $connection_id = $k;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($connection_id) {
+                $this->addPortsWiring($netports_id, $connection_id);
             }
         }
         unset($this->current_connection);
