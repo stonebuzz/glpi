@@ -113,4 +113,34 @@ class DeviceSimcard extends CommonDevice
     {
         return "ti ti-device-sim";
     }
+
+        /**
+     * @param class-string<CommonDBTM> $itemtype
+     * @param array $main_joinparams
+     * @return array
+     */
+    public static function rawSearchOptionsToAdd($itemtype, $main_joinparams)
+    {
+        $tab = [];
+
+        $tab[] = [
+            'id'                 => '17',
+            'table'              => 'glpi_devicesimcards',
+            'field'              => 'designation',
+            'name'               => self::getTypeName(1),
+            'forcegroupby'       => true,
+            'usehaving'          => true,
+            'massiveaction'      => false,
+            'datatype'           => 'string',
+            'joinparams'         => [
+                'beforejoin'         => [
+                    'table'              => 'glpi_items_devicesimcards',
+                    'joinparams'         => $main_joinparams,
+                ],
+            ],
+        ];
+
+
+        return $tab;
+    }
 }

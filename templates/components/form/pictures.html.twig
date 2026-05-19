@@ -74,17 +74,7 @@
                         {{ include('components/photoswipe.html.twig', {'imgs': imgs, 'gallery_type': gallery_type}) }}
                     </div>
                 {% endif %}
-                {% if has_qr %}
-                    {{ fields.htmlField(
-                        'qrcode',
-                        call('BarcodeManager::renderQRCode', [item]),
-                        __('Asset URL'),
-                        {
-                            'is_horizontal': false,
-                            'helper': __('Scan this QRCode to be redirected to the asset page from your mobile device'),
-                        }
-                    ) }}
-                {% endif %}
+
             </div>
         </div>
     {% endif %}
