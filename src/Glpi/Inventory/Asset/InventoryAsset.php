@@ -45,11 +45,13 @@ use Dropdown;
 use Glpi\Asset\Asset_PeripheralAsset;
 use Glpi\Inventory\Conf;
 use Glpi\Inventory\MainAsset\MainAsset;
+use Glpi\Inventory\MainAsset\NetworkEquipment;
 use Glpi\Inventory\Request;
 use Lockedfield;
 use Manufacturer;
 use OperatingSystemKernelVersion;
 use stdClass;
+use Toolbox;
 
 use function Safe\preg_match;
 use function Safe\preg_replace;
@@ -219,10 +221,18 @@ abstract class InventoryAsset
         if (get_class($this->item) == $itemtype) {
             $items_id = $this->item->fields['id'] ?? 0;
         }
+
+        if(get_class($this) == NetworkEquipment::class) {
+            Toolbox::logDebug($items_id);
+        }
+
         $locks = $lockedfield->getLockedNames($itemtype, $items_id);
 
         $data = $this->data;
         foreach ($data as $key => &$value) {
+            if(get_class($this) == NetworkEquipment::class) {
+                Toolbox::logDebug("handling links for $key (" . get_class($this) . ")");
+            }
             if (property_exists($this, 'current_key') && $this->current_key !== null && $key !== $this->current_key) {
                 continue;
             }
@@ -261,7 +271,7 @@ abstract class InventoryAsset
                 //do not process field if it's locked and from update process
                 foreach ($locks as $lock) {
                     if ($key == $lock && !$this->item->isNewItem()) {
-                        continue 2;
+                        continue;
                     }
                 }
 
